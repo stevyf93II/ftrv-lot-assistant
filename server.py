@@ -1,15 +1,54 @@
 #!/usr/bin/env python3
 """FTRV Lot Assistant – local proxy server.
-Serves the HTML app AND forwards /api/chat requests to Anthropic,
-keeping the API key off the browser entirely.
+Serves the HTML app AND forwards:
+  /api/chat     → Anthropic API
+  /api/floorplan?url=... → fetches funtownrv.com product page, extracts floor plan image
 """
-import json, os, ssl, urllib.request, socket
+import json, os, re, ssl, urllib.request, urllib.parse, socket
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 PORT = int(os.environ.get('PORT', 8765))
 
 class Handler(SimpleHTTPRequestHandler):
+
+    def do_GET(self):
+        if self.path.startswith('/api/floorplan'):
+            self._handle_floorplan()
+        else:
+            super().do_GET()
+
+    def _handle_floorplan(self):
+        try:
+            qs = urllib.parse.urlparse(self.path).query
+            params = urllib.parse.parse_qq(qs)
+            product_url = params.get('url', [None])[0]
+            if not product_url:
+                self._json(400, {'error': 'missing url param'})
+                return
+
+            ctx = ssl.create_default_context()
+            req = urllib.request.Request(product_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
+                html = resp.read().decode('utf-8', errors='ignore')
+
+            # Extract floor plan image URL (unit_tech_drawing, not /small/ variant)
+            m = re.search(r'unit_tech_drawing/(?!small/)unit_tech_drawing_[^"\'?\s]+', html)
+            if m:
+                fp_url = 'https://assets-cdn.interactcp.com/interactrv/' + m.group(0)
+                self._json(200, {'floorplanUrl': fp_url})
+            else:
+                self._json(200, {'floorplanUrl': None})
+        except Exception as e:
+            self._json(500, {'error': str(e)})
+
+    def _json(self, code, data):
+        body = json.dumps(data).encode()
+        self.send_response(code)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(body)
 
     def do_POST(self):
         if self.path == '/api/chat':
