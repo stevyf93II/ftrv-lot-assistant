@@ -21,7 +21,7 @@ class Handler(SimpleHTTPRequestHandler):
     def _handle_floorplan(self):
         try:
             qs = urllib.parse.urlparse(self.path).query
-            params = urllib.parse.parse_qq(qs)
+            params = urllib.parse.parse_qs(qs)
             product_url = params.get('url', [None])[0]
             if not product_url:
                 self._json(400, {'error': 'missing url param'})
