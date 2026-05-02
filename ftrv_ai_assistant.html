@@ -593,11 +593,16 @@ RESPONSE FORMAT:
 1. Write a helpful, conversational response (2-4 sentences max). Be specific — mention unit names, stock numbers, and prices from the inventory.
 2. End with this exact JSON on its own line: {"matches":["STOCK1","STOCK2","STOCK3"]} — up to 6 best matches, or {"matches":[]} if none.
 
+LAYOUT DATA: Every unit has a layout field (Front Living, Rear Living, Rear Kitchen, Front Kitchen, Bunkhouse, Double Bunk, Triple Bunk, Corner Kitchen, Open Concept, Master Suite, etc.). Use this to answer ANY question about floor plans, room layouts, or living area position. NEVER say you don't have floor plan information — the layout field IS your floor plan data.
+
 MATCHING RULES:
 - For budget requests: include units within 10-15% above the stated budget since customers often flex
 - For family/bunkhouse requests: prioritize Bunkhouse layout units (BH, DBH, Triple Bunk, etc.)
-- For "front living" / "living room in front" requests: match units with layout:Front Living
-- For "rear living" requests: match units with layout:Rear Living
+- For "front living" / "living room in front" / "front living room" requests: match layout:Front Living
+- For "rear living" requests: match layout:Rear Living
+- For "rear kitchen" requests: match layout:Rear Kitchen
+- For "front kitchen" requests: match layout:Front Kitchen
+- For "open concept" / "ZEN" / "ICE" models: match layout:Open Concept
 - For couples: prioritize Rear Kitchen or Front Kitchen layout, smaller footprint
 - For toy haulers: only match Toy Hauler type units
 - For specific stock lookups: match that exact stock number
@@ -658,7 +663,7 @@ function renderCards(stocks) {
         </div>
         ${priceHTML}
         <div class="card-actions">
-          <a class="btn-action btn-view" href="${searchUrl}" target="_blank">📷 Photos &amp; Floor Plan</a>
+          ${u.detailUrl ? `<button class="btn-action btn-view" onclick="showFloorplan('${u.stock}','${u.detailUrl}')">🗺️ Floor Plan</button>` : `<a class="btn-action btn-view" href="https://www.funtownrv.com/rv-search?s=true&lots=1695&q=${encodeURIComponent(u.stock)}" target="_blank">🔍 Search Unit</a>`}
           <button class="btn-action btn-copy" onclick="copyStock(this, '${u.stock}')">📋 Copy #${u.stock}</button>
         </div>
       </div>
@@ -676,6 +681,83 @@ function copyStock(btn, stock) {
     btn.textContent = '📋 Copy #' + stock;
     btn.classList.remove('copied');
   }, 1800);
+}
+
+// ─── FLOOR PLAN MODAL ─────────────────────────────────────────────────────────
+function showFloorplan(stock, productUrl) {
+  const unit = INVENTORY.find(u => u.stock === stock);
+  const name = unit ? unit.brandModel : stock;
+
+  // Create or reuse modal
+  let modal = document.getElementById('fp-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'fp-modal';
+    modal.innerHTML = `
+      <div id="fp-backdrop" onclick="closeFpModal()"></div>
+      <div id="fp-box">
+        <div id="fp-header">
+          <span id="fp-title"></span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <a id="fp-link" href="#" target="_blank" style="font-size:.75rem;color:#58a6ff;text-decoration:none">Open on funtownrv.com ↗</a>
+            <button onclick="closeFpModal()" style="background:none;border:none;color:#8b949e;font-size:1.4rem;cursor:pointer;line-height:1">×</button>
+          </div>
+        </div>
+        <div id="fp-body">
+          <div id="fp-spinner">Loading floor plan…</div>
+          <img id="fp-img" style="display:none;max-width:100%;max-height:70vh;border-radius:6px" />
+          <div id="fp-err" style="display:none;color:#8b949e;text-align:center;padding:24px">Floor plan image not available for this unit.<br><br><a href="#" id="fp-fallback" target="_blank" style="color:#58a6ff">View full listing ↗</a></div>
+        </div>
+      </div>`;
+    modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center';
+    document.body.appendChild(modal);
+    document.getElementById('fp-backdrop').style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.75)';
+    document.getElementById('fp-box').style.cssText = 'position:relative;background:#1c2333;border:1px solid #30363d;border-radius:12px;width:min(600px,95vw);max-height:90vh;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px';
+    document.getElementById('fp-header').style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px';
+    document.getElementById('fp-title').style.cssText = 'font-weight:700;font-size:.95rem;color:#e6edf3';
+    document.getElementById('fp-spinner').style.cssText = 'text-align:center;padding:32px;color:#8b949e';
+  }
+
+  // Set title/link
+  document.getElementById('fp-title').textContent = `#${stock} – ${name}`;
+  document.getElementById('fp-link').href = productUrl;
+  document.getElementById('fp-fallback').href = productUrl;
+
+  // Show modal with spinner
+  modal.style.display = 'flex';
+  document.getElementById('fp-spinner').style.display = 'block';
+  document.getElementById('fp-img').style.display = 'none';
+  document.getElementById('fp-err').style.display = 'none';
+
+  // Fetch floor plan via proxy
+  fetch(`/api/floorplan?url=${encodeURIComponent(productUrl)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.floorplanUrl) {
+        const img = document.getElementById('fp-img');
+        img.onload = () => {
+          document.getElementById('fp-spinner').style.display = 'none';
+          img.style.display = 'block';
+        };
+        img.onerror = () => {
+          document.getElementById('fp-spinner').style.display = 'none';
+          document.getElementById('fp-err').style.display = 'block';
+        };
+        img.src = data.floorplanUrl;
+      } else {
+        document.getElementById('fp-spinner').style.display = 'none';
+        document.getElementById('fp-err').style.display = 'block';
+      }
+    })
+    .catch(() => {
+      document.getElementById('fp-spinner').style.display = 'none';
+      document.getElementById('fp-err').style.display = 'block';
+    });
+}
+
+function closeFpModal() {
+  const m = document.getElementById('fp-modal');
+  if (m) m.style.display = 'none';
 }
 
 function addMessage(role, text, stocks = []) {
