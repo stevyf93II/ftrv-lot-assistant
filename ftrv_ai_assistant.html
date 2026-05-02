@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FTRV Lot Assistant — Texarkana</title>
+<style>
+:root {
+  --red: #c0392b;
+  --red2: #8b0000;
+  --dark: #0d1117;
+  --mid: #161b22;
+  --card: #1c2333;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --green: #3fb950;
+  --gold: #f0b429;
+  --blue: #58a6ff;
+  --purple: #bc8cff;
+  --orange: #ffa657;
+  --teal: #39d3c3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--red), var(--red2));
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,.5);
+}
+.hicon { font-size: 1.5rem; }
+.htitle { flex: 1; }
+.htitle h1 { font-size: 1rem; font-weight: 700; letter-spacing: .3px; }
+.htitle .sub { font-size: .7rem; opacity: .75; letter-spacing: .5px; }
+.hbadge {
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: .72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* QUICK CHIPS */
+.chips {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  overflow-x: auto;
+  background: var(--mid);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--dark);
+  color: var(--muted);
+  font-size: .75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.chip:hover, .chip:active { border-color: var(--red); color: var(--text); background: rgba(192,57,43,.15); }
+
+/* CHAT */
+#chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+
+.msg { max-width: 88%; }
+.msg.ai { align-self: flex-start; }
+.msg.user { align-self: flex-end; }
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 4px 14px 14px 14px;
+  font-size: .875rem;
+  line-height: 1.55;
+}
+.msg.ai .bubble {
+  background: var(--mid);
+  border: 1px solid var(--border);
+  border-radius: 4px 14px 14px 14px;
+}
+.msg.user .bubble {
+  background: var(--red);
+  border-radius: 14px 4px 14px 14px;
+  font-weight: 500;
+}
+.bubble strong { font-weight: 700; }
+
+/* TYPING */
+.typing { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
+.dot { width: 7px; height: 7px; background: var(--muted); border-radius: 50%; animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: .2s; }
+.dot:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+/* UNIT CARDS */
+.cards-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.unit-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.unit-card:hover { border-color: var(--red); }
+
+/* PHOTO AREA */
+.card-photo {
+  height: 160px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1c2333, #0d1117);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.card-photo img.loading { display: none; }
+.card-photo img.error { display: none; }
+.photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: .4;
+}
+.photo-placeholder .icon { font-size: 2.5rem; }
+.photo-placeholder .lbl { font-size: .7rem; color: var(--muted); }
+.photo-overlay {
+  position: absolute;
+  top: 8px; left: 8px;
+  display: flex; gap: 6px;
+}
+
+/* CARD BODY */
+.card-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.card-stock { font-size: 1.05rem; font-weight: 800; color: #fff; }
+.card-year { font-size: .8rem; color: var(--gold); font-weight: 600; }
+
+.card-model { font-size: .88rem; color: var(--text); line-height: 1.35; font-weight: 500; }
+
+.card-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.badge {
+  padding: 2px 9px;
+  border-radius: 10px;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.b-new   { background: rgba(63,185,80,.15); color: #3fb950; border: 1px solid rgba(63,185,80,.4); }
+.b-used  { background: rgba(240,180,41,.15); color: #f0b429; border: 1px solid rgba(240,180,41,.4); }
+.b-tt    { background: rgba(88,166,255,.12); color: #58a6ff; border: 1px solid rgba(88,166,255,.3); }
+.b-fw    { background: rgba(188,140,255,.12); color: #bc8cff; border: 1px solid rgba(188,140,255,.3); }
+.b-th    { background: rgba(255,166,87,.12);  color: #ffa657; border: 1px solid rgba(255,166,87,.3); }
+.b-dt    { background: rgba(57,211,195,.12);  color: #39d3c3; border: 1px solid rgba(57,211,195,.3); }
+
+.card-price { font-size: 1.15rem; font-weight: 800; color: var(--green); }
+.card-price.call { color: var(--muted); font-size: .9rem; font-weight: 500; font-style: italic; }
+
+.card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-action {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all .15s;
+  min-width: 100px;
+}
+.btn-view {
+  background: var(--red);
+  color: #fff;
+}
+.btn-view:hover { background: #a93226; }
+.btn-copy {
+  background: var(--mid);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-copy:hover { border-color: var(--red); }
+.btn-copy.copied { background: rgba(63,185,80,.2); border-color: var(--green); color: var(--green); }
+
+/* INPUT */
+.input-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--mid);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#userInput {
+  flex: 1;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: .9rem;
+  outline: none;
+  resize: none;
+  max-height: 100px;
+  font-family: inherit;
+}
+#userInput:focus { border-color: var(--red); }
+#userInput::placeholder { color: var(--muted); }
+#sendBtn {
+  background: var(--red);
+  border: none;
+  color: #fff;
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+#sendBtn:hover { background: #a93226; }
+#sendBtn:disabled { opacity: .4; cursor: default; }
+
+@media (max-width: 480px) {
+  .msg { max-width: 95%; }
+  .card-photo { height: 140px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hicon">🚐</div>
+  <div class="htitle">
+    <h1>FTRV Lot Assistant</h1>
+    <div class="sub">FUN TOWN RV · TEXARKANA</div>
+  </div>
+  <div class="hbadge" id="unitBadge">— units</div>
+</header>
+
+<div class="chips" id="chips">
+  <div class="chip" onclick="ask('Family of 6 with a budget around $30k')">👨‍👩‍👧‍👦 Family $30k</div>
+  <div class="chip" onclick="ask('Couples coach, compact, under 25ft')">💑 Couples</div>
+  <div class="chip" onclick="ask('Used units under $25k')">💰 Used &lt; $25k</div>
+  <div class="chip" onclick="ask('Bunkhouse that sleeps 8 or more')">🛏 Bunks 8+</div>
+  <div class="chip" onclick="ask('Fifth wheels with multiple slides')">5th w/ slides</div>
+  <div class="chip" onclick="ask('Toy haulers in stock')">🏍 Toy Haulers</div>
+  <div class="chip" onclick="ask('Lightweight travel trailers under 5000 lbs')">⚖️ Lightweight</div>
+  <div class="chip" onclick="ask('What fifth wheels are over $100k?')">💎 Premium 5th</div>
+  <div class="chip" onclick="ask('Destination trailers')">🏕 Destination</div>
+  <div class="chip" onclick="ask('What new units came in this week?')">🆕 New arrivals</div>
+</div>
+
+<div id="chat"></div>
+
+<div class="input-row">
+  <textarea id="userInput" placeholder="Ask about a customer's needs, stock number, budget..." rows="1"></textarea>
+  <button id="sendBtn" onclick="sendMsg()">➤</button>
+</div>
+
+<script>
+// ─── INVENTORY ───────────────────────────────────────────────────────────────
+const RAW = [
+  "216185|2026|Travel Trailer|New|$11,992|Dutchmen RV Kodiak 130BHS|",
+  "222504|2026|Travel Trailer|New|$13,899|Forest River RV Salem FSX 174DBLE|",
+  "222052|2026|Travel Trailer|New|$14,976|Forest River RV Cherokee Wolf Pup 14RKLP|",
+  "221591|2026|Travel Trailer|New|$15,317|Keystone RV Hideout Mini 166RB|",
+  "221573|2026|Travel Trailer|New|$15,896|Keystone RV Hideout Mini 161BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0203202615353429/unit_photo_202602030335342925898187.jpg",
+  "214428A|2025|Travel Trailer|Used|$18,992|Gulf Stream RV Enlighten 17BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616315526/unit_photo_20260421043155262519733.jpg",
+  "223311|2026|Travel Trailer|New|$18,995|Winnebago Access 18DBH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0407202619404172/unit_photo_202604070740417211800468.jpg",
+  "218241|2026|Travel Trailer|New|$18,999|CrossRoads RV Sunset Trail Select 17BHS|",
+  "219922|2026|Travel Trailer|New|$19,857|Forest River RV Salem FSX 178ICE|",
+  "221211|2026|Travel Trailer|New|$19,976|Heartland Prowler 1802MBS|",
+  "223346A|2024|Travel Trailer|Used|$19,992|Keystone RV Springdale Classic Mini 1800BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616334943/unit_photo_202604210433494355932420.jpg",
+  "225481|2026|Travel Trailer|New|$19,999|Gulf Stream RV Yellowstone Classic 199RK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0407202615422769/unit_photo_202604070342276927976165.jpg",
+  "221187|2026|Travel Trailer|New|$19,999|Heartland Prowler 2500BH|",
+  "221650|2026|Travel Trailer|New|$20,819|Keystone RV Hideout Mini 195RBS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0202202623573464/unit_photo_202602021157346412715798.jpg",
+  "221830|2026|Travel Trailer|New|$20,819|Keystone RV Hideout Mini 199BHS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202621180069/unit_photo_20260127091800695905497.jpg",
+  "223887|2026|Travel Trailer|New|$21,774|Forest River RV Salem FSX 177ICE|",
+  "212638A|2025|Travel Trailer|Used|$21,872|Keystone RV Springdale Classic Mini 1800BH|",
+  "214031A|2024|Travel Trailer|Used|$21,872|Prime Time RV Avenger 26BK|",
+  "E10225A|2023|Travel Trailer|Used|$21,892|Forest River RV Cherokee Wolf Pup 16CW|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202517065276/unit_photo_202509240506527595375164.jpg",
+  "223936|2026|Travel Trailer|New|$22,923|Forest River RV Salem FSX 180ICE|",
+  "219012|2026|Travel Trailer|New|$23,999|CrossRoads RV Fun Time 195RB|",
+  "215586|2026|Travel Trailer|New|$23,999|Forest River RV Salem FSX 266BHLE|",
+  "216303|2026|Travel Trailer|New|$23,999|Forest River RV Wildwood FSX 266BHLE|",
+  "220376|2026|Travel Trailer|New|$24,758|Keystone RV Hideout 230BH|",
+  "E10163A|2024|Travel Trailer|Used|$24,892|Forest River RV Salem FSX 162VIEW|",
+  "214268|2025|Travel Trailer|New|$25,681|Forest River RV Wildwood X-Lite 25ICE|",
+  "210351A|2021|Travel Trailer|Used|$26,872|Jayco 34RSBS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1210202523461841/unit_photo_202512101146184174277982.jpg",
+  "217810A|2021|Travel Trailer|Used|$27,872|Venture RV SportTrek 281VBH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1220202503013014/unit_photo_202512200301301454061358.jpg",
+  "224232|2026|Travel Trailer|New|$28,929|Heartland Prowler 2702BHS|",
+  "216313|2026|Travel Trailer|New|$28,976|Forest River RV Salem 260ICE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0805202522543695/unit_photo_202508051054369565913130.jpg",
+  "215657|2026|Travel Trailer|New|$28,976|Forest River RV Wildwood 260ICE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0702202520440950/unit_photo_20250702084409504574081.jpg",
+  "214406A|2022|Travel Trailer|Used|$28,992|Winnebago Micro Minnie 2108TB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202602241076/unit_photo_202602060224107654653566.jpg",
+  "225573|2026|Travel Trailer|New|$28,999|Gulf Stream RV Yellowstone Classic 257RB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0404202601393322/unit_photo_202604040139332264232926.jpg",
+  "222153|2026|Travel Trailer|New|$29,898|Keystone RV Hideout 262BHS|",
+  "220164|2026|Travel Trailer|New|$29,976|Heartland Prowler 2201MDS|",
+  "214176C|2024|Travel Trailer|Used|$29,992|Forest River RV Cherokee Alpha Wolf 23LDE-L|",
+  "218894A|2025|Travel Trailer|Used|$29,992|Forest River RV Wildwood 273QBXL|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0114202615543866/unit_photo_202601140354386627382755.jpg",
+  "215693|2025|Travel Trailer|New|$29,994|Gulf Stream RV Vintage Yellowstone 23RSS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202522540805/unit_photo_202509241054080490822791.jpg",
+  "223658|2026|Travel Trailer|New|$29,995|Winnebago Access 24RB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0210202623444747/unit_photo_202602101144474752525486.jpg",
+  "223365|2026|Travel Trailer|New|$29,995|Winnebago Access 25BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1104202500000550/unit_photo_202511041200055038816357.jpg",
+  "218269|2026|Travel Trailer|New|$29,995|Winnebago Micro Minnie 1800BH|",
+  "213747A|2025|Travel Trailer|Used|$29,995|Grand Design Imagine XLS 23LDE|",
+  "218147|2026|Travel Trailer|New|$29,999|Gulf Stream RV Yellowstone Classic 279BH|",
+  "219673|2026|Travel Trailer|New|$30,194|Prime Time RV Tracer 195RB|",
+  "220531|2026|Travel Trailer|New|$30,933|Forest River RV Salem Cruise Lite 26ICE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1209202523492004/unit_photo_202512091149200408843611.jpg",
+  "214502A|2022|Travel Trailer|Used|$30,987|Jayco White Hawk 29BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1209202523472710/unit_photo_202512091147271074541457.jpg",
+  "209559|2025|Travel Trailer|New|$31,254|Forest River RV Wildwood X-Lite 22VERANDA|",
+  "210647|2025|Travel Trailer|New|$31,994|Forest River RV Salem FSX 269VC|",
+  "220623|2026|Travel Trailer|New|$32,420|KZ Sportsmen SE 261BHKSE|",
+  "223091|2026|Travel Trailer|New|$32,558|Coachmen RV Freedom Express Select 249SE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0218202620013117/unit_photo_202602180801311782704108.jpg",
+  "216744|2026|Travel Trailer|New|$32,988|Forest River RV Salem Cruise Lite 25ICE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0813202502203925/unit_photo_202508130220392564615888.jpg",
+  "218272|2026|Travel Trailer|New|$32,995|Winnebago Micro Minnie 2100BH|",
+  "215803|2026|Travel Trailer|New|$33,499|Prime Time RV Tracer 275BH|",
+  "221248|2026|Travel Trailer|New|$33,818|Keystone RV Passport Classic 284QBC|",
+  "213110A|2024|Travel Trailer|Used|$33,872|Forest River RV Wildwood 27RKX|",
+  "213253|2025|Travel Trailer|New|$33,961|Ember RV E-Series 24RLD|",
+  "216398|2026|Travel Trailer|New|$33,988|Prime Time RV Tracer 235RK|",
+  "221203|2026|Travel Trailer|New|$33,988|Coachmen RV Freedom Express Select 29SE|",
+  "218274|2026|Travel Trailer|New|$33,995|Winnebago Micro Minnie 2108DS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0409202622390070/unit_photo_202604091039007078828307.jpg",
+  "223710|2026|Travel Trailer|New|$33,995|Winnebago Micro Minnie 2108FBS|",
+  "218265|2026|Travel Trailer|New|$33,995|Winnebago Micro Minnie 2108TB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0409202622384293/unit_photo_202604091038429378023457.jpg",
+  "221049|2026|Travel Trailer|New|$33,995|Winnebago Thrive 18FBS|",
+  "214091|2025|Travel Trailer|New|$34,250|Forest River RV Wildwood 28VIEWX|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0117202523482548/unit_photo_202501171148254824999684.jpg",
+  "204493A|2023|Travel Trailer|Used|$34,708|Keystone RV Outback Ultra Lite 291UBH|",
+  "220905|2026|Travel Trailer|New|$34,884|Forest River RV Salem Cruise Lite 23ZEN|",
+  "220633|2026|Travel Trailer|New|$34,894|KZ Sportsmen SE 301DBSE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0208202602361957/unit_photo_202602080236195776095250.jpg",
+  "219811|2026|Travel Trailer|New|$34,926|Forest River RV Salem Cruise Lite 28VBXL|",
+  "218859|2026|Travel Trailer|New|$34,976|Forest River RV Wildwood 300ICE|",
+  "220807|2026|Travel Trailer|New|$34,976|Forest River RV Wildwood X-Lite 23ZEN|",
+  "223928|2026|Travel Trailer|New|$34,988|Forest River RV Salem 27RK|",
+  "221180|2026|Travel Trailer|New|$34,988|Heartland North Trail 210MB|",
+  "210185|2025|Travel Trailer|New|$34,993|Keystone RV Outback 212RB|",
+  "209141|2025|Travel Trailer|New|$34,993|Keystone RV Outback 252RD|",
+  "219126|2026|Travel Trailer|New|$34,999|Forest River RV Salem 250ZEN|",
+  "216327|2026|Travel Trailer|New|$34,999|Forest River RV Salem 300ICE|",
+  "213044A|2024|Travel Trailer|Used|$35,392|CrossRoads RV Sunset Trail SS256RK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0815202519512889/unit_photo_202508150751288962618869.jpg",
+  "220641|2026|Travel Trailer|New|$35,603|KZ Sportsmen SE 301BHKSE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0211202614554994/unit_photo_202602110255499450516511.jpg",
+  "219818|2026|Travel Trailer|New|$35,988|Forest River RV Salem Cruise Lite 273QBXL|",
+  "219742|2026|Travel Trailer|New|$36,014|Forest River RV Vibe 2600BH|",
+  "224538|2026|Travel Trailer|New|$36,114|Keystone RV Passport Super Lite 229BH|",
+  "214215B|2023|Travel Trailer|Used|$36,872|Forest River RV Puma 31FKRK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1220202503003590/unit_photo_202512200300359058560189.jpg",
+  "220556|2026|Travel Trailer|New|$36,976|Forest River RV Cherokee Alpha Wolf 26DBH|",
+  "221345|2026|Travel Trailer|New|$36,988|Coachmen RV Freedom Express Select 30SE|",
+  "217568|2026|Travel Trailer|New|$37,988|Forest River RV Vibe 2600BH|",
+  "217484|2026|Travel Trailer|New|$37,988|Forest River RV Vibe 2600RB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0806202519453474/unit_photo_202508060745347473571925.jpg",
+  "224814|2026|Travel Trailer|New|$37,999|Forest River RV Salem 31KQBTS|",
+  "224081|2026|Travel Trailer|New|$38,243|Heartland North Trail 190MB|",
+  "220148|2026|Travel Trailer|New|$38,291|KZ Connect SE C281BHKSE|",
+  "224547|2026|Travel Trailer|New|$38,511|Keystone RV Passport Super Lite 2450RK|",
+  "220207|2026|Travel Trailer|New|$38,976|Forest River RV Vibe 2600RK|",
+  "221194|2026|Travel Trailer|New|$38,999|Heartland Prowler 3301RLT|",
+  "220063|2026|Travel Trailer|New|$39,264|Heartland North Trail 250CK|",
+  "213507|2025|Travel Trailer|New|$39,399|Dutchmen RV Kodiak 308BHSL|",
+  "217547|2026|Travel Trailer|New|$39,499|Forest River RV Salem 270ZEN|",
+  "217007A|2024|Travel Trailer|Used|$39,892|Palomino Puma 29BHSQ|",
+  "217602|2026|Travel Trailer|New|$39,976|Forest River RV Wildwood 270ZEN|",
+  "218280|2026|Travel Trailer|New|$39,995|Winnebago Thrive 22MBH|",
+  "219755|2026|Travel Trailer|New|$42,976|Forest River RV Vibe 2800RL|",
+  "218278|2026|Travel Trailer|New|$42,995|Winnebago Thrive 24RKS|",
+  "221213|2026|Travel Trailer|New|$43,432|Heartland North Trail 260DB|",
+  "222132|2026|Travel Trailer|New|$43,995|Winnebago Thrive 25RLS|",
+  "224122|2026|Travel Trailer|New|$44,988|Heartland North Trail 270CK|",
+  "216396|2026|Travel Trailer|New|$44,998|Prime Time RV Tracer 295DB|",
+  "220139|2026|Travel Trailer|New|$46,194|KZ Connect C282FKK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202500200431/unit_photo_20251107122004311224391.jpg",
+  "221621|2026|Travel Trailer|New|$46,725|Venture RV Stratus SR282VFD|",
+  "219777|2026|Travel Trailer|New|$46,976|Forest River RV Vibe 3400SB|",
+  "210189|2025|Travel Trailer|New|$46,994|Keystone RV Outback 340BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0117202520572120/unit_photo_202501170857212016894766.jpg",
+  "223750|2026|Travel Trailer|New|$48,995|Winnebago Thrive 28BHS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0423202619283928/unit_photo_202604230728392852637807.jpg",
+  "223527|2026|Travel Trailer|New|$49,976|Coachmen RV Freedom Express Liberty Edition 330BHJJ|",
+  "218285|2026|Travel Trailer|New|$49,995|Winnebago Thrive 26FKD|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1014202523033709/unit_photo_20251014110337092933666.jpg",
+  "222127|2026|Travel Trailer|New|$50,107|Heartland Sundance Ultra-Lite 29RLBS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202620193060/unit_photo_202602060819306025063536.jpg",
+  "221251|2026|Travel Trailer|New|$50,271|Keystone RV Passport 3300BK|",
+  "220876|2026|Travel Trailer|New|$51,538|Forest River RV Salem Hemisphere 301FAM|",
+  "225182|2026|Travel Trailer|New|$54,096|Prime Time RV LaCrosse 3411RK|",
+  "219773|2026|Travel Trailer|New|$54,987|Forest River RV Vibe 3400BH|",
+  "214228A|2025|Travel Trailer|Used|$56,872|Grand Design Reflection 310MKTS|",
+  "225185|2026|Travel Trailer|New|$57,998|Prime Time RV LaCrosse 3510DB|",
+  "215532|2026|Travel Trailer|New|$61,995|Brinkley Model I 265|",
+  "220614|2026|Travel Trailer|New|$63,995|Brinkley Model I 275|",
+  "214972|2026|Travel Trailer|New|$66,995|Brinkley Model I 294|",
+  "216229|2026|Travel Trailer|New|$81,995|Brinkley Model Z Air 297|",
+  "221949|2026|Destination Trailer|New|$46,976|Forest River RV Cherokee Timberwolf 20OG|",
+  "214780|2025|Destination Trailer|New|$54,994|Forest River RV Cherokee Timberwolf Black Label 39ALBL|",
+  "212176|2025|Destination Trailer|New|$56,250|CrossRoads RV Hampton 380RKS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0905202516042096/unit_photo_202509050404209584396749.jpg",
+  "222776|2026|Destination Trailer|New|$62,177|Prime Time RV LaCrosse 44PARK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0224202616024724/unit_photo_202602240402472441022167.jpg",
+  "210979|2025|Destination Trailer|New|$62,994|Forest River RV Wildwood Grand Lodge 42VERANDA|",
+  "215719|2026|Destination Trailer|New|$62,999|Forest River RV Salem Grand Villa 42ICE|",
+  "208348A|2024|Destination Trailer|Used|$63,872|Forest River RV Wildwood Grand Lodge 44VIEW|",
+  "212661|2025|Destination Trailer|New|$64,250|Forest River RV Wildwood Grand Lodge 44VIEW|",
+  "219711|2026|Destination Trailer|New|$69,976|Forest River RV Sandpiper Destination Trailers 41DUPLEX|",
+  "220170|2026|Destination Trailer|New|$99,976|Gulf Stream RV Yellowstone Y5245|",
+  "219615|2026|Fifth Wheel|New|$39,976|Heartland Sundance 24ML|",
+  "221706|2026|Fifth Wheel|New|$41,835|Coachmen RV Chaparral Lite 218SE|",
+  "224265|2026|Fifth Wheel|New|$44,399|Heartland Sundance 28DB|",
+  "210931A|2024|Fifth Wheel|Used|$45,882|Dutchmen RV Astoria 260RK|",
+  "217334|2026|Fifth Wheel|New|$49,988|Forest River RV Cherokee Arctic Wolf 285OPT|",
+  "218983A|2019|Fifth Wheel|Used|$49,992|Keystone RV Montana 3855BR|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616322854/unit_photo_202604210432285391496441.jpg",
+  "221157|2026|Fifth Wheel|New|$52,690|Keystone RV Arcadia Super Lite 242SLMD|",
+  "220366|2026|Fifth Wheel|New|$54,480|Keystone RV Arcadia Super Lite 308SLBH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202515204877/unit_photo_202512230320487765818602.jpg",
+  "210131|2025|Fifth Wheel|New|$56,250|Forest River RV Cherokee Arctic Wolf Suite 3800DECK|",
+  "212906B|2023|Fifth Wheel|Used|$59,864|CrossRoads RV Cameo 3891MK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0904202519574536/unit_photo_202509040757453674452971.jpg",
+  "220179|2026|Fifth Wheel|New|$59,995|KZ Ridgeway 27RK|",
+  "220103|2026|Fifth Wheel|New|$62,782|Forest River RV Salem Hemisphere 321DRL|",
+  "218365|2026|Fifth Wheel|New|$62,899|Coachmen RV Chaparral 375BAF|",
+  "220228|2026|Fifth Wheel|New|$64,708|Forest River RV Salem Hemisphere 356QB|",
+  "213204|2025|Fifth Wheel|New|$64,994|Forest River RV Impression 44STAY|",
+  "220188|2026|Fifth Wheel|New|$64,995|KZ Ridgeway 31RL|",
+  "220122|2026|Fifth Wheel|New|$65,995|KZ Durango Half-Ton D256RKT|",
+  "216373|2026|Fifth Wheel|New|$66,988|Forest River RV Cardinal 35FUN|",
+  "217272|2026|Fifth Wheel|New|$66,988|Forest River RV Cardinal 36MB|",
+  "220891|2026|Fifth Wheel|New|$67,495|KZ Ridgeway 32ML|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0205202623085565/unit_photo_202602051108556556577765.jpg",
+  "224766|2026|Fifth Wheel|New|$67,875|Coachmen RV Chaparral 381DBL|",
+  "220246|2026|Fifth Wheel|New|$68,852|Keystone RV Sprinter 3920DSL|",
+  "220584|2026|Fifth Wheel|New|$68,899|Coachmen RV Chaparral 334FL|",
+  "219027|2026|Fifth Wheel|New|$68,976|Forest River RV Impression 36BR3|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202500203600/unit_photo_202511071220359992753909.jpg",
+  "213635|2025|Fifth Wheel|New|$69,250|KZ Durango D341RPT|",
+  "211450|2025|Fifth Wheel|New|$69,250|Palomino Columbus 380RL|",
+  "220364|2026|Fifth Wheel|New|$69,900|Keystone RV Arcadia 3260RL|",
+  "218578|2026|Fifth Wheel|New|$69,999|EAST TO WEST Tandara 388LR|",
+  "220303|2026|Fifth Wheel|New|$70,196|Keystone RV Sprinter 3980FBS|",
+  "203644A|2023|Fifth Wheel|Used|$70,507|Forest River RV Cardinal Luxury 380RLX|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1227202420580282/unit_photo_202412270858028208382733.jpg",
+  "220283|2026|Fifth Wheel|New|$71,786|Keystone RV Sprinter 3840LRK|",
+  "219397|2026|Fifth Wheel|New|$71,999|Forest River RV Sandpiper 4003MB|",
+  "218548|2026|Fifth Wheel|New|$73,802|EAST TO WEST Tandara 387BH|",
+  "220082|2026|Fifth Wheel|New|$73,976|EAST TO WEST Tandara 390FL|",
+  "215813|2026|Fifth Wheel|New|$73,988|Keystone RV Montana High Country 311RD|",
+  "220143|2026|Fifth Wheel|New|$73,995|KZ Ridgeway 36MB|",
+  "218179|2026|Fifth Wheel|New|$74,976|Forest River RV Sandpiper 3800RK|",
+  "210818|2025|Fifth Wheel|New|$76,250|Keystone RV Montana 3623EB|",
+  "222398|2026|Fifth Wheel|New|$77,087|Coachmen RV Brookstone 344FL|",
+  "220330|2026|Fifth Wheel|New|$77,900|Keystone RV Montana High Country 331RL|",
+  "216104|2026|Fifth Wheel|New|$78,988|Keystone RV Montana High Country 325RK|",
+  "220321|2026|Fifth Wheel|New|$79,150|Keystone RV Montana High Country 295RL|",
+  "222471|2026|Fifth Wheel|New|$80,874|Coachmen RV Brookstone 374RK|",
+  "220542|2026|Fifth Wheel|New|$82,216|Forest River RV Sandpiper 3844QUAD|",
+  "220130|2026|Fifth Wheel|New|$82,995|KZ Durango D301RLT|",
+  "220112|2026|Fifth Wheel|New|$83,995|KZ Durango D321RKT|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1110202514453447/unit_photo_202511100245344770769727.jpg",
+  "217239|2026|Fifth Wheel|New|$83,999|EAST TO WEST Ahara 383UR|",
+  "220818|2026|Fifth Wheel|New|$84,987|Forest River RV Cedar Creek Experience 29RL|",
+  "219201|2026|Fifth Wheel|New|$85,995|Brinkley Model Z 2680|",
+  "220338|2026|Fifth Wheel|New|$86,900|Keystone RV Montana High Country 377FL|",
+  "220265|2026|Fifth Wheel|New|$87,900|Keystone RV Montana High Country 381TB|",
+  "224075|2026|Fifth Wheel|New|$87,995|Heartland Milestone 39TB|",
+  "217094|2026|Fifth Wheel|New|$88,995|Brinkley Model Z 2810|",
+  "218726|2026|Fifth Wheel|New|$93,988|Keystone RV Montana High Country 397FB|",
+  "217596|2026|Fifth Wheel|New|$93,995|Forest River RV Cedar Creek Cottage Fifth Wheels 412FWC|",
+  "220134|2026|Fifth Wheel|New|$97,995|KZ Durango D348BHF|",
+  "220325|2026|Fifth Wheel|New|$98,900|Keystone RV Montana 3231CK|",
+  "217109|2026|Fifth Wheel|New|$99,995|Brinkley Model Z 3100|",
+  "220333|2026|Fifth Wheel|New|$102,900|Keystone RV Montana 3532SP|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0821202520023425/unit_photo_202508210802342509476335.jpg",
+  "225107|2026|Fifth Wheel|New|$104,995|Brinkley Model Z 3200|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1217202523524026/unit_photo_202512171152402659471311.jpg",
+  "220315|2026|Fifth Wheel|New|$104,995|Heartland Bighorn 39RK|",
+  "216622|2026|Fifth Wheel|New|$105,988|Keystone RV Montana 3532SP|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0821202520023425/unit_photo_202508210802342509476335.jpg",
+  "221849|2026|Fifth Wheel|New|$105,995|Brinkley Model Z 3515|",
+  "218716|2026|Fifth Wheel|New|$106,988|Keystone RV Montana 3761FL|",
+  "215838|2026|Fifth Wheel|New|$108,988|Keystone RV Montana 3941FO|",
+  "218494|2026|Fifth Wheel|New|$109,995|Brinkley Model Z 3610|",
+  "220764|2026|Fifth Wheel|New|$113,650|Keystone RV Montana 3795FK|",
+  "224042|2026|Fifth Wheel|New|$113,995|Heartland Bighorn 39FL|",
+  "221738|2026|Fifth Wheel|New|$124,995|KZ Durango Gold G388FLS|",
+  "215050|2026|Fifth Wheel|New||Brinkley Model Z 3300|",
+  "218766|2026|Fifth Wheel|New|$149,986|Forest River RV RiverStone Legacy 39RKFB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1217202523505205/unit_photo_202512171150520542455536.jpg",
+  "218772|2026|Fifth Wheel|New|$164,448|Forest River RV RiverStone Legacy 425FO|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202517544955/unit_photo_202512230554495565974423.jpg",
+  "207407A|2021|Toy Hauler|Used|$27,992|Forest River RV XLR Boost 27QBX|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0211202614544368/unit_photo_202602110254436803280634.jpg",
+  "220155|2026|Toy Hauler|New|$51,379|KZ Sportster X 22X|",
+  "216211|2026|Toy Hauler|New|$64,988|Forest River RV Cherokee Rogue Armored 32L132|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0723202502081819/unit_photo_202507230208181951263512.jpg",
+  "224060|2026|Toy Hauler|New|$64,995|Heartland Cyclone 2214|",
+  "212106|2025|Toy Hauler|New|$48,994|Forest River RV Vengeance Rogue SUT 323SUT|",
+  "211137|2025|Toy Hauler|New|$76,994|KZ Sportster X 3914X|",
+  "222903|2026|Toy Hauler|New|$84,995|Keystone RV Raptor Carbon Series 360|",
+  "220151|2026|Toy Hauler|New|$88,999|Keystone RV Fuzion Impact Edition 367|",
+  "214868|2025|Toy Hauler|New|$89,994|Keystone RV Raptor Carbon Series 398|",
+  "220504|2026|Toy Hauler|New|$89,999|Keystone RV Fuzion Impact Edition 416|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1218202523540166/unit_photo_202512181154016675036688.jpg",
+  "221257|2026|Toy Hauler|New|$92,999|Keystone RV Raptor Carbon Series 368|",
+  "219122|2026|Toy Hauler|New|$106,495|Heartland Cyclone 3913|",
+  "219131|2026|Toy Hauler|New|$106,995|Heartland Cyclone 3914|",
+  "218509|2026|Toy Hauler|New|$134,999|Keystone RV Fuzion 442|",
+  "217143|2026|Toy Hauler|New|$184,995|Brinkley Model G 3970|",
+  "215463|2026|Toy Hauler|New|$185,995|Brinkley Model G 4100|",
+  "209785A|2020|Travel Trailer|Used|$13,892|Forest River RV Flagstaff SE T21TBHWSE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0903202519563747/unit_photo_202509030756374758958341.jpg"
+];
+
+const INVENTORY = RAW.map(r => {
+  const parts = r.split('|');
+  const [stock, year, type, condition, price] = parts;
+  const brandModel = parts.slice(5, parts.length - 1).join('|');
+  const photoUrl = parts[parts.length - 1] || '';
+  const priceNum = price ? parseInt(price.replace(/[^0-9]/g,'')) || 0 : 0;
+  return { stock, year: parseInt(year)||0, type, condition, price: price||'Call', priceNum, brandModel, photoUrl };
+});
+
+document.getElementById('unitBadge').textContent = INVENTORY.length + ' units';
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+const API_KEY = 'sk-placeholder-9XJg8rSAqNwUoh8Q1XigifsC_SvBEr1mrdUA6nTcG2b3-YBE-e_TyguImRYAOfQWaMaGGvMENTtgRruw-V46Mg-ioBEOwAA';
+
+// ─── SYSTEM PROMPT ─────────────────────────────────────────────────────────────
+const invText = INVENTORY.map(u =>
+  `${u.stock}|${u.year}|${u.type}|${u.condition}|${u.price}|${u.brandModel}`
+).join('\n');
+
+const SYSTEM = `You are the FTRV Lot Assistant for Fun Town RV Texarkana. You help salespeople find the right units for their customers. Your ONLY source of information is the current lot inventory below — do not reference units not listed here.
+
+CURRENT INVENTORY (${INVENTORY.length} units) — format: stock|year|type|condition|price|brand+model:
+${invText}
+
+RESPONSE FORMAT:
+1. Write a helpful, conversational response (2-4 sentences max). Be specific — mention unit names, stock numbers, and prices from the inventory.
+2. End with this exact JSON on its own line: {"matches":["STOCK1","STOCK2","STOCK3"]} — up to 6 best matches, or {"matches":[]} if none.
+
+MATCHING RULES:
+- For budget requests: include units within 10-15% above the stated budget since customers often flex
+- For family/bunkhouse requests: prioritize bunkhouse floorplans (BH, DBH, etc.) and larger sleeps
+- For couples: prioritize RK (rear kitchen), smaller footprint, single slide
+- For toy haulers: only match Toy Hauler type units
+- For specific stock lookups: match that exact stock number
+- For "what do you have" type questions: give a representative selection across price ranges
+- Always mention the price and a brief description of why each unit fits`;
+
+// ─── CHAT STATE ───────────────────────────────────────────────────────────────
+let conversation = [];
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function typeBadgeClass(type) {
+  if (type === 'Travel Trailer') return 'b-tt';
+  if (type === 'Fifth Wheel')    return 'b-fw';
+  if (type === 'Toy Hauler')     return 'b-th';
+  if (type === 'Destination Trailer') return 'b-dt';
+  return 'b-tt';
+}
+function typeShort(type) {
+  if (type === 'Travel Trailer') return 'Travel Trailer';
+  if (type === 'Fifth Wheel')    return 'Fifth Wheel';
+  if (type === 'Toy Hauler')     return 'Toy Hauler';
+  if (type === 'Destination Trailer') return 'Destination';
+  return type;
+}
+
+function renderCards(stocks) {
+  const units = stocks.map(s => INVENTORY.find(u => u.stock === s)).filter(Boolean);
+  if (!units.length) return '';
+
+  const cardsHTML = units.map(u => {
+    const searchUrl = `https://www.funtownrv.com/rv-search?s=true&lots=1695&q=${encodeURIComponent(u.stock)}`;
+    const priceHTML = u.price === 'Call'
+      ? `<div class="card-price call">Call for Price</div>`
+      : `<div class="card-price">${u.price}</div>`;
+    const photoHTML = u.photoUrl
+      ? '<img src="' + u.photoUrl + '" alt="' + u.brandModel.replace(/"/g,'&quot;') + '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=&quot;photo-placeholder&quot;><div class=&quot;icon&quot;>\u{1F690}</div></div>\'">'
+      : '<div class="photo-placeholder"><div class="icon">🚐</div><div class="lbl">No photo available</div></div>';
+
+    return `<div class="unit-card">
+      <div class="card-photo">
+        ${photoHTML}
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <div class="card-stock">#${u.stock}</div>
+            <div class="card-year">${u.year}</div>
+          </div>
+          <div class="card-badges" style="text-align:right">
+            <span class="badge ${u.condition === 'New' ? 'b-new' : 'b-used'}">${u.condition}</span>
+          </div>
+        </div>
+        <div class="card-model">${u.brandModel}</div>
+        <div class="card-badges">
+          <span class="badge ${typeBadgeClass(u.type)}">${typeShort(u.type)}</span>
+        </div>
+        ${priceHTML}
+        <div class="card-actions">
+          <a class="btn-action btn-view" href="${searchUrl}" target="_blank">📷 Photos &amp; Floor Plan</a>
+          <button class="btn-action btn-copy" onclick="copyStock(this, '${u.stock}')">📋 Copy #${u.stock}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="cards-row">${cardsHTML}</div>`;
+}
+
+function copyStock(btn, stock) {
+  navigator.clipboard.writeText(stock).catch(() => {});
+  btn.textContent = '✅ Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.textContent = '📋 Copy #' + stock;
+    btn.classList.remove('copied');
+  }, 1800);
+}
+
+function addMessage(role, text, stocks = []) {
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+
+  let inner = `<div class="bubble">${formatted}</div>`;
+  if (stocks.length) inner += renderCards(stocks);
+
+  div.innerHTML = inner;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = 'typing-indicator';
+  div.innerHTML = `<div class="bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+// ─── SEND ─────────────────────────────────────────────────────────────────────
+async function sendMsg() {
+  const input = document.getElementById('userInput');
+  const btn = document.getElementById('sendBtn');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  btn.disabled = true;
+
+  addMessage('user', text);
+  conversation.push({ role: 'user', content: text });
+  showTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 800,
+        system: SYSTEM,
+        messages: conversation.slice(-10)
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Something went wrong — try again.';
+
+    // Extract matches JSON
+    const jsonMatch = reply.match(/\{"matches"\s*:\s*\[([^\]]*)\]\}/);
+    let stocks = [];
+    let cleanText = reply;
+    if (jsonMatch) {
+      cleanText = reply.replace(jsonMatch[0], '').trim();
+      stocks = (jsonMatch[1].match(/"([^"]+)"/g) || []).map(s => s.replace(/"/g, ''));
+    }
+
+    removeTyping();
+    addMessage('ai', cleanText, stocks);
+    conversation.push({ role: 'assistant', content: reply });
+
+  } catch (err) {
+    removeTyping();
+    addMessage('ai', '⚠️ Connection error: ' + err.message + '. Check your network and try again.');
+  }
+
+  btn.disabled = false;
+  input.focus();
+}
+
+function ask(q) {
+  document.getElementById('userInput').value = q;
+  sendMsg();
+}
+
+// ─── INPUT HANDLING ───────────────────────────────────────────────────────────
+const input = document.getElementById('userInput');
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMsg();
+  }
+});
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+});
+
+// ─── WELCOME ──────────────────────────────────────────────────────────────────
+addMessage('ai', `👋 Hey! I've got **${INVENTORY.length} units** loaded from the Texarkana lot right now.\n\nTell me what your customer is looking for — budget, family size, type of RV, features — and I'll pull the best matches. You can also ask about a specific stock number.`);
+</script>
+</body>
+</html>
