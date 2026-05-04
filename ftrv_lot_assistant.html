@@ -295,10 +295,66 @@ header {
   color: var(--muted);
 }
 .empty h2 { font-size: 1.1rem; color: var(--text); margin-bottom: 8px; }
+/* Filter toggle button + collapsible panel */
+.filter-toggle {
+  background: var(--mid);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all .15s;
+}
+.filter-toggle:hover { border-color: var(--red); color: var(--red); }
+.filter-toggle.open { background: var(--red); color: white; border-color: var(--red); }
+.filter-toggle .caret { font-size: .65rem; transition: transform .2s; }
+.filter-toggle.open .caret { transform: rotate(180deg); }
+
+#filterPanel {
+  display: none;
+  padding: 10px 16px;
+  background: var(--mid);
+  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  gap: 8px;
+}
+#filterPanel.open { display: flex; }
+#filterPanel .row { padding: 0; }
+#filterPanel .label { font-size: .65rem; min-width: 70px; }
+
 @media (max-width: 600px) {
-  .row .label { min-width: auto; width: 100%; }
-  #grid { padding: 14px; gap: 12px; grid-template-columns: 1fr 1fr; }
-  .controls { top: 52px; }
+  /* Compact header */
+  header { padding: 8px 12px; gap: 8px; }
+  .hicon { font-size: 1.3rem; }
+  .htitle h1 { font-size: .92rem; line-height: 1.15; }
+  .htitle .sub { font-size: .65rem; opacity: .7; }
+  .hbadge { padding: 3px 9px; font-size: .65rem; }
+
+  /* Sticky search row */
+  .controls {
+    padding: 8px 10px;
+    position: sticky; top: 0; z-index: 50;
+    background: var(--mid);
+    border-bottom: 1px solid var(--border);
+  }
+  .controls .row { gap: 6px; padding: 0; }
+  #search { font-size: 1rem; padding: 11px 12px; flex: 1; min-width: 0; }
+  #sort { display: none; }
+
+  #filterPanel { padding: 8px 12px; }
+  #filterPanel .row { flex-wrap: wrap; }
+  #filterPanel .label { width: 100%; min-width: auto; margin-bottom: 2px; }
+
+  /* Single-column card grid */
+  #grid { padding: 12px; gap: 12px; grid-template-columns: 1fr; }
+  .ai-reply { margin: 8px 12px; padding: 12px 14px; font-size: .88rem; }
+  .card .thumb { height: 180px; }
 }
 </style>
 </head>
@@ -315,8 +371,8 @@ header {
 
 <div class="controls">
   <div class="row">
-    <input id="search" type="search" placeholder="Ask anything: 'cheapest bunkhouse', 'tow with F-150', 'family of 6 under $40k'... (Enter to ask)" autocomplete="off">
-    
+    <input id="search" type="search" placeholder="Ask anything: 'cheapest bunkhouse', 'tow with F-150', 'family of 6 under $40k'... (Enter)" autocomplete="off">
+    <button id="filterToggle" class="filter-toggle" aria-expanded="false">Filter <span class="caret">▾</span></button>
     <select id="sort">
       <option value="priceAsc">Price ↑</option>
       <option value="priceDesc">Price ↓</option>
@@ -324,7 +380,10 @@ header {
       <option value="yearAsc">Year (oldest)</option>
       <option value="stock">Stock #</option>
     </select>
+    <span class="summary"><b id="resultCount">…</b> of <b id="totalCount">…</b></span>
   </div>
+</div>
+<div id="filterPanel">
   <div class="row">
     <span class="label">Type</span>
     <span class="pill active" data-filter="type" data-value="">All</span>
@@ -340,17 +399,7 @@ header {
     <span class="pill" data-filter="condition" data-value="Used">Used</span>
   </div>
   <div class="row">
-    <span class="label">Baths</span>
-    <span class="pill active" data-filter="baths" data-value="">Any</span>
-    <span class="pill" data-filter="baths" data-value="1">1</span>
-    <span class="pill" data-filter="baths" data-value="1.5">1.5</span>
-    <span class="pill" data-filter="baths" data-value="2">2</span>
-  </div>
-  <div class="row">
-    <span class="label">Layout</span>
-    <select id="layoutSel"><option value="">Any layout</option></select>
-    <button id="clearAll">Clear filters</button>
-    <span class="summary"><b id="resultCount">…</b> of <b id="totalCount">…</b> units</span>
+    <button id="clearAll" style="font-size:.78rem;padding:4px 10px;background:var(--dark);color:var(--muted);border:1px solid var(--border);border-radius:6px;cursor:pointer">Reset filters</button>
   </div>
 </div>
 
@@ -903,25 +952,17 @@ const INVENTORY = RAW.map(r => {
 document.getElementById('unitBadge').textContent = INVENTORY.length + ' units';
 document.getElementById('totalCount').textContent = INVENTORY.length;
 
-// Build the layout dropdown from layouts that actually appear
-const layoutSel = document.getElementById('layoutSel');
-const layoutSet = [...new Set(INVENTORY.map(u => u.layout).filter(Boolean))].sort();
-layoutSet.forEach(l => {
-  const o = document.createElement('option');
-  o.value = l; o.textContent = l;
-  layoutSel.appendChild(o);
-});
+// (layout dropdown removed — AI handles layout filtering)
 
 // Filter state
-const state = { type: '', condition: '', baths: '', layout: '', q: '', sort: 'yearDesc' };
+const state = { type: '', condition: '', q: '', sort: 'yearDesc' };
 
 function render() {
   const q = state.q.trim().toLowerCase();
   let list = INVENTORY.filter(u => {
     if (state.type && u.type !== state.type) return false;
     if (state.condition && u.condition !== state.condition) return false;
-    if (state.baths && String(u.baths) !== state.baths) return false;
-    if (state.layout && u.layout !== state.layout) return false;
+
     if (q) {
       const hay = (u.stock + ' ' + u.brandModel + ' ' + u.type + ' ' + u.year + ' ' + u.layout).toLowerCase();
       if (!hay.includes(q)) return false;
@@ -978,6 +1019,15 @@ function render() {
       </div>`;
   }).join('');
 }
+
+// Filter panel toggle (mobile + desktop both use it now)
+const filterToggle = document.getElementById('filterToggle');
+const filterPanel = document.getElementById('filterPanel');
+filterToggle.addEventListener('click', () => {
+  const open = filterPanel.classList.toggle('open');
+  filterToggle.classList.toggle('open', open);
+  filterToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
 
 // Wire up pill clicks (delegated to all .pill elements)
 document.querySelectorAll('.pill').forEach(p => {
@@ -1131,14 +1181,14 @@ const _clearBtn = document.getElementById('clearAll');
 if (_clearBtn) _clearBtn.addEventListener('click', clearAiReply);
 
 document.getElementById('sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
-document.getElementById('layoutSel').addEventListener('change', e => { state.layout = e.target.value; render(); });
+
 document.getElementById('clearAll').addEventListener('click', () => {
-  state.type = state.condition = state.baths = state.layout = state.q = '';
+  state.type = state.condition = state.q = '';
   state.sort = 'yearDesc';
   document.getElementById('search').value = '';
   document.getElementById('sort').value = 'yearDesc';
-  document.getElementById('layoutSel').value = '';
   document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.value === ''));
+  clearAiReply();
   render();
 });
 
