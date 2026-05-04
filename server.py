@@ -3,6 +3,9 @@
 Serves the HTML app AND forwards:
   /api/chat     → Anthropic API
   /api/floorplan?url=... → fetches funtownrv.com product page, extracts floor plan image
+
+CORS is enabled on /api/chat and /api/floorplan so the local Grid View HTML
+(loaded as file:// from disk on Steve's computer) can call these endpoints.
 """
 import json, os, re, ssl, urllib.request, urllib.parse, socket
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -10,7 +13,24 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 PORT = int(os.environ.get('PORT', 8765))
 
+CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400',
+}
+
 class Handler(SimpleHTTPRequestHandler):
+
+    def _send_cors(self):
+        for k, v in CORS_HEADERS.items():
+            self.send_header(k, v)
+
+    def do_OPTIONS(self):
+        # Preflight for cross-origin POSTs to /api/chat from file:// pages
+        self.send_response(204)
+        self._send_cors()
+        self.end_headers()
 
     def do_GET(self):
         if self.path.startswith('/api/floorplan'):
@@ -46,7 +66,7 @@ class Handler(SimpleHTTPRequestHandler):
         body = json.dumps(data).encode()
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
+        self._send_cors()
         self.end_headers()
         self.wfile.write(body)
 
@@ -70,17 +90,20 @@ class Handler(SimpleHTTPRequestHandler):
                     result = resp.read()
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
+                    self._send_cors()
                     self.end_headers()
                     self.wfile.write(result)
             except urllib.error.HTTPError as e:
                 err_body = e.read()
                 self.send_response(e.code)
                 self.send_header('Content-Type', 'application/json')
+                self._send_cors()
                 self.end_headers()
                 self.wfile.write(err_body)
             except Exception as e:
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')
+                self._send_cors()
                 self.end_headers()
                 self.wfile.write(json.dumps({'error': str(e)}).encode())
         else:
