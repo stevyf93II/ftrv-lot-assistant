@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FTRV Lot Assistant — Grid View (Texarkana)</title>
+<style>
+:root {
+  --red: #c0392b;
+  --red2: #8b0000;
+  --dark: #0d1117;
+  --mid: #161b22;
+  --card: #1c2333;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --green: #3fb950;
+  --gold: #f0b429;
+  --blue: #58a6ff;
+  --purple: #bc8cff;
+  --orange: #ffa657;
+  --teal: #39d3c3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--red), var(--red2));
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.5);
+  position: sticky; top: 0; z-index: 50;
+}
+.hicon { font-size: 1.6rem; }
+.htitle { flex: 1; }
+.htitle h1 { font-size: 1.05rem; font-weight: 700; letter-spacing: .3px; }
+.htitle .sub { font-size: .72rem; opacity: .8; letter-spacing: .5px; }
+.hbadge {
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: .75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* CONTROLS */
+.controls {
+  background: var(--mid);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky; top: 56px; z-index: 40;
+}
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row .label {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  min-width: 70px;
+}
+#search {
+  flex: 1;
+  min-width: 220px;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: .9rem;
+  outline: none;
+}
+#search:focus { border-color: var(--red); }
+#sort {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: .85rem;
+  cursor: pointer;
+}
+.pill {
+  padding: 6px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--dark);
+  color: var(--muted);
+  font-size: .78rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  user-select: none;
+}
+.pill:hover { color: var(--text); border-color: var(--red); }
+.pill.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+  font-weight: 600;
+}
+#layoutSel {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 6px 14px;
+  font-size: .78rem;
+  cursor: pointer;
+}
+#clearAll {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 16px;
+  padding: 6px 14px;
+  font-size: .78rem;
+  cursor: pointer;
+}
+#clearAll:hover { color: var(--text); border-color: var(--red); }
+.summary {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+.summary b { color: var(--text); }
+
+/* GRID */
+#grid {
+  padding: 18px 20px 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  flex: 1;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform .12s, border-color .12s, box-shadow .12s;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--red);
+  box-shadow: 0 8px 20px rgba(0,0,0,.4);
+}
+.thumb {
+  aspect-ratio: 4 / 3;
+  background: #0a0e14 linear-gradient(135deg, #1c2333, #0d1117);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.thumb.no-photo::after {
+  content: "📷  no photo";
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  font-size: .8rem;
+  letter-spacing: .5px;
+}
+
+.ai-reply {
+  background: linear-gradient(135deg, rgba(192,57,43,.14), rgba(139,0,0,.08));
+  border: 1px solid rgba(192,57,43,.45);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 8px 12px 12px;
+  font-size: .9rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.ai-conv { font-size: .92rem; }
+.ai-conv strong { color: var(--gold); }
+.ai-thinking { color: var(--muted); font-size: .85rem; display: flex; gap: 6px; align-items: center; }
+.ai-thinking .dot { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; animation: bounce 1.2s infinite; }
+.ai-thinking .dot:nth-child(2) { animation-delay: .2s; }
+.ai-thinking .dot:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+.ai-error { color: #ff8a80; font-size: .85rem; background: rgba(255,82,82,.1); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,82,82,.3); }
+
+
+.smart-reply {
+  background: linear-gradient(135deg, rgba(192,57,43,.12), rgba(139,0,0,.08));
+  border: 1px solid rgba(192,57,43,.4);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 0 0 14px;
+  font-size: .82rem;
+  line-height: 1.5;
+}
+.smart-reply h4 { font-size: .9rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.smart-reply .sr-criteria { color: var(--muted); font-size: .75rem; margin-bottom: 8px; }
+.smart-reply .sr-list { display: flex; flex-direction: column; gap: 4px; }
+.smart-reply .sr-item { color: var(--text); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .76rem; }
+.smart-reply .sr-item .sr-stock { color: var(--gold); font-weight: 700; }
+.smart-reply .sr-item .sr-price { color: var(--green); font-weight: 700; margin-left: auto; }
+.smart-reply .sr-item-row { display: flex; gap: 10px; align-items: baseline; }
+.smart-reply .sr-empty { color: var(--muted); font-style: italic; }
+.lw-line {
+  font-size: .78rem;
+  color: var(--muted);
+  letter-spacing: .3px;
+  margin: -2px 0 2px;
+}
+.cond-badge {
+  position: absolute; top: 8px; left: 8px;
+  font-size: .68rem; font-weight: 700;
+  padding: 3px 8px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: .3px;
+}
+.cond-badge.New { background: var(--green); color: #06200d; }
+.cond-badge.Used { background: var(--gold); color: #2b1f00; }
+.cond-badge.Pre-Owned { background: var(--gold); color: #2b1f00; }
+.stock-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-size: .7rem; font-weight: 700;
+  padding: 3px 8px; border-radius: 4px;
+  background: rgba(0,0,0,.7); color: #fff;
+}
+.body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.title {
+  font-size: .9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.meta {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  font-size: .7rem;
+}
+.tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--mid);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.tag.bath { color: var(--blue); border-color: rgba(88,166,255,.3); }
+.tag.layout { color: var(--purple); border-color: rgba(188,140,255,.3); }
+.tag.type { color: var(--teal); border-color: rgba(57,211,195,.3); }
+.price {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: auto;
+}
+.price.call { color: var(--muted); font-style: italic; font-size: .95rem; }
+.actions { display: flex; gap: 6px; }
+.btn {
+  flex: 1;
+  text-align: center;
+  background: var(--red);
+  color: #fff;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: .78rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn:hover { background: var(--red2); }
+.btn.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.btn.secondary:hover { color: var(--text); border-color: var(--red); }
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty h2 { font-size: 1.1rem; color: var(--text); margin-bottom: 8px; }
+@media (max-width: 600px) {
+  .row .label { min-width: auto; width: 100%; }
+  #grid { padding: 14px; gap: 12px; grid-template-columns: 1fr 1fr; }
+  .controls { top: 52px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hicon">🚐</div>
+  <div class="htitle">
+    <h1>FTRV Lot Assistant — Grid View</h1>
+    <div class="sub">Fun Town RV · Texarkana</div>
+  </div>
+  <div class="hbadge" id="unitBadge">…</div>
+</header>
+
+<div class="controls">
+  <div class="row">
+    <input id="search" type="search" placeholder="Ask anything: 'cheapest bunkhouse', 'tow with F-150', 'family of 6 under $40k'... (Enter to ask)" autocomplete="off">
+    
+    <select id="sort">
+      <option value="priceAsc">Price ↑</option>
+      <option value="priceDesc">Price ↓</option>
+      <option value="yearDesc" selected>Year (newest)</option>
+      <option value="yearAsc">Year (oldest)</option>
+      <option value="stock">Stock #</option>
+    </select>
+  </div>
+  <div class="row">
+    <span class="label">Type</span>
+    <span class="pill active" data-filter="type" data-value="">All</span>
+    <span class="pill" data-filter="type" data-value="Travel Trailer">Travel Trailer</span>
+    <span class="pill" data-filter="type" data-value="Fifth Wheel">Fifth Wheel</span>
+    <span class="pill" data-filter="type" data-value="Toy Hauler">Toy Hauler</span>
+    <span class="pill" data-filter="type" data-value="Destination Trailer">Destination Trailer</span>
+  </div>
+  <div class="row">
+    <span class="label">Condition</span>
+    <span class="pill active" data-filter="condition" data-value="">All</span>
+    <span class="pill" data-filter="condition" data-value="New">New</span>
+    <span class="pill" data-filter="condition" data-value="Used">Used</span>
+  </div>
+  <div class="row">
+    <span class="label">Baths</span>
+    <span class="pill active" data-filter="baths" data-value="">Any</span>
+    <span class="pill" data-filter="baths" data-value="1">1</span>
+    <span class="pill" data-filter="baths" data-value="1.5">1.5</span>
+    <span class="pill" data-filter="baths" data-value="2">2</span>
+  </div>
+  <div class="row">
+    <span class="label">Layout</span>
+    <select id="layoutSel"><option value="">Any layout</option></select>
+    <button id="clearAll">Clear filters</button>
+    <span class="summary"><b id="resultCount">…</b> of <b id="totalCount">…</b> units</span>
+  </div>
+</div>
+
+<div id="aiReply" class="ai-reply" style="display:none"></div>
+  <div id="grid"></div>
+
+<script>
+// ─── INVENTORY (mirrored exactly from ftrv_ai_assistant.html) ────────────────
+const RAW = [
+  "216185|2026|Travel Trailer|New|$11,992|Dutchmen RV Kodiak 130BHS|",
+  "222504|2026|Travel Trailer|New|$13,899|Forest River RV Salem FSX 174DBLE|",
+  "222052|2026|Travel Trailer|New|$14,976|Forest River RV Cherokee Wolf Pup 14RKLP|",
+  "221591|2026|Travel Trailer|New|$15,317|Keystone RV Hideout Mini 166RB|",
+  "221573|2026|Travel Trailer|New|$15,896|Keystone RV Hideout Mini 161BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0203202615353429/unit_photo_202602030335342925898187.jpg",
+  "214428A|2025|Travel Trailer|Used|$18,992|Gulf Stream RV Enlighten 17BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616315526/unit_photo_20260421043155262519733.jpg",
+  "223311|2026|Travel Trailer|New|$18,995|Winnebago Access 18DBH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0407202619404172/unit_photo_202604070740417211800468.jpg",
+  "218241|2026|Travel Trailer|New|$18,999|CrossRoads RV Sunset Trail Select 17BHS|",
+  "219922|2026|Travel Trailer|New|$19,857|Forest River RV Salem FSX 178ICE|",
+  "221211|2026|Travel Trailer|New|$19,976|Heartland Prowler 1802MBS|",
+  "223346A|2024|Travel Trailer|Used|$19,992|Keystone RV Springdale Classic Mini 1800BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616334943/unit_photo_202604210433494355932420.jpg",
+  "225481|2026|Travel Trailer|New|$19,999|Gulf Stream RV Yellowstone Classic 199RK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0407202615422769/unit_photo_202604070342276927976165.jpg",
+  "221187|2026|Travel Trailer|New|$19,999|Heartland Prowler 2500BH|",
+  "221650|2026|Travel Trailer|New|$20,819|Keystone RV Hideout Mini 195RBS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0202202623573464/unit_photo_202602021157346412715798.jpg",
+  "221830|2026|Travel Trailer|New|$20,819|Keystone RV Hideout Mini 199BHS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202621180069/unit_photo_20260127091800695905497.jpg",
+  "223887|2026|Travel Trailer|New|$21,774|Forest River RV Salem FSX 177ICE|",
+  "212638A|2025|Travel Trailer|Used|$21,872|Keystone RV Springdale Classic Mini 1800BH|",
+  "214031A|2024|Travel Trailer|Used|$21,872|Prime Time RV Avenger 26BK|",
+  "E10225A|2023|Travel Trailer|Used|$21,892|Forest River RV Cherokee Wolf Pup 16CW|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202517065276/unit_photo_202509240506527595375164.jpg",
+  "223936|2026|Travel Trailer|New|$22,923|Forest River RV Salem FSX 180ICE|",
+  "219012|2026|Travel Trailer|New|$23,999|CrossRoads RV Fun Time 195RB|",
+  "215586|2026|Travel Trailer|New|$23,999|Forest River RV Salem FSX 266BHLE|",
+  "216303|2026|Travel Trailer|New|$23,999|Forest River RV Wildwood FSX 266BHLE|",
+  "220376|2026|Travel Trailer|New|$24,758|Keystone RV Hideout 230BH|",
+  "E10163A|2024|Travel Trailer|Used|$24,892|Forest River RV Salem FSX 162VIEW|",
+  "214268|2025|Travel Trailer|New|$25,681|Forest River RV Wildwood X-Lite 25ICE|",
+  "210351A|2021|Travel Trailer|Used|$26,872|Jayco 34RSBS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1210202523461841/unit_photo_202512101146184174277982.jpg",
+  "217810A|2021|Travel Trailer|Used|$27,872|Venture RV SportTrek 281VBH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1220202503013014/unit_photo_202512200301301454061358.jpg",
+  "224232|2026|Travel Trailer|New|$28,929|Heartland Prowler 2702BHS|",
+  "216313|2026|Travel Trailer|New|$28,976|Forest River RV Salem 260ICE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0805202522543695/unit_photo_202508051054369565913130.jpg",
+  "215657|2026|Travel Trailer|New|$28,976|Forest River RV Wildwood 260ICE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0702202520440950/unit_photo_20250702084409504574081.jpg",
+  "214406A|2022|Travel Trailer|Used|$28,992|Winnebago Micro Minnie 2108TB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202602241076/unit_photo_202602060224107654653566.jpg",
+  "225573|2026|Travel Trailer|New|$28,999|Gulf Stream RV Yellowstone Classic 257RB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0404202601393322/unit_photo_202604040139332264232926.jpg",
+  "222153|2026|Travel Trailer|New|$29,898|Keystone RV Hideout 262BHS|",
+  "220164|2026|Travel Trailer|New|$29,976|Heartland Prowler 2201MDS|",
+  "214176C|2024|Travel Trailer|Used|$29,992|Forest River RV Cherokee Alpha Wolf 23LDE-L|",
+  "218894A|2025|Travel Trailer|Used|$29,992|Forest River RV Wildwood 273QBXL|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0114202615543866/unit_photo_202601140354386627382755.jpg",
+  "215693|2025|Travel Trailer|New|$29,994|Gulf Stream RV Vintage Yellowstone 23RSS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202522540805/unit_photo_202509241054080490822791.jpg",
+  "223658|2026|Travel Trailer|New|$29,995|Winnebago Access 24RB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0210202623444747/unit_photo_202602101144474752525486.jpg",
+  "223365|2026|Travel Trailer|New|$29,995|Winnebago Access 25BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1104202500000550/unit_photo_202511041200055038816357.jpg",
+  "218269|2026|Travel Trailer|New|$29,995|Winnebago Micro Minnie 1800BH|",
+  "213747A|2025|Travel Trailer|Used|$29,995|Grand Design Imagine XLS 23LDE|",
+  "218147|2026|Travel Trailer|New|$29,999|Gulf Stream RV Yellowstone Classic 279BH|",
+  "219673|2026|Travel Trailer|New|$30,194|Prime Time RV Tracer 195RB|",
+  "220531|2026|Travel Trailer|New|$30,933|Forest River RV Salem Cruise Lite 26ICE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1209202523492004/unit_photo_202512091149200408843611.jpg",
+  "214502A|2022|Travel Trailer|Used|$30,987|Jayco White Hawk 29BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1209202523472710/unit_photo_202512091147271074541457.jpg",
+  "209559|2025|Travel Trailer|New|$31,254|Forest River RV Wildwood X-Lite 22VERANDA|",
+  "210647|2025|Travel Trailer|New|$31,994|Forest River RV Salem FSX 269VC|",
+  "220623|2026|Travel Trailer|New|$32,420|KZ Sportsmen SE 261BHKSE|",
+  "223091|2026|Travel Trailer|New|$32,558|Coachmen RV Freedom Express Select 249SE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0218202620013117/unit_photo_202602180801311782704108.jpg",
+  "216744|2026|Travel Trailer|New|$32,988|Forest River RV Salem Cruise Lite 25ICE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0813202502203925/unit_photo_202508130220392564615888.jpg",
+  "218272|2026|Travel Trailer|New|$32,995|Winnebago Micro Minnie 2100BH|",
+  "215803|2026|Travel Trailer|New|$33,499|Prime Time RV Tracer 275BH|",
+  "221248|2026|Travel Trailer|New|$33,818|Keystone RV Passport Classic 284QBC|",
+  "213110A|2024|Travel Trailer|Used|$33,872|Forest River RV Wildwood 27RKX|",
+  "213253|2025|Travel Trailer|New|$33,961|Ember RV E-Series 24RLD|",
+  "216398|2026|Travel Trailer|New|$33,988|Prime Time RV Tracer 235RK|",
+  "221203|2026|Travel Trailer|New|$33,988|Coachmen RV Freedom Express Select 29SE|",
+  "218274|2026|Travel Trailer|New|$33,995|Winnebago Micro Minnie 2108DS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0409202622390070/unit_photo_202604091039007078828307.jpg",
+  "223710|2026|Travel Trailer|New|$33,995|Winnebago Micro Minnie 2108FBS|",
+  "218265|2026|Travel Trailer|New|$33,995|Winnebago Micro Minnie 2108TB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0409202622384293/unit_photo_202604091038429378023457.jpg",
+  "221049|2026|Travel Trailer|New|$33,995|Winnebago Thrive 18FBS|",
+  "214091|2025|Travel Trailer|New|$34,250|Forest River RV Wildwood 28VIEWX|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0117202523482548/unit_photo_202501171148254824999684.jpg",
+  "204493A|2023|Travel Trailer|Used|$34,708|Keystone RV Outback Ultra Lite 291UBH|",
+  "220905|2026|Travel Trailer|New|$34,884|Forest River RV Salem Cruise Lite 23ZEN|",
+  "220633|2026|Travel Trailer|New|$34,894|KZ Sportsmen SE 301DBSE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0208202602361957/unit_photo_202602080236195776095250.jpg",
+  "219811|2026|Travel Trailer|New|$34,926|Forest River RV Salem Cruise Lite 28VBXL|",
+  "218859|2026|Travel Trailer|New|$34,976|Forest River RV Wildwood 300ICE|",
+  "220807|2026|Travel Trailer|New|$34,976|Forest River RV Wildwood X-Lite 23ZEN|",
+  "223928|2026|Travel Trailer|New|$34,988|Forest River RV Salem 27RK|",
+  "221180|2026|Travel Trailer|New|$34,988|Heartland North Trail 210MB|",
+  "210185|2025|Travel Trailer|New|$34,993|Keystone RV Outback 212RB|",
+  "209141|2025|Travel Trailer|New|$34,993|Keystone RV Outback 252RD|",
+  "219126|2026|Travel Trailer|New|$34,999|Forest River RV Salem 250ZEN|",
+  "216327|2026|Travel Trailer|New|$34,999|Forest River RV Salem 300ICE|",
+  "213044A|2024|Travel Trailer|Used|$35,392|CrossRoads RV Sunset Trail SS256RK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0815202519512889/unit_photo_202508150751288962618869.jpg",
+  "220641|2026|Travel Trailer|New|$35,603|KZ Sportsmen SE 301BHKSE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0211202614554994/unit_photo_202602110255499450516511.jpg",
+  "219818|2026|Travel Trailer|New|$35,988|Forest River RV Salem Cruise Lite 273QBXL|",
+  "219742|2026|Travel Trailer|New|$36,014|Forest River RV Vibe 2600BH|",
+  "224538|2026|Travel Trailer|New|$36,114|Keystone RV Passport Super Lite 229BH|",
+  "214215B|2023|Travel Trailer|Used|$36,872|Forest River RV Puma 31FKRK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1220202503003590/unit_photo_202512200300359058560189.jpg",
+  "220556|2026|Travel Trailer|New|$36,976|Forest River RV Cherokee Alpha Wolf 26DBH|",
+  "221345|2026|Travel Trailer|New|$36,988|Coachmen RV Freedom Express Select 30SE|",
+  "217568|2026|Travel Trailer|New|$37,988|Forest River RV Vibe 2600BH|",
+  "217484|2026|Travel Trailer|New|$37,988|Forest River RV Vibe 2600RB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0806202519453474/unit_photo_202508060745347473571925.jpg",
+  "224814|2026|Travel Trailer|New|$37,999|Forest River RV Salem 31KQBTS|",
+  "224081|2026|Travel Trailer|New|$38,243|Heartland North Trail 190MB|",
+  "220148|2026|Travel Trailer|New|$38,291|KZ Connect SE C281BHKSE|",
+  "224547|2026|Travel Trailer|New|$38,511|Keystone RV Passport Super Lite 2450RK|",
+  "220207|2026|Travel Trailer|New|$38,976|Forest River RV Vibe 2600RK|",
+  "221194|2026|Travel Trailer|New|$38,999|Heartland Prowler 3301RLT|",
+  "220063|2026|Travel Trailer|New|$39,264|Heartland North Trail 250CK|",
+  "213507|2025|Travel Trailer|New|$39,399|Dutchmen RV Kodiak 308BHSL|",
+  "217547|2026|Travel Trailer|New|$39,499|Forest River RV Salem 270ZEN|",
+  "217007A|2024|Travel Trailer|Used|$39,892|Palomino Puma 29BHSQ|",
+  "217602|2026|Travel Trailer|New|$39,976|Forest River RV Wildwood 270ZEN|",
+  "218280|2026|Travel Trailer|New|$39,995|Winnebago Thrive 22MBH|",
+  "219755|2026|Travel Trailer|New|$42,976|Forest River RV Vibe 2800RL|",
+  "218278|2026|Travel Trailer|New|$42,995|Winnebago Thrive 24RKS|",
+  "221213|2026|Travel Trailer|New|$43,432|Heartland North Trail 260DB|",
+  "222132|2026|Travel Trailer|New|$43,995|Winnebago Thrive 25RLS|",
+  "224122|2026|Travel Trailer|New|$44,988|Heartland North Trail 270CK|",
+  "216396|2026|Travel Trailer|New|$44,998|Prime Time RV Tracer 295DB|",
+  "220139|2026|Travel Trailer|New|$46,194|KZ Connect C282FKK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202500200431/unit_photo_20251107122004311224391.jpg",
+  "221621|2026|Travel Trailer|New|$46,725|Venture RV Stratus SR282VFD|",
+  "219777|2026|Travel Trailer|New|$46,976|Forest River RV Vibe 3400SB|",
+  "210189|2025|Travel Trailer|New|$46,994|Keystone RV Outback 340BH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0117202520572120/unit_photo_202501170857212016894766.jpg",
+  "223750|2026|Travel Trailer|New|$48,995|Winnebago Thrive 28BHS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0423202619283928/unit_photo_202604230728392852637807.jpg",
+  "223527|2026|Travel Trailer|New|$49,976|Coachmen RV Freedom Express Liberty Edition 330BHJJ|",
+  "218285|2026|Travel Trailer|New|$49,995|Winnebago Thrive 26FKD|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1014202523033709/unit_photo_20251014110337092933666.jpg",
+  "222127|2026|Travel Trailer|New|$50,107|Heartland Sundance Ultra-Lite 29RLBS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202620193060/unit_photo_202602060819306025063536.jpg",
+  "221251|2026|Travel Trailer|New|$50,271|Keystone RV Passport 3300BK|",
+  "220876|2026|Travel Trailer|New|$51,538|Forest River RV Salem Hemisphere 301FAM|",
+  "225182|2026|Travel Trailer|New|$54,096|Prime Time RV LaCrosse 3411RK|",
+  "219773|2026|Travel Trailer|New|$54,987|Forest River RV Vibe 3400BH|",
+  "214228A|2025|Travel Trailer|Used|$56,872|Grand Design Reflection 310MKTS|",
+  "225185|2026|Travel Trailer|New|$57,998|Prime Time RV LaCrosse 3510DB|",
+  "215532|2026|Travel Trailer|New|$61,995|Brinkley Model I 265|",
+  "220614|2026|Travel Trailer|New|$63,995|Brinkley Model I 275|",
+  "214972|2026|Travel Trailer|New|$66,995|Brinkley Model I 294|",
+  "216229|2026|Travel Trailer|New|$81,995|Brinkley Model Z Air 297|",
+  "221949|2026|Destination Trailer|New|$46,976|Forest River RV Cherokee Timberwolf 20OG|",
+  "214780|2025|Destination Trailer|New|$54,994|Forest River RV Cherokee Timberwolf Black Label 39ALBL|",
+  "212176|2025|Destination Trailer|New|$56,250|CrossRoads RV Hampton 380RKS|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0905202516042096/unit_photo_202509050404209584396749.jpg",
+  "222776|2026|Destination Trailer|New|$62,177|Prime Time RV LaCrosse 44PARK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0224202616024724/unit_photo_202602240402472441022167.jpg",
+  "210979|2025|Destination Trailer|New|$62,994|Forest River RV Wildwood Grand Lodge 42VERANDA|",
+  "215719|2026|Destination Trailer|New|$62,999|Forest River RV Salem Grand Villa 42ICE|",
+  "208348A|2024|Destination Trailer|Used|$63,872|Forest River RV Wildwood Grand Lodge 44VIEW|",
+  "212661|2025|Destination Trailer|New|$64,250|Forest River RV Wildwood Grand Lodge 44VIEW|",
+  "219711|2026|Destination Trailer|New|$69,976|Forest River RV Sandpiper Destination Trailers 41DUPLEX|",
+  "220170|2026|Destination Trailer|New|$99,976|Gulf Stream RV Yellowstone Y5245|",
+  "219615|2026|Fifth Wheel|New|$39,976|Heartland Sundance 24ML|",
+  "221706|2026|Fifth Wheel|New|$41,835|Coachmen RV Chaparral Lite 218SE|",
+  "224265|2026|Fifth Wheel|New|$44,399|Heartland Sundance 28DB|",
+  "210931A|2024|Fifth Wheel|Used|$45,882|Dutchmen RV Astoria 260RK|",
+  "217334|2026|Fifth Wheel|New|$49,988|Forest River RV Cherokee Arctic Wolf 285OPT|",
+  "218983A|2019|Fifth Wheel|Used|$49,992|Keystone RV Montana 3855BR|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616322854/unit_photo_202604210432285391496441.jpg",
+  "221157|2026|Fifth Wheel|New|$52,690|Keystone RV Arcadia Super Lite 242SLMD|",
+  "220366|2026|Fifth Wheel|New|$54,480|Keystone RV Arcadia Super Lite 308SLBH|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202515204877/unit_photo_202512230320487765818602.jpg",
+  "210131|2025|Fifth Wheel|New|$56,250|Forest River RV Cherokee Arctic Wolf Suite 3800DECK|",
+  "212906B|2023|Fifth Wheel|Used|$59,864|CrossRoads RV Cameo 3891MK|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0904202519574536/unit_photo_202509040757453674452971.jpg",
+  "220179|2026|Fifth Wheel|New|$59,995|KZ Ridgeway 27RK|",
+  "220103|2026|Fifth Wheel|New|$62,782|Forest River RV Salem Hemisphere 321DRL|",
+  "218365|2026|Fifth Wheel|New|$62,899|Coachmen RV Chaparral 375BAF|",
+  "220228|2026|Fifth Wheel|New|$64,708|Forest River RV Salem Hemisphere 356QB|",
+  "213204|2025|Fifth Wheel|New|$64,994|Forest River RV Impression 44STAY|",
+  "220188|2026|Fifth Wheel|New|$64,995|KZ Ridgeway 31RL|",
+  "220122|2026|Fifth Wheel|New|$65,995|KZ Durango Half-Ton D256RKT|",
+  "216373|2026|Fifth Wheel|New|$66,988|Forest River RV Cardinal 35FUN|",
+  "217272|2026|Fifth Wheel|New|$66,988|Forest River RV Cardinal 36MB|",
+  "220891|2026|Fifth Wheel|New|$67,495|KZ Ridgeway 32ML|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0205202623085565/unit_photo_202602051108556556577765.jpg",
+  "224766|2026|Fifth Wheel|New|$67,875|Coachmen RV Chaparral 381DBL|",
+  "220246|2026|Fifth Wheel|New|$68,852|Keystone RV Sprinter 3920DSL|",
+  "220584|2026|Fifth Wheel|New|$68,899|Coachmen RV Chaparral 334FL|",
+  "219027|2026|Fifth Wheel|New|$68,976|Forest River RV Impression 36BR3|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202500203600/unit_photo_202511071220359992753909.jpg",
+  "213635|2025|Fifth Wheel|New|$69,250|KZ Durango D341RPT|",
+  "211450|2025|Fifth Wheel|New|$69,250|Palomino Columbus 380RL|",
+  "220364|2026|Fifth Wheel|New|$69,900|Keystone RV Arcadia 3260RL|",
+  "218578|2026|Fifth Wheel|New|$69,999|EAST TO WEST Tandara 388LR|",
+  "220303|2026|Fifth Wheel|New|$70,196|Keystone RV Sprinter 3980FBS|",
+  "203644A|2023|Fifth Wheel|Used|$70,507|Forest River RV Cardinal Luxury 380RLX|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1227202420580282/unit_photo_202412270858028208382733.jpg",
+  "220283|2026|Fifth Wheel|New|$71,786|Keystone RV Sprinter 3840LRK|",
+  "219397|2026|Fifth Wheel|New|$71,999|Forest River RV Sandpiper 4003MB|",
+  "218548|2026|Fifth Wheel|New|$73,802|EAST TO WEST Tandara 387BH|",
+  "220082|2026|Fifth Wheel|New|$73,976|EAST TO WEST Tandara 390FL|",
+  "215813|2026|Fifth Wheel|New|$73,988|Keystone RV Montana High Country 311RD|",
+  "220143|2026|Fifth Wheel|New|$73,995|KZ Ridgeway 36MB|",
+  "218179|2026|Fifth Wheel|New|$74,976|Forest River RV Sandpiper 3800RK|",
+  "210818|2025|Fifth Wheel|New|$76,250|Keystone RV Montana 3623EB|",
+  "222398|2026|Fifth Wheel|New|$77,087|Coachmen RV Brookstone 344FL|",
+  "220330|2026|Fifth Wheel|New|$77,900|Keystone RV Montana High Country 331RL|",
+  "216104|2026|Fifth Wheel|New|$78,988|Keystone RV Montana High Country 325RK|",
+  "220321|2026|Fifth Wheel|New|$79,150|Keystone RV Montana High Country 295RL|",
+  "222471|2026|Fifth Wheel|New|$80,874|Coachmen RV Brookstone 374RK|",
+  "220542|2026|Fifth Wheel|New|$82,216|Forest River RV Sandpiper 3844QUAD|",
+  "220130|2026|Fifth Wheel|New|$82,995|KZ Durango D301RLT|",
+  "220112|2026|Fifth Wheel|New|$83,995|KZ Durango D321RKT|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1110202514453447/unit_photo_202511100245344770769727.jpg",
+  "217239|2026|Fifth Wheel|New|$83,999|EAST TO WEST Ahara 383UR|",
+  "220818|2026|Fifth Wheel|New|$84,987|Forest River RV Cedar Creek Experience 29RL|",
+  "219201|2026|Fifth Wheel|New|$85,995|Brinkley Model Z 2680|",
+  "220338|2026|Fifth Wheel|New|$86,900|Keystone RV Montana High Country 377FL|",
+  "220265|2026|Fifth Wheel|New|$87,900|Keystone RV Montana High Country 381TB|",
+  "224075|2026|Fifth Wheel|New|$87,995|Heartland Milestone 39TB|",
+  "217094|2026|Fifth Wheel|New|$88,995|Brinkley Model Z 2810|",
+  "218726|2026|Fifth Wheel|New|$93,988|Keystone RV Montana High Country 397FB|",
+  "217596|2026|Fifth Wheel|New|$93,995|Forest River RV Cedar Creek Cottage Fifth Wheels 412FWC|",
+  "220134|2026|Fifth Wheel|New|$97,995|KZ Durango D348BHF|",
+  "220325|2026|Fifth Wheel|New|$98,900|Keystone RV Montana 3231CK|",
+  "217109|2026|Fifth Wheel|New|$99,995|Brinkley Model Z 3100|",
+  "220333|2026|Fifth Wheel|New|$102,900|Keystone RV Montana 3532SP|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0821202520023425/unit_photo_202508210802342509476335.jpg",
+  "225107|2026|Fifth Wheel|New|$104,995|Brinkley Model Z 3200|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1217202523524026/unit_photo_202512171152402659471311.jpg",
+  "220315|2026|Fifth Wheel|New|$104,995|Heartland Bighorn 39RK|",
+  "216622|2026|Fifth Wheel|New|$105,988|Keystone RV Montana 3532SP|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0821202520023425/unit_photo_202508210802342509476335.jpg",
+  "221849|2026|Fifth Wheel|New|$105,995|Brinkley Model Z 3515|",
+  "218716|2026|Fifth Wheel|New|$106,988|Keystone RV Montana 3761FL|",
+  "215838|2026|Fifth Wheel|New|$108,988|Keystone RV Montana 3941FO|",
+  "218494|2026|Fifth Wheel|New|$109,995|Brinkley Model Z 3610|",
+  "220764|2026|Fifth Wheel|New|$113,650|Keystone RV Montana 3795FK|",
+  "224042|2026|Fifth Wheel|New|$113,995|Heartland Bighorn 39FL|",
+  "221738|2026|Fifth Wheel|New|$124,995|KZ Durango Gold G388FLS|",
+  "215050|2026|Fifth Wheel|New||Brinkley Model Z 3300|",
+  "218766|2026|Fifth Wheel|New|$149,986|Forest River RV RiverStone Legacy 39RKFB|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1217202523505205/unit_photo_202512171150520542455536.jpg",
+  "218772|2026|Fifth Wheel|New|$164,448|Forest River RV RiverStone Legacy 425FO|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202517544955/unit_photo_202512230554495565974423.jpg",
+  "207407A|2021|Toy Hauler|Used|$27,992|Forest River RV XLR Boost 27QBX|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0211202614544368/unit_photo_202602110254436803280634.jpg",
+  "220155|2026|Toy Hauler|New|$51,379|KZ Sportster X 22X|",
+  "216211|2026|Toy Hauler|New|$64,988|Forest River RV Cherokee Rogue Armored 32L132|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0723202502081819/unit_photo_202507230208181951263512.jpg",
+  "224060|2026|Toy Hauler|New|$64,995|Heartland Cyclone 2214|",
+  "212106|2025|Toy Hauler|New|$48,994|Forest River RV Vengeance Rogue SUT 323SUT|",
+  "211137|2025|Toy Hauler|New|$76,994|KZ Sportster X 3914X|",
+  "222903|2026|Toy Hauler|New|$84,995|Keystone RV Raptor Carbon Series 360|",
+  "220151|2026|Toy Hauler|New|$88,999|Keystone RV Fuzion Impact Edition 367|",
+  "214868|2025|Toy Hauler|New|$89,994|Keystone RV Raptor Carbon Series 398|",
+  "220504|2026|Toy Hauler|New|$89,999|Keystone RV Fuzion Impact Edition 416|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1218202523540166/unit_photo_202512181154016675036688.jpg",
+  "221257|2026|Toy Hauler|New|$92,999|Keystone RV Raptor Carbon Series 368|",
+  "219122|2026|Toy Hauler|New|$106,495|Heartland Cyclone 3913|",
+  "219131|2026|Toy Hauler|New|$106,995|Heartland Cyclone 3914|",
+  "218509|2026|Toy Hauler|New|$134,999|Keystone RV Fuzion 442|",
+  "217143|2026|Toy Hauler|New|$184,995|Brinkley Model G 3970|",
+  "215463|2026|Toy Hauler|New|$185,995|Brinkley Model G 4100|",
+  "209785A|2020|Travel Trailer|Used|$13,892|Forest River RV Flagstaff SE T21TBHWSE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0903202519563747/unit_photo_202509030756374758958341.jpg"
+];
+
+const URL_MAP = {"209141":"https://www.funtownrv.com/product/new-2025-keystone-rv-outback-252rd-2840262-29","209559":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-x-lite-22veranda-3216646-29","210131":"https://www.funtownrv.com/product/new-2025-forest-river-rv-cherokee-arctic-wolf-suite-3800deck-3091276-5","210185":"https://www.funtownrv.com/product/new-2025-keystone-rv-outback-212rb-3023229-29","210189":"https://www.funtownrv.com/product/new-2025-keystone-rv-outback-340bh-2857422-29","210647":"https://www.funtownrv.com/product/new-2025-forest-river-rv-salem-fsx-269vc-3216670-28","210818":"https://www.funtownrv.com/product/new-2025-keystone-rv-montana-3623eb-2766623-5","210979":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-grand-lodge-42veranda-3216648-3","211137":"https://www.funtownrv.com/product/new-2025-kz-sportster-x-3914x-2849438-26","211450":"https://www.funtownrv.com/product/new-2025-palomino-columbus-380rl-3309766-5","212106":"https://www.funtownrv.com/product/new-2025-forest-river-rv-vengeance-rogue-sut-323sut-3216707-26","212176":"https://www.funtownrv.com/product/new-2025-crossroads-rv-hampton-380rks-2853747-3","212661":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-grand-lodge-44view-2916347-3","213204":"https://www.funtownrv.com/product/new-2025-forest-river-rv-impression-44stay-3216720-5","213253":"https://www.funtownrv.com/product/new-2025-ember-rv-e-series-24rld-2885721-29","213507":"https://www.funtownrv.com/product/new-2025-dutchmen-rv-kodiak-308bhsl-3164086-29","213635":"https://www.funtownrv.com/product/new-2025-kz-durango-d341rpt-3110328-5","214091":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-28viewx-3216653-29","214268":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-x-lite-25ice-2904447-29","214780":"https://www.funtownrv.com/product/new-2025-forest-river-rv-cherokee-timberwolf-black-label-39albl-3091281-3","214868":"https://www.funtownrv.com/product/new-2025-keystone-rv-raptor-carbon-series-398-3018784-26","214972":"https://www.funtownrv.com/product/new-2026-brinkley-model-i-294-3547661-29","215050":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3300-2932667-5","215463":"https://www.funtownrv.com/product/new-2026-brinkley-model-g-4100-3481965-26","215532":"https://www.funtownrv.com/product/new-2026-brinkley-model-i-265-3369501-29","215586":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-266bhle-3475978-29","215657":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-260ice-3311901-29","215693":"https://www.funtownrv.com/product/new-2025-gulf-stream-rv-vintage-yellowstone-23rss-3285658-29","215719":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-grand-villa-42ice-3275916-3","215803":"https://www.funtownrv.com/product/new-2026-prime-time-rv-tracer-275bh-3603798-29","215813":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-311rd-3152726-5","215838":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3941fo-3447963-5","216104":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-325rk-3178899-5","216185":"https://www.funtownrv.com/product/new-2026-dutchmen-rv-kodiak-130bhs-3218260-29","216211":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-rogue-armored-32l132-3088761-28","216229":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-air-297-3483958-29","216303":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-fsx-266bhle-3454123-29","216313":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-260ice-3388884-29","216327":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-300ice-3591472-29","216373":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cardinal-35fun-3295822-5","216396":"https://www.funtownrv.com/product/new-2026-prime-time-rv-tracer-295db-3597002-29","216398":"https://www.funtownrv.com/product/new-2026-prime-time-rv-tracer-235rk-3285640-29","216622":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3532sp-3414588-5","216744":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-25ice-3599553-29","217094":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-2810-3535802-5","217109":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3100-3567455-5","217143":"https://www.funtownrv.com/product/new-2026-brinkley-model-g-3970-3600873-26","217239":"https://www.funtownrv.com/product/new-2026-east-to-west-ahara-383ur-3304314-5","217272":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cardinal-36mb-3347858-5","217334":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-arctic-wolf-285opt-3449490-5","217484":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2600rb-3541312-29","217547":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-270zen-3414121-29","217568":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2600bh-3591213-29","217596":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cedar-creek-cottage-fifth-wheels-412fwc-3519138-5","217602":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-270zen-3371159-29","218147":"https://www.funtownrv.com/product/new-2026-gulf-stream-rv-yellowstone-classic-279bh-3595373-29","218179":"https://www.funtownrv.com/product/new-2026-forest-river-rv-sandpiper-3800rk-3555635-5","218241":"https://www.funtownrv.com/product/new-2026-crossroads-rv-sunset-trail-select-17bhs-3284733-29","218265":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-2108tb-3576835-29","218269":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-1800bh-3291831-29","218272":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-2100bh-3584983-29","218274":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-2108ds-3599655-29","218278":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-24rks-3293590-29","218280":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-22mbh-3444651-29","218285":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-26fkd-3421088-29","218365":"https://www.funtownrv.com/product/new-2026-coachmen-rv-chaparral-375baf-3591219-5","218494":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3610-3505876-5","218509":"https://www.funtownrv.com/product/new-2026-keystone-rv-fuzion-442-3400412-26","218548":"https://www.funtownrv.com/product/new-2026-east-to-west-tandara-387bh-3502299-5","218578":"https://www.funtownrv.com/product/new-2026-east-to-west-tandara-388lr-3521474-5","218716":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3761fl-3267399-5","218726":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-397fb-3280282-5","218766":"https://www.funtownrv.com/product/new-2026-forest-river-rv-riverstone-legacy-39rkfb-3392445-5","218772":"https://www.funtownrv.com/product/new-2026-forest-river-rv-riverstone-legacy-425fo-3400788-5","218859":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-300ice-3599847-29","219012":"https://www.funtownrv.com/product/new-2026-crossroads-rv-fun-time-195rb-3300880-29","219027":"https://www.funtownrv.com/product/new-2026-forest-river-rv-impression-36br3-3552383-5","219122":"https://www.funtownrv.com/product/new-2026-heartland-cyclone-3913-3552066-26","219126":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-250zen-3375274-29","219131":"https://www.funtownrv.com/product/new-2026-heartland-cyclone-3914-3544755-26","219201":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-2680-3505875-5","219397":"https://www.funtownrv.com/product/new-2026-forest-river-rv-sandpiper-4003mb-3371169-5","219615":"https://www.funtownrv.com/product/new-2026-heartland-sundance-24ml-3589252-5","219673":"https://www.funtownrv.com/product/new-2026-prime-time-rv-tracer-195rb-3591470-29","219711":"https://www.funtownrv.com/product/new-2026-forest-river-rv-sandpiper-destination-trailers-41duplex-3508370-3","219742":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2600bh-3591213-29","219755":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2800rl-3499068-29","219773":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-3400bh-3593028-29","219777":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-3400sb-3536048-29","219811":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-28vbxl-3573503-29","219818":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-273qbxl-3594656-29","219922":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-178ice-3599844-29","220063":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-250ck-3546240-29","220082":"https://www.funtownrv.com/product/new-2026-east-to-west-tandara-390fl-3535797-5","220103":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-hemisphere-321drl-3497422-5","220112":"https://www.funtownrv.com/product/new-2026-kz-durango-d321rkt-3445657-5","220122":"https://www.funtownrv.com/product/new-2026-kz-durango-half-ton-d256rkt-3319074-5","220130":"https://www.funtownrv.com/product/new-2026-kz-durango-d301rlt-3412463-5","220134":"https://www.funtownrv.com/product/new-2026-kz-durango-d348bhf-3445658-5","220139":"https://www.funtownrv.com/product/new-2026-kz-connect-c282fkk-3321291-29","220143":"https://www.funtownrv.com/product/new-2026-kz-ridgeway-36mb-3499056-5","220148":"https://www.funtownrv.com/product/new-2026-kz-connect-se-c281bhkse-3314285-29","220151":"https://www.funtownrv.com/product/new-2026-keystone-rv-fuzion-impact-edition-367-3523649-26","220155":"https://www.funtownrv.com/product/new-2026-kz-sportster-x-22x-3412473-28","220164":"https://www.funtownrv.com/product/new-2026-heartland-prowler-2201mds-3535813-29","220170":"https://www.funtownrv.com/product/new-2026-gulf-stream-rv-yellowstone-y5245-3405001-16","220179":"https://www.funtownrv.com/product/new-2026-kz-ridgeway-27rk-3457258-5","220188":"https://www.funtownrv.com/product/new-2026-kz-ridgeway-31rl-3457259-5","220207":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2600rk-3519150-29","220228":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-hemisphere-356qb-3521225-5","220246":"https://www.funtownrv.com/product/new-2026-keystone-rv-sprinter-3920dsl-3418174-5","220265":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-381tb-3442298-5","220283":"https://www.funtownrv.com/product/new-2026-keystone-rv-sprinter-3840lrk-3418053-5","220303":"https://www.funtownrv.com/product/new-2026-keystone-rv-sprinter-3980fbs-3449691-5","220315":"https://www.funtownrv.com/product/new-2026-heartland-bighorn-39rk-3583179-5","220321":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-295rl-3556853-5","220325":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3231ck-3405004-5","220330":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-331rl-3406043-5","220333":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3532sp-3414588-5","220338":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-377fl-3418176-5","220364":"https://www.funtownrv.com/product/new-2026-keystone-rv-arcadia-3260rl-3482254-5","220366":"https://www.funtownrv.com/product/new-2026-keystone-rv-arcadia-super-lite-308slbh-3513909-5","220376":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-230bh-3499526-29","220504":"https://www.funtownrv.com/product/new-2026-keystone-rv-fuzion-impact-edition-416-3414127-26","220531":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-26ice-3598989-29","220542":"https://www.funtownrv.com/product/new-2026-forest-river-rv-sandpiper-3844quad-3505873-5","220556":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-alpha-wolf-26dbh-3541313-29","220584":"https://www.funtownrv.com/product/new-2026-coachmen-rv-chaparral-334fl-3505471-5","220614":"https://www.funtownrv.com/product/new-2026-brinkley-model-i-275-3599672-29","220623":"https://www.funtownrv.com/product/new-2026-kz-sportsmen-se-261bhkse-3457261-29","220633":"https://www.funtownrv.com/product/new-2026-kz-sportsmen-se-301dbse-3478262-29","220641":"https://www.funtownrv.com/product/new-2026-kz-sportsmen-se-301bhkse-3499060-29","220764":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3795fk-3444638-5","220807":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-x-lite-23zen-3464974-29","220818":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cedar-creek-experience-29rl-3500590-5","220876":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-hemisphere-301fam-3504526-29","220891":"https://www.funtownrv.com/product/new-2026-kz-ridgeway-32ml-3467707-5","220905":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-23zen-3556859-29","221049":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-18fbs-3599656-29","221157":"https://www.funtownrv.com/product/new-2026-keystone-rv-arcadia-super-lite-242slmd-3490672-5","221180":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-210mb-3552072-29","221187":"https://www.funtownrv.com/product/new-2026-heartland-prowler-2500bh-3533809-29","221194":"https://www.funtownrv.com/product/new-2026-heartland-prowler-3301rlt-3399367-29","221203":"https://www.funtownrv.com/product/new-2026-coachmen-rv-freedom-express-select-29se-3546239-29","221211":"https://www.funtownrv.com/product/new-2026-heartland-prowler-1802mbs-3490700-29","221213":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-260db-3540096-29","221248":"https://www.funtownrv.com/product/new-2026-keystone-rv-passport-classic-284qbc-3495703-29","221251":"https://www.funtownrv.com/product/new-2026-keystone-rv-passport-3300bk-3513920-29","221257":"https://www.funtownrv.com/product/new-2026-keystone-rv-raptor-carbon-series-368-3447978-26","221345":"https://www.funtownrv.com/product/new-2026-coachmen-rv-freedom-express-select-30se-3516609-29","221573":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-mini-161bh-3490395-29","221591":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-mini-166rb-3485766-29","221621":"https://www.funtownrv.com/product/new-2026-venture-rv-stratus-sr282vfd-3492548-29","221650":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-mini-195rbs-3488070-29","221706":"https://www.funtownrv.com/product/new-2026-coachmen-rv-chaparral-lite-218se-3604208-5","221738":"https://www.funtownrv.com/product/new-2026-kz-durango-gold-g388fls-3478485-5","221830":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-mini-199bhs-3487700-29","221849":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3515-3603505-5","221949":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-timberwolf-20og-3508375-3","222052":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-wolf-pup-14rklp-3550110-29","222127":"https://www.funtownrv.com/product/new-2026-heartland-sundance-ultra-lite-29rlbs-3490399-29","222132":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-25rls-3595367-29","222153":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-262bhs-3495464-29","222398":"https://www.funtownrv.com/product/new-2026-coachmen-rv-brookstone-344fl-3527755-5","222471":"https://www.funtownrv.com/product/new-2026-coachmen-rv-brookstone-374rk-3600584-5","222504":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-174dble-3587163-29","222776":"https://www.funtownrv.com/product/new-2026-prime-time-rv-lacrosse-44park-3595880-3","222903":"https://www.funtownrv.com/product/new-2026-keystone-rv-raptor-carbon-series-360-3519722-26","223091":"https://www.funtownrv.com/product/new-2026-coachmen-rv-freedom-express-select-249se-3514298-29","223311":"https://www.funtownrv.com/product/new-2026-winnebago-access-18dbh-3583173-29","223365":"https://www.funtownrv.com/product/new-2026-winnebago-access-25bh-3596992-29","223527":"https://www.funtownrv.com/product/new-2026-coachmen-rv-freedom-express-liberty-edition-330bhjj-3560639-29","223658":"https://www.funtownrv.com/product/new-2026-winnebago-access-24rb-3574017-29","223710":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-2108fbs-3581100-29","223750":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-28bhs-3599657-29","223887":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-177ice-3604217-29","223928":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-27rk-3600863-29","223936":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-180ice-3591666-29","224042":"https://www.funtownrv.com/product/new-2026-heartland-bighorn-39fl-3564141-5","224060":"https://www.funtownrv.com/product/new-2026-heartland-cyclone-2214-3590227-28","224075":"https://www.funtownrv.com/product/new-2026-heartland-milestone-39tb-3560406-5","224081":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-190mb-3532400-29","224122":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-270ck-3591669-29","224232":"https://www.funtownrv.com/product/new-2026-heartland-prowler-2702bhs-3540418-29","224265":"https://www.funtownrv.com/product/new-2026-heartland-sundance-28db-3591217-5","224538":"https://www.funtownrv.com/product/new-2026-keystone-rv-passport-super-lite-229bh-3523988-29","224547":"https://www.funtownrv.com/product/new-2026-keystone-rv-passport-super-lite-2450rk-3517372-29","224766":"https://www.funtownrv.com/product/new-2026-coachmen-rv-chaparral-381dbl-3601111-5","224814":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-31kqbts-3599559-29","225107":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3200-3603500-5","225182":"https://www.funtownrv.com/product/new-2026-prime-time-rv-lacrosse-3411rk-3603802-29","225185":"https://www.funtownrv.com/product/new-2026-prime-time-rv-lacrosse-3510db-3600870-29","225481":"https://www.funtownrv.com/product/new-2026-gulf-stream-rv-yellowstone-classic-199rk-3580964-29","225573":"https://www.funtownrv.com/product/new-2026-gulf-stream-rv-yellowstone-classic-257rb-3602517-29","214428A":"https://www.funtownrv.com/product/used-2025-gulf-stream-rv-enlighten-17bh-3566240-29","223346A":"https://www.funtownrv.com/product/used-2024-keystone-rv-springdale-classic-mini-1800bh-3555041-29","212638A":"https://www.funtownrv.com/product/used-2025-keystone-rv-springdale-classic-mini-1800bh-3184391-29","214031A":"https://www.funtownrv.com/product/used-2024-prime-time-rv-avenger-26bk-3251310-29","E10225A":"https://www.funtownrv.com/product/used-2023-forest-river-rv-cherokee-wolf-pup-16cw-3116523-29","E10163A":"https://www.funtownrv.com/product/used-2024-forest-river-rv-salem-fsx-162view-3267719-29","210351A":"https://www.funtownrv.com/product/used-2021-jayco-34rsbs-3377772-29","217810A":"https://www.funtownrv.com/product/used-2021-venture-rv-sporttrek-281vbh-3396655-29","214406A":"https://www.funtownrv.com/product/used-2022-winnebago-micro-minnie-2108tb-3444932-29","214176C":"https://www.funtownrv.com/product/used-2024-forest-river-rv-cherokee-alpha-wolf-23lde-l-3578667-29","218894A":"https://www.funtownrv.com/product/used-2025-forest-river-rv-wildwood-273qbxl-3417533-29","213747A":"https://www.funtownrv.com/product/used-2025-grand-design-imagine-xls-23lde-3457248-29","214502A":"https://www.funtownrv.com/product/used-2022-jayco-white-hawk-29bh-3400776-29","213110A":"https://www.funtownrv.com/product/used-2024-forest-river-rv-wildwood-27rkx-3351525-29","204493A":"https://www.funtownrv.com/product/used-2023-keystone-rv-outback-ultra-lite-291ubh-3171890-29","213044A":"https://www.funtownrv.com/product/used-2024-crossroads-rv-sunset-trail-ss256rk-3116505-29","214215B":"https://www.funtownrv.com/product/used-2023-forest-river-rv-puma-31fkrk-3377773-29","217007A":"https://www.funtownrv.com/product/used-2024-palomino-puma-29bhsq-3253105-29","214228A":"https://www.funtownrv.com/product/used-2025-grand-design-reflection-310mkts-3347843-29","208348A":"https://www.funtownrv.com/product/used-2024-forest-river-rv-wildwood-grand-lodge-44view-2806413-3","210931A":"https://www.funtownrv.com/product/used-2024-dutchmen-rv-astoria-260rk-3212869-5","218983A":"https://www.funtownrv.com/product/used-2019-keystone-rv-montana-3855br-3564135-5","212906B":"https://www.funtownrv.com/product/used-2023-crossroads-rv-cameo-3891mk-3154799-5","203644A":"https://www.funtownrv.com/product/used-2023-forest-river-rv-cardinal-luxury-380rlx-2906595-5","207407A":"https://www.funtownrv.com/product/used-2021-forest-river-rv-xlr-boost-27qbx-3171157-28","209785A":"https://www.funtownrv.com/product/used-2020-forest-river-rv-flagstaff-se-t21tbhwse-3171895-7"};
+
+// ─── LAYOUT DETECTION ─────────────────────────────────────────────────────────
+function getLayout(brandModel) {
+  const m = brandModel.toUpperCase();
+  // Check model suffix patterns
+  if (/\b\d*FL\b/.test(m) || /FRONT.?LIV/i.test(m))         return 'Front Living';
+  if (/\b\d*RL[BST]?\b/.test(m) || /REAR.?LIV/i.test(m))    return 'Rear Living';
+  if (/\b\d*(RK|RKFB|RKS|RKT)\b/.test(m))                    return 'Rear Kitchen';
+  if (/\b\d*(FK[DK]?|FKW)\b/.test(m))                        return 'Front Kitchen';
+  if (/\b\d*(MK|MKT|MKS)\b/.test(m))                         return 'Mid Kitchen';
+  if (/\b\d*(QUAD)\b/.test(m) || /4.?BEDROOM/i.test(m))      return 'Quad/4-Bedroom';
+  if (/\b\d*(TB|TBH|3BH)\b/.test(m))                         return 'Triple Bunk';
+  if (/\b\d*(DBH|DB[SL]?|DBLE)\b/.test(m))                   return 'Double Bunk';
+  if (/\b\d*(BH[SLF]?|BHS|BHK|BHSL|BHKSE)\b/.test(m))       return 'Bunkhouse';
+  if (/\b\d*BH\b/.test(m))                                    return 'Bunkhouse';
+  if (/\b\d*(DRL|DLR)\b/.test(m))                             return 'Double Rear Living';
+  if (/\b\d*(MBS|MDS|MB)\b/.test(m))                         return 'Master Suite';
+  if (/\b\d*(CK|QBC)\b/.test(m))                              return 'Corner Kitchen';
+  if (/\b\d*(RBS|RBD)\b/.test(m))                             return 'Rear Bath Suite';
+  if (/\b\d*(VFD|VIEW|VIEWX)\b/.test(m))                      return 'View/Panoramic';
+  if (/\b\d*FAM\b/.test(m))                                   return 'Family Suite';
+  if (/\b\d*SB\b/.test(m))                                    return 'Side Bath';
+  if (/\b\d*(ZEN|ICE)\b/.test(m))                             return 'Open Concept';
+  return '';
+}
+
+const BATHS = {209141:1,209559:1,210131:1,210185:1,210189:1,210647:1,210818:1,210979:1,
+211137:1.5,211450:1,212106:1,212176:1,212661:1.5,213204:1.5,213253:1,213507:1,213635:1,
+214091:1,214268:1,214780:1,214868:2,214972:1,215050:1,215463:1.5,215532:1,215586:1,
+215657:1,215693:1,215719:1,215803:1,215813:1,215838:1,216104:1,216185:1,216211:1.5,
+216229:1,216303:1,216327:1,216373:2,216396:1,216398:1,216622:1,216744:1,217094:1,
+217109:1,217143:2,217239:1,217272:1,217334:1,217484:1,217547:1,217568:1,217596:1,
+217602:1,218147:1,218179:2,218241:1,218265:1,218269:1,218272:1,218274:1,218278:1,
+218280:1,218285:1,218365:2,218494:1,218509:1.5,218548:2,218578:1,218716:1.5,218726:2,
+218766:1.5,218772:1,218859:1,219012:1,219027:1,219122:1.5,219126:1,219131:1.5,219201:1,
+219397:1,219615:1,219673:1,219711:1.5,219742:1,219755:1,219773:1,219777:1,219811:1,
+219818:1,219922:1,220063:1,220082:1,220103:2,220112:1,220122:1,220130:1,220134:2,
+220139:1,220143:1,220148:1,220151:1,220155:1,220164:1,220170:1,220179:1,220188:1,
+220207:1,220228:1,220246:1,220265:1,220283:1,220303:1,220315:1,220321:1,220325:1,
+220330:1,220333:1,220338:1,220364:1,220366:1,220376:1,220504:1,220531:1,220542:1,
+220556:1,220584:1,220614:1,220623:1,220633:1,220641:1,220764:1,220807:1,220818:1,
+220876:1,220891:1,220905:1,221049:1,221157:1,221180:1,221187:1,221194:1,221203:1,
+221211:1,221213:1,221248:1,221251:1.5,221257:1,221345:1,221573:1,221591:1,221621:1,
+221649:1,221706:1,221738:1,221830:1,221849:1,221949:1,222052:1,222127:1,222132:1,
+222153:1,222398:1,222471:1,222504:1,222776:1,222903:1,223091:1,223311:1,223365:1,
+223527:1.5,223658:1,223710:1,223750:1,223887:1,223928:1,223936:1,224042:1,224060:1,
+224075:1,224081:1,224122:1,224232:1,224265:1,224538:1,224547:1,224766:1,224814:1,
+225107:1,225182:1,225185:1.5,225481:1,225573:1,"210351A":1,"214406A":1,"217810A":1,
+"214176C":1,"218894A":1,"214502A":1,"213747A":1,"213044A":1,"210931A":1,"208348A":1,
+"214215B":1,"212638A":1,"E10163A":1,"217007A":1,"E10225A":1,"203644A":1,"218983A":1,
+"212906B":1,"213110A":1,"207407A":1,"204493A":1,"214428A":1,"223346A":1,"214228A":1,
+"209785A":1};
+
+const FTRV_DATA = {
+  "210818":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area"],length_ft:40,dry_weight_lb:null,sleeps:4,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFM0T27S4700506",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0109202520582565/unit_photo_20250109085825654085053.jpg"},
+  "211450":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area"],length_ft:38,dry_weight_lb:13363,sleeps:4,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 6 in",floorplanUrl:"",vin:"4X4FCMP21S6015004",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0401202522415502/unit_photo_202504011041550191580924.jpg"},
+  "210979":{features:["Dual or Triple AC","King Bed","Kitchen Island","Texas Chill Package"],length_ft:45,dry_weight_lb:13754,sleeps:6,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Versa-Tilt Custom King, Queen",ac_btu:"",shower_size:"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4X4TWD836SM064275",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1118202415372102/unit_photo_2024111803372102557095.jpg"},
+  "210189":{features:["Bunkhouse","Dual or Triple AC","Kitchen Island","Texas Chill Package"],length_ft:38,dry_weight_lb:8930,sleeps:9,slides:3,baths:1,fresh_gal:54,grey_gal:38,black_gal:76,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 40\"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"4YDT0BS20SA450376",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0120202517591869/unit_photo_202501200559186927427151.jpg"},
+  "210647":{features:["Dual or Triple AC","King Bed"],length_ft:31,dry_weight_lb:7778,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"11 ft 6 in",floorplanUrl:"",vin:"4X4TSMC27SY014911",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0124202518043830/unit_photo_202501240604383052363947.jpg"},
+  "212106":{features:["Dual or Triple AC","King Bed","Two Entry/Exit Doors"],length_ft:null,dry_weight_lb:null,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"5NHFVGH28SC005438",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0510202501533273/unit_photo_202505100153327333824571.jpg"},
+  "210131":{features:["Dual or Triple AC","King Bed","Kitchen Island","Two Entry/Exit Doors"],length_ft:44,dry_weight_lb:11318,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"13 ft 6 in",floorplanUrl:"",vin:"5ZT3CK3B5S0718318",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0116202523572813/unit_photo_202501161157281343189121.jpg"},
+  "209559":{features:["Dual or Triple AC","King Bed","Walk-Thru Bath"],length_ft:35,dry_weight_lb:8143,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King with Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 4 in",floorplanUrl:"",vin:"4X4TWDX22S7379680",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202421111311/unit_photo_202411070911131123977694.jpg"},
+  "212176":{features:["Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:42,dry_weight_lb:10928,sleeps:4,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"40500 btu",shower_size:"30\" x 36\"",ext_height:"13 ft",floorplanUrl:"",vin:"4YDTHPU2XS9330279",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0905202516042096/unit_photo_202509050404209584396749.jpg"},
+  "212661":{features:["Dual or Triple AC","King Bed","Kitchen Island","Loft"],length_ft:45,dry_weight_lb:13874,sleeps:7,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"",shower_size:"50\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4X4TWD834SM064534",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1010202413574225/unit_photo_202410100157422566923972.jpg"},
+  "213507":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:35,dry_weight_lb:6740,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft",floorplanUrl:"",vin:"4YDTKDP25SJ970975",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1006202516583476/unit_photo_202510060458347644764909.jpg"},
+  "213635":{features:["Couples Coach - No Bunks","King Bed","Kitchen Island","Rear Living Area"],length_ft:38,dry_weight_lb:12050,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"48\" x 30\"",ext_height:"12 ft 11 in",floorplanUrl:"",vin:"4EZFD3927S6034990",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0307202523322180/unit_photo_20250307113221802009268.jpg"},
+  "213204":{features:["Dual or Triple AC","King Bed","Loft"],length_ft:null,dry_weight_lb:null,sleeps:4,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King with Versa Tilt",ac_btu:"15000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"5ZT3MP9F4SD004516",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0908202519592829/unit_photo_202509080759282894704545.jpg"},
+  "214268":{features:["Couples Coach - No Bunks","King Bed"],length_ft:30,dry_weight_lb:6178,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King with Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 3 in",floorplanUrl:"",vin:"4X4TWDA22S7381082",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0405202519400553/unit_photo_202504050740055316388389.jpg"},
+  "213253":{features:["Dual or Triple AC","Rear Living Area","Texas Chill Package"],length_ft:29,dry_weight_lb:5600,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"18000 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"7RVTE2297SA003216",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0404202514345226/unit_photo_202504040234522670940716.jpg"},
+  "214091":{features:["Dual or Triple AC","King Bed","Washer & Dryer Prep"],length_ft:35,dry_weight_lb:7753,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King with Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 3 in",floorplanUrl:"",vin:"4X4TWDD29S8812345",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0117202523482548/unit_photo_202501171148254824999684.jpg"},
+  "214780":{features:["Dual or Triple AC","King Bed","Loft","Rear Kitchen"],length_ft:45,dry_weight_lb:13019,sleeps:6,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"",ac_btu:"",shower_size:"",ext_height:"13 ft 6 in",floorplanUrl:"",vin:"5ZT2CK4B1S1003654",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0707202519452654/unit_photo_20250707074526539572572.jpg"},
+  "214868":{features:["Dual or Triple AC","King Bed","Two Entry/Exit Doors","Two Full Baths"],length_ft:44,dry_weight_lb:14498,sleeps:7,slides:3,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"40\" x 28\"",ext_height:"13 ft 6 in",floorplanUrl:"",vin:"4YDFCNV38SF805243",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0408202519451927/unit_photo_202504080745192729998477.jpg"},
+  "211137":{features:["Bath and a Half","Dual or Triple AC","Front Bedroom","Texas Chill Package","Two Entry/Exit Doors"],length_ft:44,dry_weight_lb:14680,sleeps:8,slides:3,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"28500 btu",shower_size:"36\" x 30\"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"4EZFG4433S4128521",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0110202523454971/unit_photo_202501101145497137328950.jpg"},
+  "214972":{features:["Bunkhouse","Dual or Triple AC","King Bed","Two Entry/Exit Doors"],length_ft:35,dry_weight_lb:8420,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"26000 btu",shower_size:"42\" x 30\"",ext_height:"11 ft 3 in",floorplanUrl:"",vin:"7T0T13522TC003084",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0610202514014379/unit_photo_202506100201437981974122.jpg"},
+  "215532":{features:["Dual or Triple AC","King Bed"],length_ft:30,dry_weight_lb:7298,sleeps:2,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"26000 btu",shower_size:"42\" x 30\"",ext_height:"11 ft 3 in",floorplanUrl:"",vin:"7T0T13026TC002317",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0610202519452860/unit_photo_202506100745286059189105.jpg"},
+  "215463":{features:["Bath and a Half","Dual or Triple AC","King Bed","Kitchen Island"],length_ft:46,dry_weight_lb:18600,sleeps:4,slides:3,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"30\" x 42\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"7T0FG4730TG003018",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0704202502073615/unit_photo_202507040207361519655647.jpg"},
+  "215050":{features:["Dual or Triple AC","King Bed","Kitchen Island","Two Entry/Exit Doors"],length_ft:37,dry_weight_lb:13127,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"31500 btu",shower_size:"30\" x 42\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"7T0FZ3824TA007778",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0609202519391227/unit_photo_202506090739122729979889.jpg"},
+  "215803":{features:["Bunkhouse","Dual or Triple AC","Texas Chill Package"],length_ft:32,dry_weight_lb:6338,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"10 ft 8 in",floorplanUrl:"",vin:"5ZT2TRTB2TB526946",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202518421017/unit_photo_202509240642101724366196.jpg"},
+  "215586":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:30,dry_weight_lb:4853,sleeps:8,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"13500 btu",shower_size:"36\" x 24\"",ext_height:"",floorplanUrl:"",vin:"4X4TSMC28TY015955",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0719202519520211/unit_photo_202507190752021106741538.jpg"},
+  "215657":{features:["Dual or Triple AC","King Bed"],length_ft:30,dry_weight_lb:6613,sleeps:7,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4X4TWDB23TA282354",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0702202520440950/unit_photo_20250702084409504574081.jpg"},
+  "215719":{features:["Dual or Triple AC","King Bed","Loft"],length_ft:45,dry_weight_lb:13749,sleeps:8,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King with Versa Tilt",ac_btu:"",shower_size:"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4X4TSM829TM034966",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0721202519460666/unit_photo_202507210746066593893255.jpg"},
+  "215693":{features:["Couples Coach - No Bunks","Front Bedroom"],length_ft:26,dry_weight_lb:3920,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"RV Queen",ac_btu:"15000 btu",shower_size:"24\" x 36\"",ext_height:"10 ft 6 in",floorplanUrl:"",vin:"1NL1G2623S7069161",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0801202523083162/unit_photo_202508011108316218057483.jpg"},
+  "215813":{features:["Dual or Triple AC","King Bed"],length_ft:35,dry_weight_lb:11770,sleeps:5,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFHMR27TA740140",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0820202519540334/unit_photo_202508200754033414222934.jpg"},
+  "215838":{features:["Dual or Triple AC","King Bed","Outdoor Kitchen"],length_ft:43,dry_weight_lb:15644,sleeps:6,slides:5,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFM0U22T4700512",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1208202520503803/unit_photo_202512080850380286413143.jpg"},
+  "216211":{features:["Bath and a Half","Dual or Triple AC","King Bed","Outdoor Kitchen"],length_ft:40,dry_weight_lb:10219,sleeps:7,slides:2,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"12 ft 10 in",floorplanUrl:"",vin:"4X4TVGH28T5403688",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0723202502081819/unit_photo_202507230208181951263512.jpg"},
+  "216104":{features:["Dual or Triple AC","King Bed","Outdoor Kitchen","Rear Kitchen"],length_ft:37,dry_weight_lb:12245,sleeps:5,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFHMR27TA740171",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0816202514491684/unit_photo_202508160249168434952633.jpg"},
+  "216185":{features:["Bunkhouse"],length_ft:16,dry_weight_lb:2300,sleeps:4,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"9 ft 10 in",floorplanUrl:"",vin:"4YDTKDE12T8970256",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0813202502203289/unit_photo_202508130220328903248688.jpg"},
+  "216303":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:30,dry_weight_lb:4853,sleeps:8,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"13500 btu",shower_size:"36\" x 24\"",ext_height:"",floorplanUrl:"",vin:"4X4TWDC27TY103920",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0719202502121151/unit_photo_202507190212115124643399.jpg"},
+  "216229":{features:["Dual or Triple AC","Kitchen Island","Washer & Dryer Prep"],length_ft:35,dry_weight_lb:10297,sleeps:4,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"36000 btu",shower_size:"30\" x 42\"",ext_height:"11 ft 9 in",floorplanUrl:"",vin:"7T0TA352XTB011262",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0929202514364664/unit_photo_202509290236466433685399.jpg"},
+  "216313":{features:["Dual or Triple AC","King Bed"],length_ft:30,dry_weight_lb:6613,sleeps:7,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4X4TSMB22TA339767",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0805202522543695/unit_photo_202508051054369565913130.jpg"},
+  "216396":{features:["Dual or Triple AC","King Bed"],length_ft:38,dry_weight_lb:7828,sleeps:8,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"10 ft 10 in",floorplanUrl:"",vin:"5ZT2TRVB3TB527102",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0718202519570018/unit_photo_202507180757001836852643.jpg"},
+  "216373":{features:["Dual or Triple AC","King Bed","Kitchen Island","Two Full Baths"],length_ft:43,dry_weight_lb:11913,sleeps:6,slides:3,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King, Queen",ac_btu:"45000 btu",shower_size:"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"4X4FCAL24TG107031",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1001202517102418/unit_photo_202510010510241812547245.jpg"},
+  "216398":{features:["King Bed","Rear Kitchen","Two Entry/Exit Doors","Walk-Thru Bath"],length_ft:29,dry_weight_lb:5923,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"10 ft 7 in",floorplanUrl:"",vin:"5ZT2TRNB1TB526434",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1014202514371836/unit_photo_202510140237183663165619.jpg"},
+  "216744":{features:["Dual or Triple AC","King Bed"],length_ft:30,dry_weight_lb:6178,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King with Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 3 in",floorplanUrl:"",vin:"4X4TSMA21T7438577",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0813202502203925/unit_photo_202508130220392564615888.jpg"},
+  "217094":{features:["Bunkhouse","Dual or Triple AC","Texas Chill Package","Two Entry/Exit Doors"],length_ft:35,dry_weight_lb:11834,sleeps:7,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"31500 btu",shower_size:"30\" x 42\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"7T0FZ3623TF012024",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0627202519374075/unit_photo_202506270737407520659503.jpg"},
+  "216622":{features:["Dual or Triple AC","King Bed"],length_ft:39,dry_weight_lb:14405,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFM0T26T4700546",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0821202520023425/unit_photo_202508210802342509476335.jpg"},
+  "217239":{features:["Dual or Triple AC","King Bed"],length_ft:41,dry_weight_lb:13939,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"30\" x 48\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"5ZT3AH3B3T9101733",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0813202502212056/unit_photo_202508130221205631396873.jpg"},
+  "217143":{features:["Dual or Triple AC","King Bed","Kitchen Island","Loft"],length_ft:45,dry_weight_lb:18900,sleeps:8,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"30\" x 42\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"7T0FG4736TG003489",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0703202501450061/unit_photo_202507030145006115375369.jpg"},
+  "217109":{features:["King Bed","Kitchen Island","Rear Living Area"],length_ft:35,dry_weight_lb:12276,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"31500 btu",shower_size:"30\" x 42\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"7T0FZ3620TA011555",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0410202616390249/unit_photo_202604100439024917234113.jpg"},
+  "217272":{features:["Dual or Triple AC","King Bed","Kitchen Island"],length_ft:43,dry_weight_lb:11537,sleeps:9,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"",ext_height:"13 ft 2 in",floorplanUrl:"",vin:"4X4FCAM27TG107071",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0804202520121112/unit_photo_202508040812111219130296.jpg"},
+  "217334":{features:["Bunkhouse","Dual or Triple AC","Outdoor Kitchen","Texas Chill Package"],length_ft:34,dry_weight_lb:8578,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"13 ft 1 in",floorplanUrl:"",vin:"5ZT3CKUB0T0719750",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0826202519581656/unit_photo_202508260758165591059901.jpg"},
+  "217484":{features:["Dual or Triple AC","King Bed"],length_ft:32,dry_weight_lb:6758,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King",ac_btu:"",shower_size:"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"4X4TVBB2XT4127757",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202621153959/unit_photo_202601270915395965575374.jpg"},
+  "217568":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:35,dry_weight_lb:7048,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"31500 btu",shower_size:"40\" x 30\"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"4X4TVBB28T4127711",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0109202616032384/unit_photo_202601090403238439210216.jpg"},
+  "217547":{features:["Dual or Triple AC","King Bed","Washer & Dryer Prep"],length_ft:34,dry_weight_lb:8598,sleeps:4,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"4X4TSMC28T8072561",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0714202522471298/unit_photo_202507141047129826128550.jpg"},
+  "209141":{features:["Couples Coach - No Bunks","Dual or Triple AC","Walk-Thru Bath"],length_ft:null,dry_weight_lb:null,sleeps:6,slides:1,baths:1,fresh_gal:54,grey_gal:38,black_gal:76,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 40\"",ext_height:"",floorplanUrl:"",vin:"4YDT0BM23SA450367",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1209202420500798/unit_photo_202412090850079816841521.jpg"},
+  "210185":{features:["Couples Coach - No Bunks","Front Bedroom","U Shaped Dinette"],length_ft:null,dry_weight_lb:null,sleeps:4,slides:1,baths:1,fresh_gal:54,grey_gal:38,black_gal:76,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDT0BK26SA450401",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0113202521072989/unit_photo_20250113090729893512236.jpg"},
+  "217602":{features:["Dual or Triple AC","King Bed","Washer & Dryer Prep"],length_ft:34,dry_weight_lb:8598,sleeps:4,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"4X4TWDC25T8813026",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0806202514411452/unit_photo_202508060241145245059303.jpg"},
+  "216327":{features:["Bunkhouse","King Bed","Two Bedrooms","Washer & Dryer Prep"],length_ft:36,dry_weight_lb:7893,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4X4TSMF24TA340042",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0723202502080188/unit_photo_202507230208018834423851.jpg"},
+  "217596":{features:["Dual or Triple AC","Front Bedroom","King Bed","Rear Living Area"],length_ft:42,dry_weight_lb:15489,sleeps:3,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"4X4FCR832TS235698",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1017202514432484/unit_photo_202510170243248456840667.jpg"},
+  "218179":{features:["Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:44,dry_weight_lb:12849,sleeps:4,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4X4FSAP20TJ049242",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0820202519555500/unit_photo_202508200755549988869746.jpg"},
+  "218241":{features:["Bunkhouse"],length_ft:22,dry_weight_lb:3288,sleeps:5,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"",ext_height:"9 ft 2 in",floorplanUrl:"",vin:"4YDTSSG18T8350187",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1020202523025250/unit_photo_202510201102525071359653.jpg"},
+  "218265":{features:["Couples Coach - No Bunks","Front Bedroom","King Bed"],length_ft:22,dry_weight_lb:4176,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Two Twin with King Conversion",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"10 ft 5 in",floorplanUrl:"",vin:"54CTM2J22T3104960",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0407202613544408/unit_photo_202604070154440813588978.jpg"},
+  "218147":{features:["Bunkhouse","Dual or Triple AC","Outdoor Kitchen","Texas Chill Package"],length_ft:32,dry_weight_lb:6210,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"1NL1G3325T1177148",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1009202522524668/unit_photo_202510091052466878100557.jpg"},
+  "218272":{features:["Bunkhouse"],length_ft:22,dry_weight_lb:4049,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Full",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"10 ft 5 in",floorplanUrl:"",vin:"54CTM2J26T3105139",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202522573701/unit_photo_202509241057370107679987.jpg"},
+  "218269":{features:["Bunkhouse"],length_ft:22,dry_weight_lb:3821,sleeps:5,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Full",ac_btu:"13500 btu",shower_size:"24\" x 36\"",ext_height:"10 ft 5 in",floorplanUrl:"",vin:"54CTM2J25T3103690",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202522571864/unit_photo_202509241057186481188434.jpg"},
+  "218278":{features:["Dual or Triple AC","Rear Kitchen","Texas Chill Package"],length_ft:29,dry_weight_lb:6480,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"54CTT1T2XT3104196",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0916202519503814/unit_photo_202509160750381478441976.jpg"},
+  "218365":{features:["Bunkhouse","Dual or Triple AC","King Bed","Kitchen Island","Loft","Two Full Baths"],length_ft:42,dry_weight_lb:12421,sleeps:8,slides:3,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"",ext_height:"13 ft",floorplanUrl:"",vin:"5NHFCPP27TS334050",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1002202523014185/unit_photo_20251002110141850521465.jpg"},
+  "218494":{features:["King Bed","Washer & Dryer Prep"],length_ft:42,dry_weight_lb:14695,sleeps:8,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"30\" x 42\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"7T0FZ4320TA011761",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0618202519383538/unit_photo_202506180738353866041778.jpg"},
+  "218548":{features:["Bunkhouse","Dual or Triple AC","King Bed","Kitchen Island","Loft","Two Entry/Exit Doors","Two Full Baths"],length_ft:42,dry_weight_lb:13019,sleeps:7,slides:4,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"5ZT3TD4B8T9013729",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1104202500010137/unit_photo_202511041201013746538378.jpg"},
+  "218578":{features:["Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:41,dry_weight_lb:12619,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"5ZT3TD4B8T9013715",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1030202523050460/unit_photo_202510301105046052618954.jpg"},
+  "218509":{features:["Dual or Triple AC","King Bed"],length_ft:45,dry_weight_lb:16900,sleeps:9,slides:3,baths:1,fresh_gal:173,grey_gal:104,black_gal:104,available_beds:"King",ac_btu:"",shower_size:"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4YDFFZW39TF810059",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1101202514340427/unit_photo_202511010234042714084918.jpg"},
+  "218716":{features:["Bath and a Half","Dual or Triple AC","Front Living","King Bed","Texas Chill Package"],length_ft:41,dry_weight_lb:14951,sleeps:6,slides:5,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFM0T23T4700360",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1006202523025752/unit_photo_202510061102575198384517.jpg"},
+  "218726":{features:["Bunkhouse","Dual or Triple AC","Front Bedroom","King Bed","Kitchen Island","Two Full Baths"],length_ft:43,dry_weight_lb:14695,sleeps:8,slides:4,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFHMV20TA740342",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1022202522572213/unit_photo_202510221057221283427271.jpg"},
+  "218772":{features:["Dual or Triple AC","King Bed"],length_ft:45,dry_weight_lb:18451,sleeps:6,slides:6,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4X4FRS836T0005406",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202517544955/unit_photo_202512230554495565974423.jpg"},
+  "219012":{features:["Couples Coach - No Bunks","Texas Chill Package"],length_ft:null,dry_weight_lb:null,sleeps:null,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDTFTJ27T8376145",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1015202515002301/unit_photo_202510150300230161837997.jpg"},
+  "219126":{features:["Dual or Triple AC","King Bed","Rear Bath"],length_ft:30,dry_weight_lb:7138,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4X4TSMA22TA339821",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1205202523423755/unit_photo_202512051142375578197741.jpg"},
+  "219122":{features:["Dual or Triple AC","Front Bedroom","King Bed","Loft"],length_ft:47,dry_weight_lb:15555,sleeps:8,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"30\" x 48\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"1UJC5SCV9T18M9107",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1201202520265478/unit_photo_202512010826547876341852.jpg"},
+  "219131":{features:["Dual or Triple AC","Front Bedroom","King Bed","Loft","Two Entry/Exit Doors"],length_ft:47,dry_weight_lb:16005,sleeps:8,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"30\" x 48\"",ext_height:"",floorplanUrl:"",vin:"1UJC5SCV1T18L9123",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1211202523454299/unit_photo_202512111145429899684117.jpg"},
+  "218274":{features:["Couples Coach - No Bunks","Murphy Bed"],length_ft:22,dry_weight_lb:4291,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Murphy",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"10 ft 5 in",floorplanUrl:"",vin:"54CTM2J2XT3104673",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0402202618534244/unit_photo_202604020653424407700625.jpg"},
+  "219027":{features:["Dual or Triple AC","King Bed"],length_ft:42,dry_weight_lb:11628,sleeps:5,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King with Versa Tilt",ac_btu:"15000 btu",shower_size:"",ext_height:"13 ft 1 in",floorplanUrl:"",vin:"5ZT3MP1BXTD005406",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202500203600/unit_photo_202511071220359992753909.jpg"},
+  "218859":{features:["Bunkhouse","King Bed","Two Bedrooms","Washer & Dryer Prep"],length_ft:36,dry_weight_lb:7893,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4X4TWDF23TA282915",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0707202519460601/unit_photo_202507070746060084749301.jpg"},
+  "219397":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:43,dry_weight_lb:12609,sleeps:8,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4X4FSAS25TJ048854",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202522555337/unit_photo_202509241055533716493615.jpg"},
+  "218280":{features:["Bunkhouse","U Shaped Dinette"],length_ft:26,dry_weight_lb:5822,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 38\"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"54CTT1N29T3104784",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202522574856/unit_photo_202509241057485599617744.jpg"},
+  "219201":{features:["Dual or Triple AC","Texas Chill Package"],length_ft:30,dry_weight_lb:10978,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"31500 btu",shower_size:"30\" x 42\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"7T0FZ3126TF011733",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0617202501522527/unit_photo_202506170152252777820298.jpg"},
+  "218285":{features:["Dual or Triple AC","Front Kitchen","Texas Chill Package"],length_ft:31,dry_weight_lb:null,sleeps:3,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"54CTT1U2XT3104049",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1014202523033709/unit_photo_20251014110337092933666.jpg"},
+  "219615":{features:["Dual or Triple AC","Rear Kitchen","Texas Chill Package"],length_ft:29,dry_weight_lb:8030,sleeps:4,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"12 ft 4 in",floorplanUrl:"",vin:"1UJC70BN8T1G29119",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0126202621251676/unit_photo_202601260925167642634136.jpg"},
+  "219673":{features:["Couples Coach - No Bunks","King Bed"],length_ft:23,dry_weight_lb:5013,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Camp King",ac_btu:"15000 btu",shower_size:"",ext_height:"10 ft 9 in",floorplanUrl:"",vin:"5ZT2TRJB7TB526993",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202614562022/unit_photo_202602060256202275654106.jpg"},
+  "219711":{features:["Bath and a Half","Dual or Triple AC","Loft","Texas Chill Package","Two Entry/Exit Doors"],length_ft:40,dry_weight_lb:12734,sleeps:9,slides:4,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Two Queen Beds",ac_btu:"30000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4X4TSAS23TJ048905",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1023202520014723/unit_photo_202510230801472371749155.jpg"},
+  "219742":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:35,dry_weight_lb:7048,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"31500 btu",shower_size:"40\" x 30\"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"4X4TVBB28T4127711",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0109202616032384/unit_photo_202601090403238439210216.jpg"},
+  "219773":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:40,dry_weight_lb:8933,sleeps:9,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King, Versa Queen",ac_btu:"31500 btu",shower_size:"36\" x 30\"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"4X4TVBK20T4127718",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0115202620024234/unit_photo_202601150802423477099428.jpg"},
+  "219777":{features:["Bunkhouse","Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:40,dry_weight_lb:8708,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King, Versa Queen",ac_btu:"31500 btu",shower_size:"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"4X4TVBK29T4127586",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0109202600005242/unit_photo_202601091200524254012596.jpg"},
+  "219818":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:33,dry_weight_lb:5975,sleeps:9,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 4 in",floorplanUrl:"",vin:"4X4TSMC23T7438383",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0923202523003012/unit_photo_202509231100301265906417.jpg"},
+  "219922":{features:["Bunkhouse"],length_ft:24,dry_weight_lb:4099,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"36\" x 24\"",ext_height:"10 ft 4 in",floorplanUrl:"",vin:"4X4TSMT14TY016351",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0103202600014877/unit_photo_202601031201487703235864.jpg"},
+  "219811":{features:["Bunkhouse","Dual or Triple AC","King Bed"],length_ft:34,dry_weight_lb:6208,sleeps:9,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 4 in",floorplanUrl:"",vin:"4X4TSMD25T7438402",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0923202519542730/unit_photo_202509230754273022847459.jpg"},
+  "220063":{features:["Dual or Triple AC","King Bed","Rear Bath","Texas Chill Package"],length_ft:30,dry_weight_lb:5925,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"10 ft 9 in",floorplanUrl:"",vin:"1UJB80BP1T1J89073",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202514531403/unit_photo_202511070253140324273441.jpg"},
+  "218766":{features:["Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:43,dry_weight_lb:16292,sleeps:4,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4X4FRSR28T0005395",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1221202517452222/unit_photo_202512210545222220674375.jpg"},
+  "220103":{features:["Dual or Triple AC","King Bed","Rear Living Area"],length_ft:null,dry_weight_lb:null,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King",ac_btu:"33000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4X4FSBH21TV013315",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0207202602393298/unit_photo_202602070239329809696943.jpg"},
+  "220112":{features:["Dual or Triple AC","King Bed","Outdoor Kitchen","Rear Kitchen"],length_ft:35,dry_weight_lb:11080,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"12 ft 8 in",floorplanUrl:"",vin:"4EZFD3629T6109954",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202615512692/unit_photo_20260127035126927687369.jpg"},
+  "220130":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area"],length_ft:34,dry_weight_lb:11050,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"12 ft 6 in",floorplanUrl:"",vin:"4EZFD3520T6099283",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1216202523563826/unit_photo_202512161156382614849799.jpg"},
+  "220134":{features:["Bunkhouse","Dual or Triple AC","King Bed","Kitchen Island","Outdoor Kitchen","Two Full Baths"],length_ft:42,dry_weight_lb:13830,sleeps:9,slides:5,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"12 ft 11 in",floorplanUrl:"",vin:"4EZFD4324T6110021",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202500194244/unit_photo_20251107121942441175151.jpg"},
+  "220122":{features:["Dual or Triple AC","Texas Chill Package"],length_ft:33,dry_weight_lb:9490,sleeps:5,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"12 ft 4 in",floorplanUrl:"",vin:"4EZFD3329T6099303",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1113202515574504/unit_photo_202511130357450423764764.jpg"},
+  "220143":{features:["Bunkhouse","Dual or Triple AC","King Bed","Kitchen Island"],length_ft:41,dry_weight_lb:11730,sleeps:6,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"42\" x 30\"",ext_height:"12 ft 11 in",floorplanUrl:"",vin:"4EZFF4122T6057168",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202500195257/unit_photo_202511071219525712318183.jpg"},
+  "219755":{features:["Dual or Triple AC","King Bed","Rear Living Area"],length_ft:35,dry_weight_lb:7793,sleeps:4,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King",ac_btu:"",shower_size:"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"4X4TVBD23T4127662",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0310202617274177/unit_photo_202603100527417711217119.jpg"},
+  "220148":{features:["Bunkhouse","Outdoor Kitchen","U Shaped Dinette"],length_ft:null,dry_weight_lb:null,sleeps:9,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"10 ft 10 in",floorplanUrl:"",vin:"4EZTL3023T4100418",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1105202515560823/unit_photo_202511050356082305247468.jpg"},
+  "220139":{features:["Dual or Triple AC","King Bed","Outdoor Kitchen","Rear Bath"],length_ft:32,dry_weight_lb:7460,sleeps:5,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"4EZTL292XT4100347",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202500200431/unit_photo_20251107122004311224391.jpg"},
+  "220155":{features:["Dual or Triple AC","Washer & Dryer Prep"],length_ft:28,dry_weight_lb:8050,sleeps:6,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"30\" x 36\"",ext_height:"12 ft 6 in",floorplanUrl:"",vin:"4EZTG2529T4099590",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1110202514462394/unit_photo_202511100246239461183861.jpg"},
+  "220164":{features:["Couples Coach - No Bunks","Texas Chill Package"],length_ft:null,dry_weight_lb:null,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"40\"",ext_height:"",floorplanUrl:"",vin:"1UJB90BM8T16G9111",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1205202520414928/unit_photo_202512050841492811454794.jpg"},
+  "220228":{features:["Bunkhouse","Dual or Triple AC","King Bed","Two Entry/Exit Doors","Two Full Baths"],length_ft:43,dry_weight_lb:11249,sleeps:10,slides:4,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King",ac_btu:"33000 btu",shower_size:"",ext_height:"13 ft 2 in",floorplanUrl:"",vin:"4X4FSBM26TV013574",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0210202623442690/unit_photo_202602101144269005031834.jpg"},
+  "220170":{features:["7.3L V8"],length_ft:25,dry_weight_lb:9963,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"RV Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 6 in",floorplanUrl:"",vin:"1FDWE3FN1TDD16208",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1217202523514139/unit_photo_202512171151413941597724.jpg"},
+  "220246":{features:["King Bed","Loft","Two Bedrooms","Washer & Dryer Prep"],length_ft:43,dry_weight_lb:13250,sleeps:7,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King, King",ac_btu:"",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFSTU28T4530227",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0821202502421464/unit_photo_202508210242146437828287.jpg"},
+  "220265":{features:["King Bed","Two Bedrooms","Two Full Baths"],length_ft:42,dry_weight_lb:14451,sleeps:7,slides:4,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King, Queen",ac_btu:"15000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFHMU21TA740707",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202515195021/unit_photo_202512230319502085285503.jpg"},
+  "220179":{features:["King Bed","Rear Kitchen","Washer & Dryer Prep"],length_ft:31,dry_weight_lb:8830,sleeps:2,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"42\" x 30\"",ext_height:"12 ft 11 in",floorplanUrl:"",vin:"4EZFF3122T6110641",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0129202615322817/unit_photo_202601290332281698209632.jpg"},
+  "220303":{features:["Bunkhouse","Dual or Triple AC","Front Bedroom","King Bed","Kitchen Island","Washer & Dryer Prep"],length_ft:43,dry_weight_lb:12661,sleeps:7,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFSTU29T4530317",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202515200658/unit_photo_202512230320065879467215.jpg"},
+  "220207":{features:["Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:34,dry_weight_lb:6938,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King",ac_btu:"31500 btu",shower_size:"36\" x 30\"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"4X4TVBB22T4127722",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1024202523174708/unit_photo_202510241117470874726721.jpg"},
+  "220283":{features:["Bath and a Half","Dual or Triple AC","King Bed","Washer & Dryer Prep"],length_ft:43,dry_weight_lb:12560,sleeps:3,slides:3,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFSTU23T4530393",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1209202523492841/unit_photo_202512091149284115722634.jpg"},
+  "220188":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area","Texas Chill Package"],length_ft:35,dry_weight_lb:10160,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"42\" x 30\"",ext_height:"12 ft 11 in",floorplanUrl:"",vin:"4EZFF3529T6110629",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0120202600034271/unit_photo_202601201203427141525719.jpg"},
+  "220330":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area"],length_ft:37,dry_weight_lb:12217,sleeps:5,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFHMS24TA740655",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202515202016/unit_photo_202512230320201623650389.jpg"},
+  "220315":{features:["Bath and a Half","Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:43,dry_weight_lb:15200,sleeps:3,slides:3,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"30\" x 61\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"1UJC60BV5T1LX9127",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1205202502451962/unit_photo_202512050245196219502491.jpg"},
+  "220325":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area"],length_ft:37,dry_weight_lb:13169,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFM0S29T4700462",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1211202515194692/unit_photo_202512110319469191786621.jpg"},
+  "220321":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area"],length_ft:34,dry_weight_lb:11692,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFHMP24TA740650",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202522544224/unit_photo_202509241054422393876965.jpg"},
+  "220333":{features:["Dual or Triple AC","King Bed"],length_ft:39,dry_weight_lb:14405,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFM0T26T4700546",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0821202520023425/unit_photo_202508210802342509476335.jpg"},
+  "220338":{features:["Dual or Triple AC","Front Living","King Bed","Loft","Two Entry/Exit Doors"],length_ft:42,dry_weight_lb:13513,sleeps:8,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFHMU29TA740390",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1217202523515655/unit_photo_202512171151565580158376.jpg"},
+  "220082":{features:["Dual or Triple AC","Front Living","King Bed"],length_ft:null,dry_weight_lb:null,sleeps:6,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"5ZT3TD4B0T9013739",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1110202523295466/unit_photo_20251110112954661989786.jpg"},
+  "220376":{features:["Bunkhouse","Front Bedroom"],length_ft:28,dry_weight_lb:4815,sleeps:8,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic RV Queen",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDTH1K21T7241519",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1218202515132247/unit_photo_202512180313224773625917.jpg"},
+  "220504":{features:["Bath and a Half","Dual or Triple AC","Loft","Texas Chill Package"],length_ft:45,dry_weight_lb:14305,sleeps:8,slides:2,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"RV Queen",ac_btu:"",shower_size:"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4YDF1PV34TF815223",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1218202523540166/unit_photo_202512181154016675036688.jpg"},
+  "220364":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area"],length_ft:36,dry_weight_lb:11325,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"18000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFARR22TE550420",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1220202503021039/unit_photo_202512200302103888724229.jpg"},
+  "220366":{features:["Bunkhouse","Dual or Triple AC","Texas Chill Package"],length_ft:35,dry_weight_lb:8910,sleeps:9,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"31500 btu",shower_size:"48\" x 30\"",ext_height:"12 ft 6 in",floorplanUrl:"",vin:"4YDFARP25TE550429",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202515204877/unit_photo_202512230320487765818602.jpg"},
+  "220531":{features:["Dual or Triple AC","King Bed"],length_ft:33,dry_weight_lb:6288,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King with Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 4 in",floorplanUrl:"",vin:"4X4TSMB28T7438381",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1209202523492004/unit_photo_202512091149200408843611.jpg"},
+  "220584":{features:["Dual or Triple AC","Front Living","King Bed","Kitchen Island"],length_ft:42,dry_weight_lb:12400,sleeps:6,slides:5,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"",ext_height:"13 ft",floorplanUrl:"",vin:"5NHFCPJ21TS333694",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202621082864/unit_photo_202602060908286426088544.jpg"},
+  "220623":{features:["Dual or Triple AC","Texas Chill Package"],length_ft:32,dry_weight_lb:6300,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"30\" x 40\"",ext_height:"10 ft 8 in",floorplanUrl:"",vin:"4EZTU2820T5110121",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0211202614553079/unit_photo_202602110255307904267277.jpg"},
+  "220614":{features:["Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:31,dry_weight_lb:7485,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"26000 btu",shower_size:"42\" x 30\"",ext_height:"11 ft 3 in",floorplanUrl:"",vin:"7T0T13125TC003473",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0320202613105002/unit_photo_202603200110500267339235.jpg"},
+  "220542":{features:["Bath and a Half","Bunkhouse","Dual or Triple AC","Front Bedroom","King Bed","Two Entry/Exit Doors"],length_ft:null,dry_weight_lb:null,sleeps:7,slides:5,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4X4FSAP27TJ049027",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0131202603040104/unit_photo_202601310304010385106724.jpg"},
+  "220556":{features:["Dual or Triple AC","Outdoor Kitchen","Texas Chill Package","Two Entry/Exit Doors"],length_ft:33,dry_weight_lb:6625,sleeps:9,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"11 ft",floorplanUrl:"",vin:"5ZT2CKRB5T2016928",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0223202620352828/unit_photo_202602230835282822422756.jpg"},
+  "220807":{features:["Dual or Triple AC","King Bed","Rear Living Area"],length_ft:31,dry_weight_lb:6398,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King with Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 5 in",floorplanUrl:"",vin:"4X4TWDY27T7382140",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0115202615550371/unit_photo_202601150355037162580349.jpg"},
+  "220633":{features:["Dual or Triple AC","Two Bedrooms"],length_ft:33,dry_weight_lb:6350,sleeps:7,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Two Queen Beds",ac_btu:"13500 btu",shower_size:"30\" x 40\"",ext_height:"10 ft 8 in",floorplanUrl:"",vin:"4EZTU3022T5110803",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0208202602361957/unit_photo_202602080236195776095250.jpg"},
+  "220641":{features:["Dual or Triple AC","Outdoor Kitchen","Texas Chill Package"],length_ft:33,dry_weight_lb:6410,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"30\" x 40\"",ext_height:"10 ft 8 in",floorplanUrl:"",vin:"4EZTU3028T5010673",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0211202614554994/unit_photo_202602110255499450516511.jpg"},
+  "220764":{features:["Dual or Triple AC","Front Kitchen","King Bed"],length_ft:40,dry_weight_lb:14030,sleeps:6,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"4YDFM0T22T4700608",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1219202515262457/unit_photo_20251219032624576107676.jpg"},
+  "220818":{features:["Dual or Triple AC","King Bed","Kitchen Island","Rear Living Area"],length_ft:35,dry_weight_lb:11894,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"4X4FCRE29TS235483",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0106202621010876/unit_photo_202601060901087638716946.jpg"},
+  "220876":{features:["Bunkhouse","Dual or Triple AC","Outdoor Kitchen","Texas Chill Package"],length_ft:39,dry_weight_lb:9893,sleeps:6,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"31500 btu",shower_size:"",ext_height:"11 ft 7 in",floorplanUrl:"",vin:"4X4TSBF29TU094365",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202615520184/unit_photo_202601270352018422929936.jpg"},
+  "221187":{features:["Bunkhouse","Front Bedroom"],length_ft:28,dry_weight_lb:4225,sleeps:8,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"40\"",ext_height:"10 ft 2 in",floorplanUrl:"",vin:"1UJB90BM9T1649132",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1107202514524226/unit_photo_20251107025242260202530.jpg"},
+  "220905":{features:["Dual or Triple AC","King Bed","Rear Living Area"],length_ft:31,dry_weight_lb:6398,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King with Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 5 in",floorplanUrl:"",vin:"4X4TSMY27T7438041",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202615521358/unit_photo_202601270352135883342897.jpg"},
+  "221049":{features:["Couples Coach - No Bunks","Front Bedroom"],length_ft:23,dry_weight_lb:4740,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"34\" x 34\"",ext_height:"10 ft 6 in",floorplanUrl:"",vin:"54CTT1K21T3104380",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0402202613004626/unit_photo_202604020100462654197214.jpg"},
+  "221157":{features:["Dual or Triple AC","Outdoor Kitchen","Texas Chill Package"],length_ft:28,dry_weight_lb:8000,sleeps:3,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"31500 btu",shower_size:"48\" x 30\"",ext_height:"12 ft 6 in",floorplanUrl:"",vin:"4YDFARL28TE550169",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1219202520542389/unit_photo_202512190854238943726941.jpg"},
+  "220891":{features:["Dual or Triple AC","Front Bedroom","King Bed","Outdoor Kitchen","Rear Kitchen"],length_ft:35,dry_weight_lb:null,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"42\" x 30\"",ext_height:"12 ft 11 in",floorplanUrl:"",vin:"4EZFF352XT6110607",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0205202623085565/unit_photo_202602051108556556577765.jpg"},
+  "221180":{features:["Couples Coach - No Bunks","Murphy Bed","Texas Chill Package"],length_ft:26,dry_weight_lb:5100,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen Murphy Bed",ac_btu:"13500 btu",shower_size:"40\"",ext_height:"10 ft 8 in",floorplanUrl:"",vin:"1UJB80BL7T1J19106",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1127202502403044/unit_photo_202511270240304394042778.jpg"},
+  "221211":{features:["Bunkhouse","Murphy Bed","U Shaped Dinette"],length_ft:24,dry_weight_lb:4045,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Murphy",ac_btu:"",shower_size:"30\" x 36\"",ext_height:"9 ft 8 in",floorplanUrl:"",vin:"1UJB90AK1T1VF9131",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1211202502541749/unit_photo_202512110254174947089831.jpg"},
+  "221213":{features:["Dual or Triple AC","Outdoor Kitchen","Texas Chill Package","Two Entry/Exit Doors"],length_ft:33,dry_weight_lb:6485,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 7 in",floorplanUrl:"",vin:"1UJB80BRXT14M9097",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202621174136/unit_photo_202601270917413661151124.jpg"},
+  "221194":{features:["Dual or Triple AC","Kitchen Island","Rear Living Area","Texas Chill Package"],length_ft:38,dry_weight_lb:8705,sleeps:5,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"34\" x 34\"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"1UJB90BT6T1639066",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1017202514425308/unit_photo_202510170242530798617350.jpg"},
+  "221203":{features:["Bunkhouse","Dual or Triple AC"],length_ft:33,dry_weight_lb:6218,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"5ZT2FEUB4TW031672",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0317202616195150/unit_photo_202603170419515016645500.jpg"},
+  "221248":{features:["Bunkhouse","Dual or Triple AC","Texas Chill Package"],length_ft:33,dry_weight_lb:5750,sleeps:9,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 10 in",floorplanUrl:"",vin:"4YDTPPN22TD410823",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202615522563/unit_photo_202601270352256333036666.jpg"},
+  "220151":{features:["Dual or Triple AC","King Bed","Loft"],length_ft:40,dry_weight_lb:13432,sleeps:9,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4YDF1PT23TF815305",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1223202515193692/unit_photo_20251223031936924177334.jpg"},
+  "221706":{features:["Bunkhouse","Dual or Triple AC","Texas Chill Package"],length_ft:28,dry_weight_lb:7365,sleeps:5,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"24\" x 36\"",ext_height:"11 ft 5 in",floorplanUrl:"",vin:"5NHFCAX28TS333888",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202619170706/unit_photo_202602060717070594158604.jpg"},
+  "221573":{features:["Bunkhouse"],length_ft:20,dry_weight_lb:3180,sleeps:5,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic RV Queen",ac_btu:"8000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDTH1G16TW242154",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0203202615353429/unit_photo_202602030335342925898187.jpg"},
+  "221251":{features:["Bath and a Half","Bunkhouse","Dual or Triple AC","Kitchen Island"],length_ft:38,dry_weight_lb:8505,sleeps:9,slides:3,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"4YDTPPS21TD410980",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202615523734/unit_photo_202601270352373407720292.jpg"},
+  "221257":{features:["Dual or Triple AC","Front Bedroom","King Bed","Two Entry/Exit Doors"],length_ft:41,dry_weight_lb:null,sleeps:7,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDFCNT21TF805242",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1216202521032657/unit_photo_202512160903265696470467.jpg"},
+  "221591":{features:["Couples Coach - No Bunks","Front Bedroom","Rear Bath"],length_ft:20,dry_weight_lb:3165,sleeps:3,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic RV Queen",ac_btu:"8000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDTH1G19TW242147",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0120202621024909/unit_photo_202601200902490955329988.jpg"},
+  "221650":{features:["Couples Coach - No Bunks","Murphy Bed","Rear Bath"],length_ft:23,dry_weight_lb:3965,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic RV Queen Murphy",ac_btu:"8000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDTH1H19TW241921",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0202202623573464/unit_photo_202602021157346412715798.jpg"},
+  "221738":{features:["Dual or Triple AC","King Bed","Rear Bath"],length_ft:43,dry_weight_lb:15330,sleeps:6,slides:6,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"45000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 6 in",floorplanUrl:"",vin:"4EZFV4326T6120613",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0210202620410819/unit_photo_202602100841081911804281.jpg"},
+  "221621":{features:["Dual or Triple AC","Rear Bedroom","Texas Chill Package"],length_ft:34,dry_weight_lb:7420,sleeps:4,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"30\" x 36\"",ext_height:"",floorplanUrl:"",vin:"4EZT33024T7099780",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0220202603000889/unit_photo_202602200300088920310691.jpg"},
+  "221345":{features:["Bunkhouse","Front Bedroom","Outdoor Kitchen"],length_ft:33,dry_weight_lb:6742,sleeps:11,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen Bed",ac_btu:"15000 btu",shower_size:"",ext_height:"11 ft 3 in",floorplanUrl:"",vin:"5ZT2FEVB9TW031682",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0218202620575635/unit_photo_202602180857563511493811.jpg"},
+  "221949":{features:["Dual or Triple AC","King Bed","Loft"],length_ft:36,dry_weight_lb:8294,sleeps:8,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"RV King, Queen",ac_btu:"",shower_size:"",ext_height:"13 ft 6 in",floorplanUrl:"",vin:"5ZT2CKJB5T1003789",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0203202621362087/unit_photo_202602030936208738659744.jpg"},
+  "221849":{features:["Dual or Triple AC","King Bed","Kitchen Island"],length_ft:40,dry_weight_lb:13838,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"31500 btu",shower_size:"30\" x 42\"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"7T0FZ4127TA012828",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0702202519440830/unit_photo_202507020744083062003686.jpg"},
+  "222504":{features:["Bunkhouse"],length_ft:22,dry_weight_lb:3229,sleeps:6,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"36\" x 24\"",ext_height:"10 ft 3 in",floorplanUrl:"",vin:"5ZT2SMFC2TG077717",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0630202519463849/unit_photo_202506300746384909487509.jpg"},
+  "222127":{features:["Dual or Triple AC","Rear Living Area","Texas Chill Package"],length_ft:38,dry_weight_lb:null,sleeps:4,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"",floorplanUrl:"",vin:"1UJB70BR0T1C89060",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202620193060/unit_photo_202602060819306025063536.jpg"},
+  "222398":{features:["Bath and a Half","Dual or Triple AC","Front Living","King Bed"],length_ft:42,dry_weight_lb:12789,sleeps:6,slides:5,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"5NHFBAK23TS333856",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0304202602585451/unit_photo_202603040258545137723397.jpg"},
+  "222132":{features:["Couples Coach - No Bunks","Dual or Triple AC","Rear Living Area"],length_ft:30,dry_weight_lb:6512,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"54CTT1T22T3104290",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1015202515004542/unit_photo_202510150300454260028712.jpg"},
+  "222153":{features:["Bunkhouse","Front Bedroom"],length_ft:31,dry_weight_lb:6075,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic RV Queen",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDTH1M28T7242468",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0213202602431376/unit_photo_202602130243137642858258.jpg"},
+  "222471":{features:["Dual or Triple AC","King Bed","Rear Kitchen"],length_ft:42,dry_weight_lb:13020,sleeps:4,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"5NHFBAN2XTS333980",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0820202502295050/unit_photo_202508200229505067970782.jpg"},
+  "222903":{features:["Dual or Triple AC","King Bed"],length_ft:40,dry_weight_lb:13095,sleeps:9,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"",shower_size:"40\" x 28\"",ext_height:"13 ft 2 in",floorplanUrl:"",vin:"4YDFCNT24TF805266",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0306202623435579/unit_photo_20260306114355792354127.jpg"},
+  "222776":{features:["Bunkhouse","Dual or Triple AC","Front Bath","King Bed","Two Full Baths"],length_ft:44,dry_weight_lb:11053,sleeps:7,slides:3,baths:2,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"13 ft 4 in",floorplanUrl:"",vin:"5ZT2LC9BXTG012124",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0224202616024724/unit_photo_202602240402472441022167.jpg"},
+  "222052":{features:["Couples Coach - No Bunks","Rear Kitchen"],length_ft:17,dry_weight_lb:2654,sleeps:3,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"",ext_height:"10 ft 2 in",floorplanUrl:"",vin:"5ZT2CKCC5TY041021",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0226202621004307/unit_photo_202602260900430763790417.jpg"},
+  "223311":{features:["Bunkhouse"],length_ft:22,dry_weight_lb:3850,sleeps:5,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"30\" x 36\"",ext_height:"10 ft 4 in",floorplanUrl:"",vin:"54CTA1K16T7101433",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0407202619404172/unit_photo_202604070740417211800468.jpg"},
+  "223091":{features:["Dual or Triple AC","Front Living","Rear Bedroom","Texas Chill Package"],length_ft:null,dry_weight_lb:null,sleeps:3,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"5ZT2FEPB2TW031813",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0218202620013117/unit_photo_202602180801311782704108.jpg"},
+  "223365":{features:["Bunkhouse","Dual or Triple AC"],length_ft:30,dry_weight_lb:6454,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"30\" x 35\"",ext_height:"",floorplanUrl:"",vin:"54CTA1T26T7100922",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1104202500000550/unit_photo_202511041200055038816357.jpg"},
+  "223527":{features:["Bath and a Half","Bunkhouse","Dual or Triple AC","Texas Chill Package"],length_ft:36,dry_weight_lb:8720,sleeps:9,slides:3,baths:1.5,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"",ext_height:"11 ft 6 in",floorplanUrl:"",vin:"5ZT2FEYB6TW031909",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0227202618535838/unit_photo_2026022706535838669928.jpg"},
+  "223658":{features:["Couples Coach - No Bunks","Dual or Triple AC"],length_ft:30,dry_weight_lb:6592,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic Queen",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"54CTA1T24T7101471",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0210202623444747/unit_photo_202602101144474752525486.jpg"},
+  "223750":{features:["Bunkhouse","Dual or Triple AC","Washer & Dryer Prep"],length_ft:33,dry_weight_lb:7234,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic Queen",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 2 in",floorplanUrl:"",vin:"54CTT1X25T3105251",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0423202619283928/unit_photo_202604230728392852637807.jpg"},
+  "223710":{features:["Couples Coach - No Bunks","Front Bedroom"],length_ft:22,dry_weight_lb:4142,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"RV Queen",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"10 ft 5 in",floorplanUrl:"",vin:"54CTM2J29T3104695",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0402202619532930/unit_photo_20260402075329299658688.jpg"},
+  "224042":{features:["Dual or Triple AC","Front Living","King Bed","Rear Bath"],length_ft:44,dry_weight_lb:15645,sleeps:4,slides:5,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"36\" x 48\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"1UJC60BV9T1LF9099",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1211202523460377/unit_photo_202512111146037753494385.jpg"},
+  "223936":{features:["Bunkhouse","Front Bedroom"],length_ft:24,dry_weight_lb:4199,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"RV Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 6 in",floorplanUrl:"",vin:"4X4TSMT15TY016505",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202620232292/unit_photo_202602060823229261626155.jpg"},
+  "223887":{features:["Dual or Triple AC","Texas Chill Package"],length_ft:24,dry_weight_lb:4099,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"36\" x 24\"",ext_height:"10 ft 6 in",floorplanUrl:"",vin:"5ZT2SMGC5TG077659",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0105202617422784/unit_photo_202601050542278444170680.jpg"},
+  "223928":{features:["Dual or Triple AC","King Bed","Rear Kitchen","Washer & Dryer Prep"],length_ft:34,dry_weight_lb:6863,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 3 in",floorplanUrl:"",vin:"4X4TSMC26TA340192",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1023202520022975/unit_photo_202510230802297489138220.jpg"},
+  "224060":{features:["Dual or Triple AC","King Bed"],length_ft:28,dry_weight_lb:7785,sleeps:6,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"13500 btu",shower_size:"",ext_height:"12 ft 11 in",floorplanUrl:"",vin:"1UJB5SBN6T1819060",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0414202601401133/unit_photo_202604140140113371202442.jpg"},
+  "224075":{features:["King Bed","Loft","Two Bedrooms"],length_ft:44,dry_weight_lb:15300,sleeps:8,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King, Queen",ac_btu:"30000 btu",shower_size:"24\" x 36\"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"1UJC40BV9T1MM9072",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0326202622471669/unit_photo_20260326104716696091739.jpg"},
+  "224122":{features:["Dual or Triple AC","Texas Chill Package"],length_ft:33,dry_weight_lb:6995,sleeps:5,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"10 ft 11 in",floorplanUrl:"",vin:"1UJB80BR2T14U9093",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1015202520034914/unit_photo_202510150803491483270531.jpg"},
+  "224081":{features:["Couples Coach - No Bunks","Murphy Bed","Texas Chill Package"],length_ft:20,dry_weight_lb:4885,sleeps:2,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen Murphy Bed",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"10 ft 8 in",floorplanUrl:"",vin:"1UJB80BK1T1J79096",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1120202521024911/unit_photo_202511200902491169286296.jpg"},
+  "224265":{features:["Dual or Triple AC","Front Bedroom","Texas Chill Package"],length_ft:35,dry_weight_lb:8605,sleeps:9,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"12 ft 10 in",floorplanUrl:"",vin:"1UJC70BS8T1G39106",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0126202621250700/unit_photo_202601260925069996516364.jpg"},
+  "224538":{features:["Bunkhouse","Dual or Triple AC"],length_ft:27,dry_weight_lb:5644,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4YDTPPK2XTD411397",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0414202614353614/unit_photo_202604140235361388101175.jpg"},
+  "224814":{features:["Bunkhouse","Dual or Triple AC","King Bed","Outdoor Kitchen"],length_ft:37,dry_weight_lb:8573,sleeps:8,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 5 in",floorplanUrl:"",vin:"4X4TSMG2XT8072829",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0407202622361662/unit_photo_202604071036166201383132.jpg"},
+  "224766":{features:["King Bed","Kitchen Island","Loft","Two Bedrooms"],length_ft:42,dry_weight_lb:12185,sleeps:6,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King, Queen",ac_btu:"27000 btu",shower_size:"",ext_height:"13 ft",floorplanUrl:"",vin:"5NHFCPP20TS334116",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0304202621131385/unit_photo_202603040913138491335963.jpg"},
+  "225107":{features:["Dual or Triple AC","King Bed"],length_ft:35,dry_weight_lb:12476,sleeps:3,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"31500 btu",shower_size:"30\" x 42\"",ext_height:"13 ft 2 in",floorplanUrl:"",vin:"7T0FZ3625TA012698",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1217202523524026/unit_photo_202512171152402659471311.jpg"},
+  "224547":{features:["Couples Coach - No Bunks","Dual or Triple AC","Rear Kitchen","Two Entry/Exit Doors"],length_ft:29,dry_weight_lb:6065,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4YDTPPL22TD411358",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0310202616553499/unit_photo_202603100455349885971480.jpg"},
+  "224232":{features:["Bunkhouse","Outdoor Kitchen"],length_ft:33,dry_weight_lb:6270,sleeps:8,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"24\" x 40\"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"1UJB90BR3T1659070",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0203202618134745/unit_photo_202602030613474489290516.jpg"},
+  "225185":{features:["Dual or Triple AC","King Bed","Kitchen Island"],length_ft:39,dry_weight_lb:9753,sleeps:6,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King, Queen",ac_btu:"30000 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"5ZT2LC0B7TB012673",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0218202619101025/unit_photo_20260218071010251656215.jpg"},
+  "225182":{features:["King Bed","Rear Kitchen","Washer & Dryer Prep"],length_ft:39,dry_weight_lb:8963,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"5ZT2LCZB9TB012662",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1208202523493251/unit_photo_202512081149325106869890.jpg"},
+  "E10225A":{features:["Rear Bath","U Shaped Dinette"],length_ft:23,dry_weight_lb:3783,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 6 in",floorplanUrl:"",vin:"5ZT2CKEC9PY028548",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202517065276/unit_photo_202509240506527595375164.jpg"},
+  "225481":{features:["Couples Coach - No Bunks","Rear Kitchen"],length_ft:22,dry_weight_lb:3520,sleeps:2,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"1",ac_btu:"",shower_size:"",ext_height:"10 ft 8 in",floorplanUrl:"",vin:"1NL1G2213T6023687",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0407202615422769/unit_photo_202604070342276927976165.jpg"},
+  "214428A":{features:["Bunkhouse"],length_ft:null,dry_weight_lb:null,sleeps:null,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"1NL1G2117S6019870",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616315526/unit_photo_20260421043155262519733.jpg"},
+  "210351A":{features:[],length_ft:null,dry_weight_lb:null,sleeps:null,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"1UJBJ0BT4M1T20306",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1210202523461841/unit_photo_202512101146184174277982.jpg"},
+  "225573":{features:["Dual or Triple AC","Texas Chill Package"],length_ft:29,dry_weight_lb:null,sleeps:2,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"1",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"1NL1G2822T1177062",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0404202601393322/unit_photo_202604040139332264232926.jpg"},
+  "212638A":{features:["Bunkhouse"],length_ft:20,dry_weight_lb:3036,sleeps:5,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"5000 btu",shower_size:"",ext_height:"10 ft 2 in",floorplanUrl:"",vin:"4YDTSGG15SW101448",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0902202522543309/unit_photo_202509021054330939750488.jpg"},
+  "223346A":{features:["Bunkhouse"],length_ft:21,dry_weight_lb:3396,sleeps:5,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"",ext_height:"10 ft 2 in",floorplanUrl:"",vin:"4YDTSGG13RW102303",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616334943/unit_photo_202604210433494355932420.jpg"},
+  "E10163A":{features:["Bunkhouse","Front Bedroom"],length_ft:23,dry_weight_lb:4659,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"5ZT2SMEC0RG074969",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1006202523034023/unit_photo_202510061103402307741280.jpg"},
+  "214031A":{features:["Bunkhouse","Outdoor Kitchen"],length_ft:29,dry_weight_lb:4776,sleeps:9,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"10 ft 3 in",floorplanUrl:"",vin:"5ZT2AVRB4RB938171",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0924202517033367/unit_photo_202509240503336768563328.jpg"},
+  "218894A":{features:["Bunkhouse","King Bed","Outdoor Kitchen"],length_ft:33,dry_weight_lb:5975,sleeps:9,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"13500 btu",shower_size:"",ext_height:"10 ft 4 in",floorplanUrl:"",vin:"4X4TWDC27S7380653",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0114202615543866/unit_photo_202601140354386627382755.jpg"},
+  "204493A":{features:["Bunkhouse","Outdoor Kitchen"],length_ft:34,dry_weight_lb:6929,sleeps:9,slides:1,baths:1,fresh_gal:54,grey_gal:30,black_gal:30,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 40\"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4YDT0BN20PB451069",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0830202502132293/unit_photo_202508300213229332487509.jpg"},
+  "214176C":{features:["Rear Kitchen","Two Entry/Exit Doors","Walk-Thru Bath"],length_ft:29,dry_weight_lb:5608,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"11 ft",floorplanUrl:"",vin:"5ZT2CKMB2R2013775",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0501202619381980/unit_photo_202605010738198057574896.jpg"},
+  "217810A":{features:["Bunkhouse","Outdoor Kitchen"],length_ft:32,dry_weight_lb:6640,sleeps:9,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"",shower_size:"24\" x 40\"",ext_height:"11 ft 4 in",floorplanUrl:"",vin:"4EZT12828M8051537",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1220202503013014/unit_photo_202512200301301454061358.jpg"},
+  "213110A":{features:["King Bed","Outdoor Kitchen","Rear Kitchen"],length_ft:34,dry_weight_lb:7013,sleeps:5,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King",ac_btu:"13500 btu",shower_size:"24\" x 40\"",ext_height:"11 ft 3 in",floorplanUrl:"",vin:"4X4TWDC24RA279728",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1210202523464080/unit_photo_202512101146408011111501.jpg"},
+  "214502A":{features:["Bunkhouse","Outdoor Kitchen"],length_ft:35,dry_weight_lb:7025,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"14500 btu",shower_size:"34\"",ext_height:"11 ft 3 in",floorplanUrl:"",vin:"1UJBJ0BS6N14A0243",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1219202523484263/unit_photo_202512191148426316261684.jpg"},
+  "213747A":{features:["Couples Coach - No Bunks","Two Entry/Exit Doors","Walk-Thru Bath"],length_ft:28,dry_weight_lb:5831,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"",ext_height:"10 ft 10 in",floorplanUrl:"",vin:"573TE2829S3440986",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0310202616504748/unit_photo_202603100450474809293709.jpg"},
+  "213044A":{features:["King Bed","Rear Kitchen","Two Entry/Exit Doors"],length_ft:30,dry_weight_lb:5628,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"13500 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4YDTSSM2XRS350152",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0815202519512889/unit_photo_202508150751288962618869.jpg"},
+  "214406A":{features:[],length_ft:null,dry_weight_lb:null,sleeps:null,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"",ac_btu:"",shower_size:"",ext_height:"",floorplanUrl:"",vin:"54CTM7K22N3073966",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0206202602241076/unit_photo_202602060224107654653566.jpg"},
+  "214215B":{features:["Front Kitchen","King Bed","Rear Bedroom","Two Entry/Exit Doors"],length_ft:38,dry_weight_lb:8693,sleeps:5,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"13500 btu",shower_size:"34\" x 34\"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4X4TPUG22PP100328",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1220202503003590/unit_photo_202512200300359058560189.jpg"},
+  "217007A":{features:["Bunkhouse","Outdoor Kitchen"],length_ft:37,dry_weight_lb:8403,sleeps:10,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"32\" x 40\"",ext_height:"11 ft 1 in",floorplanUrl:"",vin:"4X4TPUE26RP101598",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1120202521010041/unit_photo_202511200901004160648767.jpg"},
+  "212906B":{features:["King Bed","Kitchen Island","Rear Living Area","Two Entry/Exit Doors"],length_ft:40,dry_weight_lb:12368,sleeps:4,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"30000 btu",shower_size:"48\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4YDFCET22P9310049",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0904202519574536/unit_photo_202509040757453674452971.jpg"},
+  "207407A":{features:["Bunkhouse","U Shaped Dinette"],length_ft:34,dry_weight_lb:7479,sleeps:4,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"13500 btu",shower_size:"",ext_height:"12 ft 5 in",floorplanUrl:"",vin:"5ZT2XLSB8MZ792953",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0211202614544368/unit_photo_202602110254436803280634.jpg"},
+  "210931A":{features:["Front Bedroom","King Bed","Rear Kitchen"],length_ft:31,dry_weight_lb:8280,sleeps:3,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"15000 btu",shower_size:"",ext_height:"12 ft 5 in",floorplanUrl:"",vin:"4YDFAAM21RZ915504",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0929202517041390/unit_photo_202509290504139041282826.jpg"},
+  "203644A":{features:["Couples Coach - No Bunks","King Bed","Kitchen Island","Rear Living Area","Washer & Dryer Prep"],length_ft:42,dry_weight_lb:12294,sleeps:4,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"King",ac_btu:"27000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4X4FCAP24PG105795",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0521202519431605/unit_photo_202505210743160571329605.jpg"},
+  "218983A":{features:["Bunkhouse","Loft","Outdoor Kitchen","Rear Living Area"],length_ft:41,dry_weight_lb:13644,sleeps:8,slides:4,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"30000 btu",shower_size:"48\" x 30\"",ext_height:"13 ft 5 in",floorplanUrl:"",vin:"4YDF38522K4701769",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0421202616322854/unit_photo_202604210432285391496441.jpg"},
+  "209785A":{features:[],length_ft:21,dry_weight_lb:2604,sleeps:4,slides:null,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Twin Beds",ac_btu:"",shower_size:"",ext_height:"5 ft 11 in",floorplanUrl:"",vin:"4X4CFSW19LD183137",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0903202519563747/unit_photo_202509030756374758958341.jpg"},
+  "208348A":{features:["King Bed","Kitchen Island","Loft"],length_ft:45,dry_weight_lb:13874,sleeps:7,slides:2,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Custom King Versa Tilt",ac_btu:"",shower_size:"50\"",ext_height:"13 ft 3 in",floorplanUrl:"",vin:"4X4TWD830RM063732",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0223202502480812/unit_photo_202502230248081277152197.jpg"},
+  "214228A":{features:["Kitchen Island","Outdoor Kitchen","Rear Kitchen"],length_ft:37,dry_weight_lb:9800,sleeps:3,slides:3,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Queen",ac_btu:"15000 btu",shower_size:"30\" x 36\"",ext_height:"11 ft 11 in",floorplanUrl:"",vin:"573TR3720S9927616",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m1205202502444564/unit_photo_202512050244456453816422.jpg"},
+  "221830":{features:["Bunkhouse","Murphy Bed"],length_ft:23,dry_weight_lb:4000,sleeps:7,slides:1,baths:1,fresh_gal:null,grey_gal:null,black_gal:null,available_beds:"Olympic RV Queen Murphy",ac_btu:"8000 btu",shower_size:"",ext_height:"",floorplanUrl:"",vin:"4YDTH1H15TW241849",photoUrl:"https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0127202621180069/unit_photo_20260127091800695905497.jpg"}
+};
+
+const INVENTORY = RAW.map(r => {
+  const parts = r.split('|');
+  const [stock, year, type, condition, price] = parts;
+  const brandModel = parts.slice(5, parts.length - 1).join('|');
+  const rawPhoto = parts[parts.length - 1] || '';
+  const photoUrl = rawPhoto || (FTRV_DATA[stock] && FTRV_DATA[stock].photoUrl) || '';
+  const priceNum = price ? parseInt(price.replace(/[^0-9]/g,'')) || 0 : 0;
+  const detailUrl = URL_MAP[stock] || null;
+  const layout = getLayout(brandModel);
+  const ext = FTRV_DATA[stock] || {};
+  // Prefer scraped baths from features when available, fall back to BATHS lookup
+  const baths = ext.baths != null ? ext.baths : (BATHS[stock] || 1);
+  return {
+    stock,
+    year: parseInt(year)||0,
+    type,
+    condition,
+    price: price || 'Call',
+    priceNum,
+    brandModel,
+    photoUrl,
+    detailUrl,
+    layout,
+    baths,
+    features: ext.features || [],
+    length_ft: ext.length_ft || null,
+    dry_weight_lb: ext.dry_weight_lb || null,
+    sleeps: ext.sleeps || null,
+    slides: ext.slides != null ? ext.slides : null,
+    fresh_gal: ext.fresh_gal || null,
+    grey_gal: ext.grey_gal || null,
+    black_gal: ext.black_gal || null,
+    available_beds: ext.available_beds || '',
+    ac_btu: ext.ac_btu || '',
+    shower_size: ext.shower_size || '',
+    ext_height: ext.ext_height || '',
+    floorplanUrl: ext.floorplanUrl || '',
+    vin: ext.vin || ''
+  };
+});
+
+document.getElementById('unitBadge').textContent = INVENTORY.length + ' units';
+document.getElementById('totalCount').textContent = INVENTORY.length;
+
+// Build the layout dropdown from layouts that actually appear
+const layoutSel = document.getElementById('layoutSel');
+const layoutSet = [...new Set(INVENTORY.map(u => u.layout).filter(Boolean))].sort();
+layoutSet.forEach(l => {
+  const o = document.createElement('option');
+  o.value = l; o.textContent = l;
+  layoutSel.appendChild(o);
+});
+
+// Filter state
+const state = { type: '', condition: '', baths: '', layout: '', q: '', sort: 'yearDesc' };
+
+function render() {
+  const q = state.q.trim().toLowerCase();
+  let list = INVENTORY.filter(u => {
+    if (state.type && u.type !== state.type) return false;
+    if (state.condition && u.condition !== state.condition) return false;
+    if (state.baths && String(u.baths) !== state.baths) return false;
+    if (state.layout && u.layout !== state.layout) return false;
+    if (q) {
+      const hay = (u.stock + ' ' + u.brandModel + ' ' + u.type + ' ' + u.year + ' ' + u.layout).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  switch (state.sort) {
+    case 'priceAsc':  list.sort((a,b)=> (a.priceNum||9e9) - (b.priceNum||9e9)); break;
+    case 'priceDesc': list.sort((a,b)=> (b.priceNum||0) - (a.priceNum||0)); break;
+    case 'yearAsc':   list.sort((a,b)=> a.year - b.year); break;
+    case 'yearDesc':  list.sort((a,b)=> b.year - a.year); break;
+    case 'stock':     list.sort((a,b)=> a.stock.localeCompare(b.stock)); break;
+  }
+
+  document.getElementById('resultCount').textContent = list.length;
+  const grid = document.getElementById('grid');
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty"><h2>No units match these filters</h2><div>Try clearing one or more filters above.</div></div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(u => {
+    const condClass = u.condition.replace(/[^A-Za-z]/g,'');
+    const thumbStyle = u.photoUrl
+      ? `style="background-image:url('${u.photoUrl.replace(/'/g,"\\'")}')"`
+      : '';
+    const thumbCls = u.photoUrl ? 'thumb' : 'thumb no-photo';
+    const priceCls = (u.priceNum > 0) ? 'price' : 'price call';
+    // Sales-only minimal card: hero photo, year+model, stock #, condition, price, Floor Plan button.
+    // All dense data (features, specs, weights, tanks) lives in INVENTORY for the AI to query.
+    const fpBtn = (u.floorplanUrl || u.detailUrl)
+      ? `<button class="btn" onclick="showFloorplan('${u.stock}')">Floor Plan</button>`
+      : `<span class="btn secondary">No floor plan</span>`;
+    const lwParts = [];
+    if (u.length_ft) lwParts.push(u.length_ft + ' ft');
+    if (u.dry_weight_lb) lwParts.push(u.dry_weight_lb.toLocaleString() + ' lb');
+    if (u.sleeps) lwParts.push('sleeps ' + u.sleeps);
+    const lwLine = lwParts.length ? `<div class="lw-line">${lwParts.join(' &middot; ')}</div>` : '';
+    return `
+      <div class="card">
+        <div class="${thumbCls}" ${thumbStyle}>
+          <span class="cond-badge ${condClass}">${u.condition}</span>
+          <span class="stock-badge">#${u.stock}</span>
+        </div>
+        <div class="body">
+          <div class="title">${u.year} ${u.brandModel}</div>
+          ${lwLine}
+          <div class="${priceCls}">${u.price}</div>
+          <div class="actions">${fpBtn}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// Wire up pill clicks (delegated to all .pill elements)
+document.querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', () => {
+    const f = p.dataset.filter;
+    const v = p.dataset.value;
+    state[f] = v;
+    document.querySelectorAll(`.pill[data-filter="${f}"]`).forEach(x => x.classList.toggle('active', x.dataset.value === v));
+    render();
+  });
+});
+
+// Smart search input: instant filter for stock #/short queries, debounced AI for wordy queries
+let _searchDebounce;
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.trim();
+  clearTimeout(_searchDebounce);
+  if (!q) {
+    state.q = '';
+    if (typeof clearAiReply === 'function') clearAiReply();
+    render();
+    return;
+  }
+  // Looks like a stock # / brand fragment → instant filter (no AI)
+  const isShortLookup = q.length <= 8 && /^[A-Za-z0-9-]+$/.test(q);
+  if (isShortLookup) {
+    state.q = q;
+    if (typeof clearAiReply === 'function') clearAiReply();
+    render();
+    return;
+  }
+  // Wordy / natural-language query → don't literal-filter, debounce-trigger AI
+  state.q = '';
+  // Don't render() empty results — leave existing UI alone until AI returns
+  _searchDebounce = setTimeout(() => {
+    if (typeof askClaude === 'function') askClaude(q);
+  }, 800);
+});
+
+// ─── Claude API integration via Render's /api/chat ────────────────────────────
+const CLAUDE_ENDPOINT = 'https://ftrv-lot-assistant.onrender.com/api/chat';
+
+function buildInvText() {
+  return INVENTORY.map(u => {
+    const parts = [u.stock, u.year, u.type, u.condition, u.price, u.brandModel];
+    if (u.length_ft)     parts.push(u.length_ft + 'ft');
+    if (u.dry_weight_lb) parts.push(u.dry_weight_lb + 'lb');
+    if (u.sleeps)        parts.push('sleeps' + u.sleeps);
+    if (u.slides != null) parts.push(u.slides + 'sl');
+    parts.push(u.baths + 'bth');
+    if (u.layout)        parts.push('layout:' + u.layout);
+    if (u.available_beds) parts.push('beds:' + u.available_beds);
+    if (u.features && u.features.length) parts.push('feat:[' + u.features.join(',') + ']');
+    return parts.join('|');
+  }).join('\n');
+}
+
+const SYSTEM_TEMPLATE = "You are the FTRV Lot Assistant for Fun Town RV Texarkana. You help SALESPEOPLE find the right units for customers \u2014 internal sales tool, not customer-facing. Be terse, dense, extremely knowledgeable. No fluff.\n\nYour ONLY source is the lot inventory below. Do not reference units not listed.\n\nCURRENT INVENTORY (__N__ units) \u2014 pipe-delimited per unit:\nstock|year|type|condition|price|brand+model|Xft|Ylb|sleepsN|Nsl|baths_bth|layout:LAYOUT|beds:BEDS|feat:[features]\n\n__INVTEXT__\n\nRESPONSE FORMAT \u2014 strict:\n1. One short conversational paragraph (1-3 sentences max). Mention specific stock #s, prices, one or two reasons.\n2. End with this EXACT JSON on its own final line: {\"matches\":[\"STOCK1\",\"STOCK2\"]} \u2014 up to 8 best matches, ordered cheapest first. Use {\"matches\":[]} if nothing fits.\n\nINTERPRETATION RULES (apply liberally):\n- Weight (\"under 8000 lbs\", \"tow with F-150\", \"half-ton towable\") \u2192 lb field. Half-ton = under ~7500lb dry.\n- Length (\"under 25 ft\", \"fits in driveway\") \u2192 ft field.\n- Family / sleeps / kids / bunks \u2192 sleeps field + Bunkhouse feature.\n- Couples \u2192 Couples Coach - No Bunks feature.\n- Budget \u2014 flex 10-15% above max if matches are tight, but prefer under-budget first.\n- Layout (\"front living\", \"rear kitchen\") \u2192 layout field OR features.\n- Bath count: 1 / 1.5 / 2 \u2014 exact match.\n- \"Cheapest\", \"lowest price\" \u2192 sort cheapest first.\n- Toy hauler / 5th wheel / fifth wheel / travel trailer / destination \u2192 type.\n- Use your knowledge of RV model naming (252BH = bunkhouse, 38FL = front living) to fill gaps.\n\nAlways include the matches JSON line \u2014 the UI parses it for cards.";
+
+let chatInflight = false;
+
+async function askClaude(userQuery) {
+  if (chatInflight) return;
+  chatInflight = true;
+  const replyEl = document.getElementById('aiReply');
+  const grid = document.getElementById('grid');
+  replyEl.style.display = 'block';
+  replyEl.innerHTML = '<div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span> <span id="thinkLabel">Thinking...</span></div>';
+  // After 8s, change message so user knows Render may be cold-starting
+  setTimeout(() => { const lbl = document.getElementById('thinkLabel'); if (lbl) lbl.textContent = 'Waking up the server (free tier sleeps after 15 min idle)...'; }, 8000);
+  grid.innerHTML = '';
+  const invText = buildInvText();
+  const sys = SYSTEM_TEMPLATE.replace('__N__', INVENTORY.length).replace('__INVTEXT__', invText);
+  try {
+    const res = await fetch(CLAUDE_ENDPOINT, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 600,
+        system: [{type: 'text', text: sys, cache_control: {type: 'ephemeral'}}],
+        messages: [{role: 'user', content: userQuery}]
+      })
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error('API ' + res.status + ': ' + errText.slice(0, 200));
+    }
+    const data = await res.json();
+    const reply = (data.content && data.content[0] && data.content[0].text) || '';
+    const m = reply.match(/\{\s*"matches"\s*:\s*\[(.*?)\]\s*\}/);
+    let matches = [];
+    if (m) {
+      try { matches = JSON.parse('[' + m[1] + ']'); } catch(e) { matches = []; }
+    }
+    const conv = reply.replace(/\{\s*"matches"[\s\S]*\}\s*$/, '').trim();
+    renderClaudeReply(conv, matches);
+  } catch (e) {
+    replyEl.innerHTML = '<div class="ai-error"><strong>Couldn\'t reach Claude.</strong> ' + (e.message || e) + '<br><span style="opacity:.6;font-size:.75rem">Render free tier sleeps after idle \u2014 first request takes 50s+.</span></div>';
+    grid.innerHTML = '';
+  } finally {
+    chatInflight = false;
+  }
+}
+
+function renderClaudeReply(conv, matches) {
+  const replyEl = document.getElementById('aiReply');
+  const grid = document.getElementById('grid');
+  const units = matches.map(s => INVENTORY.find(u => u.stock === s)).filter(Boolean);
+  units.sort((a,b) => (a.priceNum || 999999) - (b.priceNum || 999999));
+  const top = units.map(u =>
+    '<div class="sr-item-row"><span class="sr-item"><span class="sr-stock">#' + u.stock + '</span> &middot; ' + u.year + ' ' + u.brandModel + '</span><span class="sr-price">' + u.price + '</span></div>'
+  ).join('');
+  replyEl.innerHTML = '<div class="ai-conv">' + conv.replace(/\n/g,'<br>') + '</div>' + (units.length ? '<div class="sr-list" style="margin-top:10px">' + top + '</div>' : '');
+  if (units.length) {
+    grid.innerHTML = units.map(u => {
+      const condClass = u.condition.replace(/[^A-Za-z]/g,'');
+      const thumbStyle = u.photoUrl ? 'style="background-image:url(\'' + u.photoUrl.replace(/'/g,"\\'") + '\')"' : '';
+      const thumbCls = u.photoUrl ? 'thumb' : 'thumb no-photo';
+      const priceCls = (u.priceNum > 0) ? 'price' : 'price call';
+      const fpBtn = (u.floorplanUrl || u.detailUrl) ? '<button class="btn" onclick="showFloorplan(\'' + u.stock + '\')">Floor Plan</button>' : '<span class="btn secondary">No floor plan</span>';
+      const lwParts = [];
+      if (u.length_ft) lwParts.push(u.length_ft + ' ft');
+      if (u.dry_weight_lb) lwParts.push(u.dry_weight_lb.toLocaleString() + ' lb');
+      if (u.sleeps) lwParts.push('sleeps ' + u.sleeps);
+      const lwLine = lwParts.length ? '<div class="lw-line">' + lwParts.join(' &middot; ') + '</div>' : '';
+      return '<div class="card"><div class="' + thumbCls + '" ' + thumbStyle + '><span class="cond-badge ' + condClass + '">' + u.condition + '</span><span class="stock-badge">#' + u.stock + '</span></div><div class="body"><div class="title">' + u.year + ' ' + u.brandModel + '</div>' + lwLine + '<div class="' + priceCls + '">' + u.price + '</div><div class="actions">' + fpBtn + '</div></div></div>';
+    }).join('');
+  } else {
+    grid.innerHTML = '<div class="empty"><h2>No matches</h2><div>Try rephrasing.</div></div>';
+  }
+  document.getElementById('resultCount').textContent = units.length;
+}
+
+// Enter on search box → ask Claude. Plain typing keeps existing literal filter.
+const _searchEl = document.getElementById('search');
+_searchEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const q = _searchEl.value.trim();
+    if (q) askClaude(q);
+  }
+});
+
+function clearAiReply() {
+  const r = document.getElementById('aiReply');
+  if (r) { r.style.display = 'none'; r.innerHTML = ''; }
+}
+// (input handler consolidated above)
+const _clearBtn = document.getElementById('clearAll');
+if (_clearBtn) _clearBtn.addEventListener('click', clearAiReply);
+
+document.getElementById('sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
+document.getElementById('layoutSel').addEventListener('change', e => { state.layout = e.target.value; render(); });
+document.getElementById('clearAll').addEventListener('click', () => {
+  state.type = state.condition = state.baths = state.layout = state.q = '';
+  state.sort = 'yearDesc';
+  document.getElementById('search').value = '';
+  document.getElementById('sort').value = 'yearDesc';
+  document.getElementById('layoutSel').value = '';
+  document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.value === ''));
+  render();
+});
+
+render();
+
+// ─── FLOOR PLAN MODAL (uses cached floorplanUrl from FTRV_DATA) ───────────────
+function showFloorplan(stock) {
+  const u = INVENTORY.find(x => x.stock === stock);
+  if (!u) return;
+  let modal = document.getElementById('fp-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'fp-modal';
+    modal.style.cssText = 'display:flex;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center';
+    modal.innerHTML = `
+      <div onclick="closeFpModal()" style="position:absolute;inset:0;background:rgba(0,0,0,.78)"></div>
+      <div style="position:relative;background:#1c2333;border:1px solid #30363d;border-radius:12px;width:min(700px,95vw);max-height:92vh;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <span id="fp-title" style="font-weight:700;font-size:1rem;color:#e6edf3"></span>
+          <button onclick="closeFpModal()" style="background:none;border:none;color:#8b949e;font-size:1.6rem;cursor:pointer;line-height:1">&times;</button>
+        </div>
+        <div id="fp-body" style="text-align:center;min-height:160px;display:flex;align-items:center;justify-content:center">
+          <div id="fp-spinner" style="color:#8b949e">Loading floor plan...</div>
+          <img id="fp-img" style="display:none;max-width:100%;max-height:72vh;border-radius:6px" />
+          <div id="fp-err" style="display:none;color:#8b949e">Floor plan not available. <a id="fp-fallback" target="_blank" style="color:#58a6ff">Open listing</a></div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  modal.style.display = 'flex';
+  document.getElementById('fp-title').textContent = `#${u.stock} - ${u.year} ${u.brandModel}`;
+  const spinner = document.getElementById('fp-spinner');
+  const img = document.getElementById('fp-img');
+  const err = document.getElementById('fp-err');
+  spinner.style.display = 'block'; img.style.display = 'none'; err.style.display = 'none';
+  document.getElementById('fp-fallback').href = u.detailUrl || '#';
+  if (u.floorplanUrl) {
+    img.onload = () => { spinner.style.display='none'; img.style.display='block'; };
+    img.onerror = () => { spinner.style.display='none'; err.style.display='block'; };
+    img.src = u.floorplanUrl;
+  } else {
+    spinner.style.display='none'; err.style.display='block';
+  }
+}
+function closeFpModal(){ const m=document.getElementById('fp-modal'); if(m) m.style.display='none'; }
+</script>
+</body>
+</html>
