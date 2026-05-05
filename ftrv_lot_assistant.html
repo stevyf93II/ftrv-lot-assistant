@@ -325,6 +325,10 @@ header {
   gap: 8px;
 }
 #filterPanel.open { display: flex; }
+.ai-filter-chip { font-size: .8rem; color: var(--muted); padding: 4px 10px; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 6px; margin-top: 6px; }
+.ai-filter-chip b { color: var(--text); }
+.ai-count { font-size: .85rem; color: var(--text); padding: 4px 0; opacity: .7; }
+
 .features-divider { width: 100%; height: 1px; background: var(--border); margin: 4px 0; }
 .feat-row { padding: 0 !important; gap: 4px; flex-wrap: wrap; }
 .feat-pill { font-size: .72rem; padding: 3px 7px; gap: 4px; display: inline-flex; align-items: center; }
@@ -1237,9 +1241,145 @@ function buildInvText() {
   })).join('\n');
 }
 
-const SYSTEM_TEMPLATE = "You are the FTRV Lot Assistant for Fun Town RV Texarkana. Internal sales tool. Be terse, dense, knowledgeable. No fluff.\n\nEach line below is one unit as JSON. Match queries against typed fields. Inventory has __N__ units.\n\n__INVTEXT__\n\nKEY FIELDS:\n- type: Travel Trailer | Fifth Wheel | Toy Hauler | Destination Trailer (body style)\n- hitch: bumper | 5w | unknown (TOW TYPE — separate from body style)\n- bdrms: 1 or 2 (unit is 2-bedroom ONLY when bdrms===2; bunks alone do NOT count)\n- WEIGHTS: wt (dry), gvwr (loaded max), hitch_wt (tongue/pin), cargo (capacity); all in lbs\n- bed_loc / bath_loc / kit_loc: front | rear | mid (or empty)\n- bath_size: large-master | large | medium-large | medium | small | small-half | split-two-baths | unknown\n- bunks: integer count (null if not a bunkhouse)\n- fridge_cuft: refrigerator capacity in cu ft (null if unknown)\n- burners: cooktop burner count\n- awnings: total count; awning_info has size/electric/LED specifics\n- amp: 30 or 50 (electrical service)\n- axles: count; happi_jac/disc_brakes for toy haulers\n- garage_ft: toy hauler garage length in ft (null if not toy hauler)\n- INSTALLED OPTIONS (true = factory-installed on THIS unit, not just available):\n  third_ac, wd_inst (washer/dryer installed, distinct from W&D Prep), auto_lvl (auto leveling),\n  og_solar (off-grid solar), solar_pkg (solar package), theater (theater seating)\n- wd_avail: true means W/D unit is INSTALLED (per spec table). \"W&D Prep\" feat tag = plumbing only, no W/D.\n- feat: closed authoritative list from Fun Town\'s own filter taxonomy (31 features)\n- AMENITIES (boolean fields outside feat): dishwasher (only 6 units), central_vac (10 units), on_demand_h2o (47), conv_oven (15), murphy (7), loft (28). Use these typed fields, NOT feat[], for these specific amenities.\n\nHITCH RULES (use hitch field, NOT type):\n- \"bumper pull\", \"TT\", \"travel trailer\", \"pull behind\", \"bumper hitch\" = hitch === \"bumper\". Includes Destination Trailers with bumper hitch.\n- \"5th wheel\", \"fifth wheel\", \"gooseneck\" = hitch === \"5w\". Strict.\n- Never mix hitch types in one query.\n\nHARD RULES:\n1. Feature membership is STRICT. A unit has feature X ONLY if feat[] contains X exactly. For multi-feature queries, EVERY requested feature must be in feat[]. Partial matches are FORBIDDEN. If 3 features requested and unit has 2, EXCLUDE.\n2. bdrms===2 is the ONLY 2-bedroom signal. bunk:true alone = bunkhouse, NOT 2-bedroom.\n3. Location queries (rear kitchen, front bath, mid bedroom, etc.) use ONLY the typed fields kit_loc / bath_loc / bed_loc. NEVER infer location from the model name. Suffixes like RB, RK, RL, FBS, MK do not override the data.\n4. NEVER ask for clarification. If 0 matches, write \"No matches.\" and stop. If query is ambiguous, pick the most common interpretation and answer.\n5. matches[] MUST contain EVERY stock that fits the query — not a sample. If you say \"found 51 units\" in your text, matches[] must have 51 stocks. Truncating is FORBIDDEN. The text count and matches[] length MUST agree.\n6. Numeric filters (wt, len, slp, sl, priceNum, bths, bdrms): include all units with valid data; null/0 means unknown — exclude from matches but you may mention the unknown count separately.\n7. Display: \"{year} {model+floorplan} #{stock}\" — drop manufacturer prefix (no \"Keystone RV\", just \"Sprinter 3840LRK\").\n8. INSTALLED vs AVAILABLE distinctions (use the right field):\n   - \"W/D installed\" / \"actual washer dryer\" / \"real W/D\" → wd_inst===true (NOT wd_avail). wd_avail===true means the spec table says Yes but unit may not have it.\n   - \"W/D Prep\" / \"plumbing for W/D\" → feat[] contains \"Washer & Dryer Prep\". This is plumbing-only.\n   - \"3rd A/C\" / \"three A/Cs\" / \"triple A/C\" / \"installed third A/C\" → third_ac===true (NOT feat:\"Dual or Triple AC\" — that just means the unit is wired for it).\n   - \"off-grid solar\" → og_solar===true. \"solar package\" → solar_pkg===true.\n   - \"theater seating installed\" → theater===true (true means it\'s factory-installed).\n9. SUPERLATIVES: for \"smallest/biggest/cheapest/most expensive\", sort the ENTIRE inventory by the relevant numeric field first, then pick the extreme. Do not eyeball — actually compare. Example: \"smallest 5w\" = sort all 5w units by len ascending, pick the lowest len.\n10. MULTI-FEATURE: when a query asks for multiple features (e.g. \"king bed AND outdoor kitchen AND couples coach\"), each unit must have EVERY feature in feat[] OR the corresponding boolean field set true. If unit has 2 of 3, EXCLUDE.\n\nOUTPUT FORMAT (strict — parser-critical):\n1. One short paragraph (1-3 sentences). Mention 2-3 specific stocks with prices.\n2. End with EXACTLY one line that is the JSON object {\"matches\":[\"STOCK1\",\"STOCK2\",...]} sorted cheapest first. NO code fences (no ```json```). NO surrounding text on that line. Just the raw JSON.";
+const SYSTEM_TEMPLATE = "You are the FTRV Lot Assistant query translator for Fun Town RV Texarkana.\n\nYour ONLY job: convert customer queries into a JSON filter spec that JavaScript will execute deterministically over the 220-unit inventory. You do NOT see individual units. You do NOT count. You do NOT list stocks. You translate intent into structured filter parameters.\n\nOUTPUT FORMAT \u2014 respond with EXACTLY this JSON shape and nothing else (no markdown fences, no surrounding text):\n{\n  \"narrative\": \"<1-2 sentence sales-friendly response in your voice>\",\n  \"filter\": { ... filter spec, see below ... },\n  \"sortBy\": \"priceNum\"|\"wt\"|\"len\"|\"year\"|\"sl\"|\"gvwr\"|\"garage_ft\"|null,\n  \"sortDir\": \"asc\"|\"desc\",\n  \"limit\": <integer or null \u2014 for 'smallest 5w' use 1; 'top 3 X' use 3; otherwise null>\n}\n\nFILTER SPEC SCHEMA (omit any field you don't need):\n- features: [\"Bunkhouse\",\"King Bed\",...]   ALL of these must be in the unit's feat[]. Closed list of 31 (see below).\n- hitch: \"bumper\"|\"5w\"\n- type: \"Travel Trailer\"|\"Fifth Wheel\"|\"Toy Hauler\"|\"Destination Trailer\"\n- condition: \"New\"|\"Used\"\n- Boolean must-haves (set to true to require): dishwasher, fireplace, central_vacuum, off_grid_solar, third_ac, wd_installed, convection, loft, murphy_bed, kit_island, outdoor_kitchen, auto_level, solar_pkg, happi_jac, disc_brakes, theater_inst\n- kit_loc, bed_loc, bath_loc: \"front\"|\"rear\"|\"mid\"\n- minPrice, maxPrice (priceNum, $)\n- minWt, maxWt (dry weight, lbs)\n- minLen, maxLen (feet)\n- minSlp (sleeps)\n- slidesEq (exact slide count) | minSlides | maxSlides\n- minBdrms (2 means must be true 2-bedroom; bdrms===2 strictly)\n- minBths (1, 1.5, or 2)\n- minBunks (bunk count)\n- minFridgeCuft (cu ft)\n- minGarage (toy hauler garage feet)\n- elecAmp (30 or 50)\n- stockEq: \"215463\"  (exact stock match)\n- modelContains: \"Brinkley Model G\"  (substring match on brandModel, case-insensitive)\n\nHITCH MAPPING:\n- \"bumper pull\"/\"TT\"/\"travel trailer\"/\"pull behind\" \u2192 hitch:\"bumper\" (also includes Destination Trailers, which are bumper-hitch)\n- \"5th wheel\"/\"fifth wheel\"/\"gooseneck\" \u2192 hitch:\"5w\"\n\nINSTALLED vs AVAILABLE:\n- \"W/D installed\"/\"real washer dryer\" \u2192 wd_installed:true (NOT just W&D Prep feat)\n- \"W&D Prep\"/\"plumbing for W/D\" \u2192 features:[\"Washer & Dryer Prep\"]\n- \"3rd A/C\"/\"three A/Cs\" \u2192 third_ac:true (NOT feature \"Dual or Triple AC\", which just means wired-for)\n- \"off-grid solar\" \u2192 off_grid_solar:true\n- \"solar package\" \u2192 solar_pkg:true\n\nCLOSED FEATURE LIST (use exact strings ONLY in features array):\nFront Living, Rear Living Area, Front Kitchen, Rear Kitchen, Front Bedroom, Rear Bedroom, Front Bath, Rear Bath, Bunkhouse, Bunk Over Cab, Two Entry/Exit Doors, Rear Twin, V-Nose, Rear Entertainment, Outdoor Kitchen, U Shaped Dinette, Kitchen Island, Bath and a Half, Front Entertainment, Loft, Two Full Baths, Outdoor Entertainment, Walk-Thru Bath, Murphy Bed, Wheelchair Accessible, Couples Coach - No Bunks, King Bed, Two Bedrooms, Dual or Triple AC, Texas Chill Package, Washer & Dryer Prep\n\nEXAMPLES:\nQ: \"5w under 12k dry\"\nA: {\"narrative\":\"Fifth wheels under 12,000 lbs dry weight, sorted lightest first.\",\"filter\":{\"hitch\":\"5w\",\"maxWt\":12000},\"sortBy\":\"wt\",\"sortDir\":\"asc\"}\n\nQ: \"biggest GVWR on the lot\"\nA: {\"narrative\":\"The biggest unit by GVWR.\",\"filter\":{},\"sortBy\":\"gvwr\",\"sortDir\":\"desc\",\"limit\":1}\n\nQ: \"cheapest bunkhouse\"\nA: {\"narrative\":\"Cheapest bunkhouse on the lot.\",\"filter\":{\"features\":[\"Bunkhouse\"]},\"sortBy\":\"priceNum\",\"sortDir\":\"asc\",\"limit\":1}\n\nQ: \"couples coach with king bed and outdoor kitchen under $80k\"\nA: {\"narrative\":\"Couples coach (no bunks) with king bed and outdoor kitchen under $80,000.\",\"filter\":{\"features\":[\"Couples Coach - No Bunks\",\"King Bed\",\"Outdoor Kitchen\"],\"maxPrice\":80000}}\n\nQ: \"stock 215463\"\nA: {\"narrative\":\"Here is stock #215463.\",\"filter\":{\"stockEq\":\"215463\"}}\n\nQ: \"show me the Brinkley Model G 4100\"\nA: {\"narrative\":\"The Brinkley Model G 4100.\",\"filter\":{\"modelContains\":\"Brinkley Model G 4100\"}}\n\nQ: \"toy hauler with at least 14 ft garage and 50 amp service\"\nA: {\"narrative\":\"Toy haulers with 14+ ft garage and 50-amp service.\",\"filter\":{\"type\":\"Toy Hauler\",\"minGarage\":14,\"elecAmp\":50}}\n\nQ: \"bumper pull under 7500 lbs sleeping 6\"\nA: {\"narrative\":\"Bumper-pull units under 7,500 lbs dry that sleep 6+.\",\"filter\":{\"hitch\":\"bumper\",\"maxWt\":7500,\"minSlp\":6}}\n\nQ: \"purple unicorn rv\"\nA: {\"narrative\":\"That's not a model we carry. We have 220 RVs across 4 body types.\",\"filter\":{}}\n\nQ: \"do you sell hot dogs\"\nA: {\"narrative\":\"We're an RV dealer \u2014 no hot dogs! Want me to find an RV instead?\",\"filter\":{}}\n\nQ: \"how many fireplaces on the lot\"\nA: {\"narrative\":\"All units with a fireplace.\",\"filter\":{\"fireplace\":true}}\n\nRULES:\n- RESPOND WITH JSON ONLY \u2014 no prose, no markdown.\n- NEVER include unit-specific stock numbers in the narrative \u2014 JS will compute the actual list.\n- The narrative is short (1-2 sentences), describes the search, never claims a count.\n- For ambiguous queries, pick the most common interpretation.\n- If a query is impossible (purple unicorn, hot dogs), return empty filter and acknowledge politely in narrative.\n";
 
 let chatInflight = false;
+
+
+// === v8: deterministic filter execution. Claude returns a spec; JS executes it. ===
+const BOOL_FILTER_FIELDS = ['dishwasher','fireplace','central_vacuum','off_grid_solar','third_ac','wd_installed','convection','loft','murphy_bed','kit_island','outdoor_kitchen','auto_level','solar_pkg','happi_jac','disc_brakes','theater_inst'];
+
+function applyFilterSpec(spec, startList) {
+  spec = spec || {};
+  let list = startList ? startList.slice() : INVENTORY.slice();
+
+  if (spec.features && spec.features.length) {
+    list = list.filter(u => spec.features.every(f => (u.features || []).includes(f)));
+  }
+  if (spec.hitch) list = list.filter(u => u.hitch === spec.hitch);
+  if (spec.type) list = list.filter(u => u.type === spec.type);
+  if (spec.condition) list = list.filter(u => u.condition === spec.condition);
+
+  for (const f of BOOL_FILTER_FIELDS) {
+    if (spec[f] === true) list = list.filter(u => u[f] === true);
+  }
+
+  if (spec.kit_loc)  list = list.filter(u => u.kit_loc === spec.kit_loc);
+  if (spec.bed_loc)  list = list.filter(u => u.bed_loc === spec.bed_loc);
+  if (spec.bath_loc) list = list.filter(u => u.bath_loc === spec.bath_loc);
+
+  if (spec.minPrice != null) list = list.filter(u => (u.priceNum || 0) >= spec.minPrice);
+  if (spec.maxPrice != null) list = list.filter(u => (u.priceNum || 0) > 0 && u.priceNum <= spec.maxPrice);
+  if (spec.minWt != null) list = list.filter(u => (u.wt || 0) >= spec.minWt);
+  if (spec.maxWt != null) list = list.filter(u => (u.wt || 0) > 0 && u.wt <= spec.maxWt);
+  if (spec.minLen != null) list = list.filter(u => (u.len || 0) >= spec.minLen);
+  if (spec.maxLen != null) list = list.filter(u => (u.len || 0) > 0 && u.len <= spec.maxLen);
+  if (spec.minSlp != null) list = list.filter(u => (u.slp || 0) >= spec.minSlp);
+  if (spec.slidesEq != null) list = list.filter(u => u.sl === spec.slidesEq);
+  if (spec.minSlides != null) list = list.filter(u => (u.sl || 0) >= spec.minSlides);
+  if (spec.maxSlides != null) list = list.filter(u => (u.sl || 0) <= spec.maxSlides);
+  if (spec.minBdrms != null) list = list.filter(u => (u.bdrms || 1) >= spec.minBdrms);
+  if (spec.minBths != null) list = list.filter(u => (u.bths || 1) >= spec.minBths);
+  if (spec.minBunks != null) list = list.filter(u => (u.bunks || 0) >= spec.minBunks);
+  if (spec.minFridgeCuft != null) list = list.filter(u => (u.fridge_cuft || 0) >= spec.minFridgeCuft);
+  if (spec.minGarage != null) list = list.filter(u => (u.garage_ft || 0) >= spec.minGarage);
+  if (spec.elecAmp != null) list = list.filter(u => u.amp === spec.elecAmp);
+
+  if (spec.stockEq) list = list.filter(u => u.stock === spec.stockEq);
+  if (spec.modelContains) {
+    const needle = String(spec.modelContains).toLowerCase();
+    list = list.filter(u => (u.brandModel || '').toLowerCase().includes(needle));
+  }
+  return list;
+}
+
+function applySort(list, sortBy, sortDir) {
+  if (!sortBy) return list;
+  const dir = sortDir === 'desc' ? -1 : 1;
+  return list.slice().sort((a, b) => {
+    const aV = (a[sortBy] != null) ? a[sortBy] : (dir > 0 ? Infinity : -Infinity);
+    const bV = (b[sortBy] != null) ? b[sortBy] : (dir > 0 ? Infinity : -Infinity);
+    return (aV - bV) * dir;
+  });
+}
+
+function describeFilterSpec(spec, sortBy, sortDir, limit) {
+  if (!spec) return '';
+  const parts = [];
+  if (spec.features && spec.features.length) parts.push(spec.features.join(' + '));
+  if (spec.hitch) parts.push(spec.hitch === '5w' ? '5th wheel' : 'bumper pull');
+  if (spec.type) parts.push(spec.type);
+  if (spec.condition) parts.push(spec.condition);
+  for (const f of BOOL_FILTER_FIELDS) if (spec[f] === true) parts.push(f.replace(/_/g,' '));
+  if (spec.kit_loc) parts.push(spec.kit_loc + ' kitchen');
+  if (spec.bed_loc) parts.push(spec.bed_loc + ' bedroom');
+  if (spec.bath_loc) parts.push(spec.bath_loc + ' bath');
+  if (spec.minPrice != null) parts.push('≥$' + spec.minPrice.toLocaleString());
+  if (spec.maxPrice != null) parts.push('≤$' + spec.maxPrice.toLocaleString());
+  if (spec.minWt != null) parts.push('≥' + spec.minWt.toLocaleString() + ' lbs');
+  if (spec.maxWt != null) parts.push('≤' + spec.maxWt.toLocaleString() + ' lbs dry');
+  if (spec.minLen != null) parts.push('≥' + spec.minLen + ' ft');
+  if (spec.maxLen != null) parts.push('≤' + spec.maxLen + ' ft');
+  if (spec.minSlp != null) parts.push('sleeps ≥' + spec.minSlp);
+  if (spec.slidesEq != null) parts.push(spec.slidesEq + ' slides');
+  if (spec.minSlides != null) parts.push('≥' + spec.minSlides + ' slides');
+  if (spec.maxSlides != null) parts.push('≤' + spec.maxSlides + ' slides');
+  if (spec.minBdrms != null) parts.push('≥' + spec.minBdrms + ' bedrooms');
+  if (spec.minBths != null) parts.push('≥' + spec.minBths + ' baths');
+  if (spec.minBunks != null) parts.push('≥' + spec.minBunks + ' bunks');
+  if (spec.minFridgeCuft != null) parts.push('fridge ≥' + spec.minFridgeCuft + ' cu ft');
+  if (spec.minGarage != null) parts.push('garage ≥' + spec.minGarage + ' ft');
+  if (spec.elecAmp != null) parts.push(spec.elecAmp + ' amp');
+  if (spec.stockEq) parts.push('stock ' + spec.stockEq);
+  if (spec.modelContains) parts.push('"' + spec.modelContains + '"');
+  if (sortBy) {
+    const labels = {priceNum:'price', wt:'weight', len:'length', year:'year', sl:'slides', gvwr:'GVWR', garage_ft:'garage'};
+    parts.push('sorted by ' + (labels[sortBy] || sortBy) + ' ' + (sortDir === 'desc' ? '↓' : '↑'));
+  }
+  if (limit) parts.push('top ' + limit);
+  return parts.join(' · ');
+}
+
+function renderDeterministic(narrative, spec, sortBy, sortDir, limit, list) {
+  const replyEl = document.getElementById('aiReply');
+  const grid = document.getElementById('grid');
+  const safe = s => String(s || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+  const desc = describeFilterSpec(spec, sortBy, sortDir, limit);
+  const chipHtml = desc ? '<div class="ai-filter-chip"><b>Read as:</b> ' + safe(desc) + '</div>' : '';
+  const countHtml = '<div class="ai-count">' + list.length + ' match' + (list.length === 1 ? '' : 'es') + '</div>';
+  replyEl.innerHTML = '<div class="ai-conv">' + safe(narrative || '') + '</div>' + chipHtml + countHtml;
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty"><h2>No matches</h2><div>Try rephrasing or broadening the criteria.</div></div>';
+    return;
+  }
+  grid.innerHTML = list.map(u => {
+    const condClass = (u.condition || '').replace(/[^A-Za-z]/g,'');
+    const thumbStyle = u.photoUrl ? `style="background-image:url('${u.photoUrl.replace(/'/g,"\\'")}')"` : '';
+    const thumbCls = u.photoUrl ? 'thumb' : 'thumb no-photo';
+    const priceCls = (u.priceNum > 0) ? 'price' : 'price call';
+    const fpBtn = (u.floorplanUrl || u.detailUrl)
+      ? `<button class="btn" onclick="showFloorplan('${u.stock}')">Floor Plan</button>`
+      : `<span class="btn secondary">No floor plan</span>`;
+    const lwParts = [];
+    if (u.len) lwParts.push(u.len + ' ft');
+    if (u.wt) lwParts.push(u.wt.toLocaleString() + ' lb');
+    if (u.slp) lwParts.push('sleeps ' + u.slp);
+    const lwLine = lwParts.length ? `<div class="lw-line">${lwParts.join(' &middot; ')}</div>` : '';
+    return `<div class="card">
+      <div class="${thumbCls}" ${thumbStyle}>
+        <div class="cond-badge cond-${condClass}">${u.condition || ''}</div>
+        <div class="stock-badge">#${u.stock}</div>
+      </div>
+      <div class="card-body">
+        <div class="title">${u.year || ''} ${(u.brandModel||'')}</div>
+        ${lwLine}
+        <div class="${priceCls}">${u.price}</div>
+        ${fpBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
 
 async function askClaude(userQuery) {
   if (chatInflight) return;
@@ -1248,19 +1388,17 @@ async function askClaude(userQuery) {
   const grid = document.getElementById('grid');
   replyEl.style.display = 'block';
   replyEl.innerHTML = '<div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span> <span id="thinkLabel">Thinking...</span></div>';
-  // After 8s, change message so user knows Render may be cold-starting
   setTimeout(() => { const lbl = document.getElementById('thinkLabel'); if (lbl) lbl.textContent = 'Waking up the server (free tier sleeps after 15 min idle)...'; }, 8000);
   grid.innerHTML = '';
-  const invText = buildInvText();
-  const sys = SYSTEM_TEMPLATE.replace('__N__', getFilteredInventory().length).replace('__INVTEXT__', buildFactsHeader() + invText);
+  // v8: schema-only prompt — no inventory text. Claude returns a filter spec.
   try {
     const res = await fetch(CLAUDE_ENDPOINT, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4096,
-        system: [{type: 'text', text: sys, cache_control: {type: 'ephemeral'}}],
+        max_tokens: 800,
+        system: [{type: 'text', text: SYSTEM_TEMPLATE, cache_control: {type: 'ephemeral'}}],
         messages: [{role: 'user', content: userQuery}]
       })
     });
@@ -1270,19 +1408,31 @@ async function askClaude(userQuery) {
     }
     const data = await res.json();
     const reply = (data.content && data.content[0] && data.content[0].text) || '';
-    // Robust matches[] parser — tolerates ```json fences, multiline JSON, any position. Uses LAST match.
-    const re = /\{\s*"matches"\s*:\s*\[([\s\S]*?)\]\s*\}/g;
-    let lastM = null, mm;
-    while ((mm = re.exec(reply)) !== null) lastM = mm;
-    let matches = [];
-    if (lastM) {
-      try { matches = JSON.parse('[' + lastM[1] + ']'); } catch(e) { matches = []; }
+    // Strip markdown fences if Claude wrapped
+    const cleaned = reply.replace(/^\s*```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+    let parsed;
+    try { parsed = JSON.parse(cleaned); }
+    catch (e) {
+      // Try to find first balanced JSON object
+      const m = cleaned.match(/\{[\s\S]*\}/);
+      if (m) { try { parsed = JSON.parse(m[0]); } catch(_) {} }
     }
-    const conv = reply
-      .replace(/```json[\s\S]*?```/g, '')
-      .replace(/\{\s*"matches"\s*:\s*\[[\s\S]*?\]\s*\}/g, '')
-      .trim();
-    renderClaudeReply(conv, matches);
+    if (!parsed) {
+      replyEl.innerHTML = '<div class="ai-error">Couldn\'t parse the AI response. Try rephrasing.</div>';
+      grid.innerHTML = '';
+      return;
+    }
+    const narrative = parsed.narrative || '';
+    const filterSpec = parsed.filter || {};
+    const sortBy = parsed.sortBy || null;
+    const sortDir = parsed.sortDir || 'asc';
+    const limit = parsed.limit || null;
+    // Apply manual filter (Type/Condition/Features pills) FIRST, then AI filter
+    const baseList = getFilteredInventory();
+    let list = applyFilterSpec(filterSpec, baseList);
+    if (sortBy) list = applySort(list, sortBy, sortDir);
+    if (limit) list = list.slice(0, limit);
+    renderDeterministic(narrative, filterSpec, sortBy, sortDir, limit, list);
   } catch (e) {
     replyEl.innerHTML = '<div class="ai-error"><strong>Couldn\'t reach Claude.</strong> ' + (e.message || e) + '<br><span style="opacity:.6;font-size:.75rem">Render free tier sleeps after idle \u2014 first request takes 50s+.</span></div>';
     grid.innerHTML = '';
