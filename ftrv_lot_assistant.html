@@ -325,6 +325,14 @@ header {
   gap: 8px;
 }
 #filterPanel.open { display: flex; }
+.features-divider { width: 100%; height: 1px; background: var(--border); margin: 4px 0; }
+.feat-row { padding: 0 !important; gap: 4px; flex-wrap: wrap; }
+.feat-pill { font-size: .72rem; padding: 3px 7px; gap: 4px; display: inline-flex; align-items: center; }
+.feat-pill .feat-count { background: var(--border); color: var(--muted); padding: 0 5px; border-radius: 8px; font-size: .65rem; min-width: 14px; text-align: center; }
+.feat-pill.active .feat-count { background: rgba(255,255,255,.25); color: white; }
+.feat-pill.zero { opacity: .35; pointer-events: none; }
+.filter-toggle .badge { background: var(--red); color: white; padding: 0 6px; border-radius: 10px; margin-left: 4px; font-size: .65rem; min-width: 14px; display: inline-block; }
+.filter-toggle.open .badge { background: rgba(255,255,255,.3); }
 #filterPanel .row { padding: 0; }
 #filterPanel .label { font-size: .65rem; min-width: 70px; }
 
@@ -398,7 +406,48 @@ header {
     <span class="pill" data-filter="condition" data-value="New">New</span>
     <span class="pill" data-filter="condition" data-value="Used">Used</span>
   </div>
-  <div class="row">
+<div class="features-divider"></div>
+  <div class="row feat-row">
+    <span class="label">Layout</span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Front Living">Front Living <span class="feat-count" id="cnt-Front-Living">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Rear Living Area">Rear Living Area <span class="feat-count" id="cnt-Rear-Living-Area">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Front Kitchen">Front Kitchen <span class="feat-count" id="cnt-Front-Kitchen">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Rear Kitchen">Rear Kitchen <span class="feat-count" id="cnt-Rear-Kitchen">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Front Bedroom">Front Bedroom <span class="feat-count" id="cnt-Front-Bedroom">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Rear Bedroom">Rear Bedroom <span class="feat-count" id="cnt-Rear-Bedroom">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Front Bath">Front Bath <span class="feat-count" id="cnt-Front-Bath">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Rear Bath">Rear Bath <span class="feat-count" id="cnt-Rear-Bath">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Walk-Thru Bath">Walk-Thru Bath <span class="feat-count" id="cnt-Walk-Thru-Bath">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Bath and a Half">Bath and a Half <span class="feat-count" id="cnt-Bath-and-a-Half">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Two Full Baths">Two Full Baths <span class="feat-count" id="cnt-Two-Full-Baths">0</span></span>
+  </div>
+  <div class="row feat-row">
+    <span class="label">Sleeping</span>
+    <span class="pill feat-pill" data-filter="feature" data-value="King Bed">King Bed <span class="feat-count" id="cnt-King-Bed">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Murphy Bed">Murphy Bed <span class="feat-count" id="cnt-Murphy-Bed">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Couples Coach - No Bunks">Couples Coach - No Bunks <span class="feat-count" id="cnt-Couples-Coach--No-Bunks">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Bunkhouse">Bunkhouse <span class="feat-count" id="cnt-Bunkhouse">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Two Bedrooms">Two Bedrooms <span class="feat-count" id="cnt-Two-Bedrooms">0</span></span>
+  </div>
+  <div class="row feat-row">
+    <span class="label">Kitchen</span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Kitchen Island">Kitchen Island <span class="feat-count" id="cnt-Kitchen-Island">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="U Shaped Dinette">U Shaped Dinette <span class="feat-count" id="cnt-U-Shaped-Dinette">0</span></span>
+  </div>
+  <div class="row feat-row">
+    <span class="label">Outdoor</span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Outdoor Kitchen">Outdoor Kitchen <span class="feat-count" id="cnt-Outdoor-Kitchen">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Outdoor Entertainment">Outdoor Entertainment <span class="feat-count" id="cnt-Outdoor-Entertainment">0</span></span>
+  </div>
+  <div class="row feat-row">
+    <span class="label">Other</span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Loft">Loft <span class="feat-count" id="cnt-Loft">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Two Entry/Exit Doors">Two Entry/Exit Doors <span class="feat-count" id="cnt-Two-Entry-Exit-Doors">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Dual or Triple AC">Dual or Triple AC <span class="feat-count" id="cnt-Dual-or-Triple-AC">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Texas Chill Package">Texas Chill Package <span class="feat-count" id="cnt-Texas-Chill-Package">0</span></span>
+    <span class="pill feat-pill" data-filter="feature" data-value="Washer & Dryer Prep">Washer & Dryer Prep <span class="feat-count" id="cnt-Washer-Dryer-Prep">0</span></span>
+  </div>
+    <div class="row">
     <button id="clearAll" style="font-size:.78rem;padding:4px 10px;background:var(--dark);color:var(--muted);border:1px solid var(--border);border-radius:6px;cursor:pointer">Reset filters</button>
   </div>
 </div>
@@ -919,16 +968,40 @@ document.getElementById('totalCount').textContent = INVENTORY.length;
 // (layout dropdown removed — AI handles layout filtering)
 
 // Filter state
-const state = { type: '', condition: '', q: '', sort: 'yearDesc' };
+const state = { type: '', condition: '', q: '', sort: 'yearDesc', features: new Set() };
+
+// Restore active features from localStorage
+try {
+  const saved = JSON.parse(localStorage.getItem('ftrv_features') || '[]');
+  if (Array.isArray(saved)) saved.forEach(f => state.features.add(f));
+} catch(e) {}
+
+function saveFeatures() {
+  try { localStorage.setItem('ftrv_features', JSON.stringify([...state.features])); } catch(e) {}
+}
+
+// Get inventory filtered by ACTIVE feature pills (used by both render and Claude)
+function getFilteredInventory() {
+  if (state.features.size === 0) return INVENTORY;
+  return INVENTORY.filter(u => {
+    const fs = u.features || [];
+    for (const f of state.features) if (!fs.includes(f)) return false;
+    return true;
+  });
+}
 
 function render() {
   const q = state.q.trim().toLowerCase();
   let list = INVENTORY.filter(u => {
     if (state.type && u.type !== state.type) return false;
     if (state.condition && u.condition !== state.condition) return false;
-
+    // Features: ALL selected must be present
+    if (state.features.size) {
+      const fs = u.features || [];
+      for (const f of state.features) if (!fs.includes(f)) return false;
+    }
     if (q) {
-      const hay = (u.stock + ' ' + u.brandModel + ' ' + u.type + ' ' + u.year + ' ' + u.layout).toLowerCase();
+      const hay = (u.stock + ' ' + u.brandModel + ' ' + u.type + ' ' + u.year + ' ' + (u.layout || '')).toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -1036,7 +1109,8 @@ const CLAUDE_ENDPOINT = 'https://ftrv-lot-assistant.onrender.com/api/chat';
 
 function buildInvText() {
   // JSON Lines: one structured unit per line. Claude reads typed fields directly.
-  return INVENTORY.map(u => JSON.stringify({
+  // Honors active feature filters — Claude only sees units the user has narrowed to.
+  return getFilteredInventory().map(u => JSON.stringify({
     stock: u.stock, year: u.year, type: u.type, hitch: u.hitch,
     cond: u.condition, price: u.price, bm: u.brandModel,
     len: u.len, wt: u.wt, gvwr: u.gvwr, hitch_wt: u.hitch_wt, cargo: u.cargo,
@@ -1082,7 +1156,7 @@ async function askClaude(userQuery) {
   setTimeout(() => { const lbl = document.getElementById('thinkLabel'); if (lbl) lbl.textContent = 'Waking up the server (free tier sleeps after 15 min idle)...'; }, 8000);
   grid.innerHTML = '';
   const invText = buildInvText();
-  const sys = SYSTEM_TEMPLATE.replace('__N__', INVENTORY.length).replace('__INVTEXT__', invText);
+  const sys = SYSTEM_TEMPLATE.replace('__N__', getFilteredInventory().length).replace('__INVTEXT__', invText);
   try {
     const res = await fetch(CLAUDE_ENDPOINT, {
       method: 'POST',
@@ -1222,6 +1296,64 @@ function showFloorplan(stock) {
   }
 }
 function closeFpModal(){ const m=document.getElementById('fp-modal'); if(m) m.style.display='none'; }
+
+// === Feature filter wiring ===
+(function() {
+  // Compute initial counts and dim 0-count features
+  const counts = {};
+  for (const u of INVENTORY) for (const f of (u.features || [])) counts[f] = (counts[f] || 0) + 1;
+  document.querySelectorAll('.feat-pill').forEach(p => {
+    const f = p.dataset.value;
+    const n = counts[f] || 0;
+    const cnt = p.querySelector('.feat-count');
+    if (cnt) cnt.textContent = n;
+    if (n === 0) p.classList.add('zero');
+    if (state.features.has(f)) p.classList.add('active');
+  });
+
+  // Click handler
+  document.querySelectorAll('.feat-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      const f = p.dataset.value;
+      if (p.classList.contains('zero')) return;
+      if (state.features.has(f)) { state.features.delete(f); p.classList.remove('active'); }
+      else { state.features.add(f); p.classList.add('active'); }
+      saveFeatures();
+      updateFeatureBadge();
+      render();
+    });
+  });
+
+  function updateFeatureBadge() {
+    const btn = document.getElementById('filterToggle');
+    if (!btn) return;
+    let badge = btn.querySelector('.badge');
+    const n = state.features.size + (state.type ? 1 : 0) + (state.condition ? 1 : 0);
+    if (n > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'badge';
+        btn.insertBefore(badge, btn.querySelector('.caret'));
+      }
+      badge.textContent = n;
+    } else if (badge) badge.remove();
+  }
+  window.updateFeatureBadge = updateFeatureBadge;
+  updateFeatureBadge();
+
+  // Hook clearAll to also clear features
+  const clearAll = document.getElementById('clearAll');
+  if (clearAll) {
+    const orig = clearAll.onclick;
+    clearAll.onclick = function() {
+      state.features.clear();
+      document.querySelectorAll('.feat-pill.active').forEach(p => p.classList.remove('active'));
+      saveFeatures();
+      if (orig) orig.call(this); else { updateFeatureBadge(); render(); }
+    };
+  }
+})();
+
 </script>
 </body>
 </html>
