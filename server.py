@@ -3,15 +3,18 @@
 Serves the HTML app AND forwards:
   /api/chat     → Anthropic API
   /api/floorplan?url=... → fetches funtownrv.com product page, extracts floor plan image
+  /api/health   → tiny ping endpoint used to wake Render free-tier cold-start
 
-CORS is enabled on /api/chat and /api/floorplan so the local Grid View HTML
-(loaded as file:// from disk on Steve's computer) can call these endpoints.
+CORS is enabled on /api/chat, /api/floorplan, and /api/health so the local
+Grid View HTML (loaded as file:// from disk on Steve's computer) can call
+these endpoints.
 """
-import json, os, re, ssl, urllib.request, urllib.parse, socket
+import json, os, re, ssl, time, urllib.request, urllib.parse, socket
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 PORT = int(os.environ.get('PORT', 8765))
+BOOT_TIME = time.time()
 
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -33,10 +36,21 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        if self.path.startswith('/api/floorplan'):
+        if self.path.startswith('/api/health'):
+            self._handle_health()
+        elif self.path.startswith('/api/floorplan'):
             self._handle_floorplan()
         else:
             super().do_GET()
+
+    def _handle_health(self):
+        # Tiny endpoint used by the Grid View on page load (and by external
+        # uptime monitors) to wake Render's free-tier worker before the
+        # customer types anything. Keep response small and uncached.
+        self._json(200, {
+            'ok': True,
+            'uptime_s': round(time.time() - BOOT_TIME, 1),
+        })
 
     def _handle_floorplan(self):
         try:
@@ -66,6 +80,7 @@ class Handler(SimpleHTTPRequestHandler):
         body = json.dumps(data).encode()
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
+        self.send_header('Cache-Control', 'no-store')
         self._send_cors()
         self.end_headers()
         self.wfile.write(body)
