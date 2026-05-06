@@ -1251,7 +1251,14 @@ function applyFilterSpec(spec, startList) {
     list = list.filter(u => spec.features.every(f => hasFeature(u, f)));
   }
   if (spec.hitch) list = list.filter(u => u.hitch === spec.hitch);
-  if (spec.type) list = list.filter(u => u.type === spec.type);
+  if (spec.type) {
+    const PARENT_TYPES = ["Toy Hauler", "Motor Home"];
+    if (PARENT_TYPES.includes(spec.type)) {
+      list = list.filter(u => (u.type || "").startsWith(spec.type));
+    } else {
+      list = list.filter(u => u.type === spec.type);
+    }
+  }
   if (spec.condition) list = list.filter(u => u.condition === spec.condition);
 
   for (const f of BOOL_FILTER_FIELDS) {
