@@ -313,6 +313,7 @@ header {
   <button id="sendBtn" onclick="sendMsg()">➤</button>
 </div>
 
+<script src="ftrv_shared.js"></script>
 <script>
 // ─── INVENTORY ───────────────────────────────────────────────────────────────
 const RAW = [
@@ -538,122 +539,7 @@ const RAW = [
   "209785A|2020|Travel Trailer|Used|$13,892|Forest River RV Flagstaff SE T21TBHWSE|https://assets-cdn.interactcp.com/funtownrv/unit_photo/imgh_400x300-m0903202519563747/unit_photo_202509030756374758958341.jpg"
 ];
 
-// ─── PRODUCT PAGE URLs ────────────────────────────────────────────────────────
-const URL_MAP = {"209141":"https://www.funtownrv.com/product/new-2025-keystone-rv-outback-252rd-2840262-29","209559":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-x-lite-22veranda-3216646-29","210131":"https://www.funtownrv.com/product/new-2025-forest-river-rv-cherokee-arctic-wolf-suite-3800deck-3091276-5","210185":"https://www.funtownrv.com/product/new-2025-keystone-rv-outback-212rb-3023229-29","210189":"https://www.funtownrv.com/product/new-2025-keystone-rv-outback-340bh-2857422-29","210647":"https://www.funtownrv.com/product/new-2025-forest-river-rv-salem-fsx-269vc-3216670-28","210818":"https://www.funtownrv.com/product/new-2025-keystone-rv-montana-3623eb-2766623-5","210979":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-grand-lodge-42veranda-3216648-3","211137":"https://www.funtownrv.com/product/new-2025-kz-sportster-x-3914x-2849438-26","211450":"https://www.funtownrv.com/product/new-2025-palomino-columbus-380rl-3309766-5","212106":"https://www.funtownrv.com/product/new-2025-forest-river-rv-vengeance-rogue-sut-323sut-3216707-26","212176":"https://www.funtownrv.com/product/new-2025-crossroads-rv-hampton-380rks-2853747-3","212661":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-grand-lodge-44view-2916347-3","213204":"https://www.funtownrv.com/product/new-2025-forest-river-rv-impression-44stay-3216720-5","213253":"https://www.funtownrv.com/product/new-2025-ember-rv-e-series-24rld-2885721-29","213507":"https://www.funtownrv.com/product/new-2025-dutchmen-rv-kodiak-308bhsl-3164086-29","213635":"https://www.funtownrv.com/product/new-2025-kz-durango-d341rpt-3110328-5","214091":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-28viewx-3216653-29","214268":"https://www.funtownrv.com/product/new-2025-forest-river-rv-wildwood-x-lite-25ice-2904447-29","214780":"https://www.funtownrv.com/product/new-2025-forest-river-rv-cherokee-timberwolf-black-label-39albl-3091281-3","214868":"https://www.funtownrv.com/product/new-2025-keystone-rv-raptor-carbon-series-398-3018784-26","214972":"https://www.funtownrv.com/product/new-2026-brinkley-model-i-294-3547661-29","215050":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3300-2932667-5","215463":"https://www.funtownrv.com/product/new-2026-brinkley-model-g-4100-3481965-26","215532":"https://www.funtownrv.com/product/new-2026-brinkley-model-i-265-3369501-29","215586":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-266bhle-3475978-29","215657":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-260ice-3311901-29","215693":"https://www.funtownrv.com/product/new-2025-gulf-stream-rv-vintage-yellowstone-23rss-3285658-29","215719":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-grand-villa-42ice-3275916-3","215803":"https://www.funtownrv.com/product/new-2026-prime-time-rv-tracer-275bh-3603798-29","215813":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-311rd-3152726-5","215838":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3941fo-3447963-5","216104":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-325rk-3178899-5","216185":"https://www.funtownrv.com/product/new-2026-dutchmen-rv-kodiak-130bhs-3218260-29","216211":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-rogue-armored-32l132-3088761-28","216229":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-air-297-3483958-29","216303":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-fsx-266bhle-3454123-29","216313":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-260ice-3388884-29","216327":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-300ice-3591472-29","216373":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cardinal-35fun-3295822-5","216396":"https://www.funtownrv.com/product/new-2026-prime-time-rv-tracer-295db-3597002-29","216398":"https://www.funtownrv.com/product/new-2026-prime-time-rv-tracer-235rk-3285640-29","216622":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3532sp-3414588-5","216744":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-25ice-3599553-29","217094":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-2810-3535802-5","217109":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3100-3567455-5","217143":"https://www.funtownrv.com/product/new-2026-brinkley-model-g-3970-3600873-26","217239":"https://www.funtownrv.com/product/new-2026-east-to-west-ahara-383ur-3304314-5","217272":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cardinal-36mb-3347858-5","217334":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-arctic-wolf-285opt-3449490-5","217484":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2600rb-3541312-29","217547":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-270zen-3414121-29","217568":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2600bh-3591213-29","217596":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cedar-creek-cottage-fifth-wheels-412fwc-3519138-5","217602":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-270zen-3371159-29","218147":"https://www.funtownrv.com/product/new-2026-gulf-stream-rv-yellowstone-classic-279bh-3595373-29","218179":"https://www.funtownrv.com/product/new-2026-forest-river-rv-sandpiper-3800rk-3555635-5","218241":"https://www.funtownrv.com/product/new-2026-crossroads-rv-sunset-trail-select-17bhs-3284733-29","218265":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-2108tb-3576835-29","218269":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-1800bh-3291831-29","218272":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-2100bh-3584983-29","218274":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-2108ds-3599655-29","218278":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-24rks-3293590-29","218280":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-22mbh-3444651-29","218285":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-26fkd-3421088-29","218365":"https://www.funtownrv.com/product/new-2026-coachmen-rv-chaparral-375baf-3591219-5","218494":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3610-3505876-5","218509":"https://www.funtownrv.com/product/new-2026-keystone-rv-fuzion-442-3400412-26","218548":"https://www.funtownrv.com/product/new-2026-east-to-west-tandara-387bh-3502299-5","218578":"https://www.funtownrv.com/product/new-2026-east-to-west-tandara-388lr-3521474-5","218716":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3761fl-3267399-5","218726":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-397fb-3280282-5","218766":"https://www.funtownrv.com/product/new-2026-forest-river-rv-riverstone-legacy-39rkfb-3392445-5","218772":"https://www.funtownrv.com/product/new-2026-forest-river-rv-riverstone-legacy-425fo-3400788-5","218859":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-300ice-3599847-29","219012":"https://www.funtownrv.com/product/new-2026-crossroads-rv-fun-time-195rb-3300880-29","219027":"https://www.funtownrv.com/product/new-2026-forest-river-rv-impression-36br3-3552383-5","219122":"https://www.funtownrv.com/product/new-2026-heartland-cyclone-3913-3552066-26","219126":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-250zen-3375274-29","219131":"https://www.funtownrv.com/product/new-2026-heartland-cyclone-3914-3544755-26","219201":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-2680-3505875-5","219397":"https://www.funtownrv.com/product/new-2026-forest-river-rv-sandpiper-4003mb-3371169-5","219615":"https://www.funtownrv.com/product/new-2026-heartland-sundance-24ml-3589252-5","219673":"https://www.funtownrv.com/product/new-2026-prime-time-rv-tracer-195rb-3591470-29","219711":"https://www.funtownrv.com/product/new-2026-forest-river-rv-sandpiper-destination-trailers-41duplex-3508370-3","219742":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2600bh-3591213-29","219755":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2800rl-3499068-29","219773":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-3400bh-3593028-29","219777":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-3400sb-3536048-29","219811":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-28vbxl-3573503-29","219818":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-273qbxl-3594656-29","219922":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-178ice-3599844-29","220063":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-250ck-3546240-29","220082":"https://www.funtownrv.com/product/new-2026-east-to-west-tandara-390fl-3535797-5","220103":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-hemisphere-321drl-3497422-5","220112":"https://www.funtownrv.com/product/new-2026-kz-durango-d321rkt-3445657-5","220122":"https://www.funtownrv.com/product/new-2026-kz-durango-half-ton-d256rkt-3319074-5","220130":"https://www.funtownrv.com/product/new-2026-kz-durango-d301rlt-3412463-5","220134":"https://www.funtownrv.com/product/new-2026-kz-durango-d348bhf-3445658-5","220139":"https://www.funtownrv.com/product/new-2026-kz-connect-c282fkk-3321291-29","220143":"https://www.funtownrv.com/product/new-2026-kz-ridgeway-36mb-3499056-5","220148":"https://www.funtownrv.com/product/new-2026-kz-connect-se-c281bhkse-3314285-29","220151":"https://www.funtownrv.com/product/new-2026-keystone-rv-fuzion-impact-edition-367-3523649-26","220155":"https://www.funtownrv.com/product/new-2026-kz-sportster-x-22x-3412473-28","220164":"https://www.funtownrv.com/product/new-2026-heartland-prowler-2201mds-3535813-29","220170":"https://www.funtownrv.com/product/new-2026-gulf-stream-rv-yellowstone-y5245-3405001-16","220179":"https://www.funtownrv.com/product/new-2026-kz-ridgeway-27rk-3457258-5","220188":"https://www.funtownrv.com/product/new-2026-kz-ridgeway-31rl-3457259-5","220207":"https://www.funtownrv.com/product/new-2026-forest-river-rv-vibe-2600rk-3519150-29","220228":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-hemisphere-356qb-3521225-5","220246":"https://www.funtownrv.com/product/new-2026-keystone-rv-sprinter-3920dsl-3418174-5","220265":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-381tb-3442298-5","220283":"https://www.funtownrv.com/product/new-2026-keystone-rv-sprinter-3840lrk-3418053-5","220303":"https://www.funtownrv.com/product/new-2026-keystone-rv-sprinter-3980fbs-3449691-5","220315":"https://www.funtownrv.com/product/new-2026-heartland-bighorn-39rk-3583179-5","220321":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-295rl-3556853-5","220325":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3231ck-3405004-5","220330":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-331rl-3406043-5","220333":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3532sp-3414588-5","220338":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-high-country-377fl-3418176-5","220364":"https://www.funtownrv.com/product/new-2026-keystone-rv-arcadia-3260rl-3482254-5","220366":"https://www.funtownrv.com/product/new-2026-keystone-rv-arcadia-super-lite-308slbh-3513909-5","220376":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-230bh-3499526-29","220504":"https://www.funtownrv.com/product/new-2026-keystone-rv-fuzion-impact-edition-416-3414127-26","220531":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-26ice-3598989-29","220542":"https://www.funtownrv.com/product/new-2026-forest-river-rv-sandpiper-3844quad-3505873-5","220556":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-alpha-wolf-26dbh-3541313-29","220584":"https://www.funtownrv.com/product/new-2026-coachmen-rv-chaparral-334fl-3505471-5","220614":"https://www.funtownrv.com/product/new-2026-brinkley-model-i-275-3599672-29","220623":"https://www.funtownrv.com/product/new-2026-kz-sportsmen-se-261bhkse-3457261-29","220633":"https://www.funtownrv.com/product/new-2026-kz-sportsmen-se-301dbse-3478262-29","220641":"https://www.funtownrv.com/product/new-2026-kz-sportsmen-se-301bhkse-3499060-29","220764":"https://www.funtownrv.com/product/new-2026-keystone-rv-montana-3795fk-3444638-5","220807":"https://www.funtownrv.com/product/new-2026-forest-river-rv-wildwood-x-lite-23zen-3464974-29","220818":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cedar-creek-experience-29rl-3500590-5","220876":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-hemisphere-301fam-3504526-29","220891":"https://www.funtownrv.com/product/new-2026-kz-ridgeway-32ml-3467707-5","220905":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-cruise-lite-23zen-3556859-29","221049":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-18fbs-3599656-29","221157":"https://www.funtownrv.com/product/new-2026-keystone-rv-arcadia-super-lite-242slmd-3490672-5","221180":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-210mb-3552072-29","221187":"https://www.funtownrv.com/product/new-2026-heartland-prowler-2500bh-3533809-29","221194":"https://www.funtownrv.com/product/new-2026-heartland-prowler-3301rlt-3399367-29","221203":"https://www.funtownrv.com/product/new-2026-coachmen-rv-freedom-express-select-29se-3546239-29","221211":"https://www.funtownrv.com/product/new-2026-heartland-prowler-1802mbs-3490700-29","221213":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-260db-3540096-29","221248":"https://www.funtownrv.com/product/new-2026-keystone-rv-passport-classic-284qbc-3495703-29","221251":"https://www.funtownrv.com/product/new-2026-keystone-rv-passport-3300bk-3513920-29","221257":"https://www.funtownrv.com/product/new-2026-keystone-rv-raptor-carbon-series-368-3447978-26","221345":"https://www.funtownrv.com/product/new-2026-coachmen-rv-freedom-express-select-30se-3516609-29","221573":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-mini-161bh-3490395-29","221591":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-mini-166rb-3485766-29","221621":"https://www.funtownrv.com/product/new-2026-venture-rv-stratus-sr282vfd-3492548-29","221650":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-mini-195rbs-3488070-29","221706":"https://www.funtownrv.com/product/new-2026-coachmen-rv-chaparral-lite-218se-3604208-5","221738":"https://www.funtownrv.com/product/new-2026-kz-durango-gold-g388fls-3478485-5","221830":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-mini-199bhs-3487700-29","221849":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3515-3603505-5","221949":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-timberwolf-20og-3508375-3","222052":"https://www.funtownrv.com/product/new-2026-forest-river-rv-cherokee-wolf-pup-14rklp-3550110-29","222127":"https://www.funtownrv.com/product/new-2026-heartland-sundance-ultra-lite-29rlbs-3490399-29","222132":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-25rls-3595367-29","222153":"https://www.funtownrv.com/product/new-2026-keystone-rv-hideout-262bhs-3495464-29","222398":"https://www.funtownrv.com/product/new-2026-coachmen-rv-brookstone-344fl-3527755-5","222471":"https://www.funtownrv.com/product/new-2026-coachmen-rv-brookstone-374rk-3600584-5","222504":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-174dble-3587163-29","222776":"https://www.funtownrv.com/product/new-2026-prime-time-rv-lacrosse-44park-3595880-3","222903":"https://www.funtownrv.com/product/new-2026-keystone-rv-raptor-carbon-series-360-3519722-26","223091":"https://www.funtownrv.com/product/new-2026-coachmen-rv-freedom-express-select-249se-3514298-29","223311":"https://www.funtownrv.com/product/new-2026-winnebago-access-18dbh-3583173-29","223365":"https://www.funtownrv.com/product/new-2026-winnebago-access-25bh-3596992-29","223527":"https://www.funtownrv.com/product/new-2026-coachmen-rv-freedom-express-liberty-edition-330bhjj-3560639-29","223658":"https://www.funtownrv.com/product/new-2026-winnebago-access-24rb-3574017-29","223710":"https://www.funtownrv.com/product/new-2026-winnebago-micro-minnie-2108fbs-3581100-29","223750":"https://www.funtownrv.com/product/new-2026-winnebago-thrive-28bhs-3599657-29","223887":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-177ice-3604217-29","223928":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-27rk-3600863-29","223936":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-fsx-180ice-3591666-29","224042":"https://www.funtownrv.com/product/new-2026-heartland-bighorn-39fl-3564141-5","224060":"https://www.funtownrv.com/product/new-2026-heartland-cyclone-2214-3590227-28","224075":"https://www.funtownrv.com/product/new-2026-heartland-milestone-39tb-3560406-5","224081":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-190mb-3532400-29","224122":"https://www.funtownrv.com/product/new-2026-heartland-north-trail-270ck-3591669-29","224232":"https://www.funtownrv.com/product/new-2026-heartland-prowler-2702bhs-3540418-29","224265":"https://www.funtownrv.com/product/new-2026-heartland-sundance-28db-3591217-5","224538":"https://www.funtownrv.com/product/new-2026-keystone-rv-passport-super-lite-229bh-3523988-29","224547":"https://www.funtownrv.com/product/new-2026-keystone-rv-passport-super-lite-2450rk-3517372-29","224766":"https://www.funtownrv.com/product/new-2026-coachmen-rv-chaparral-381dbl-3601111-5","224814":"https://www.funtownrv.com/product/new-2026-forest-river-rv-salem-31kqbts-3599559-29","225107":"https://www.funtownrv.com/product/new-2026-brinkley-model-z-3200-3603500-5","225182":"https://www.funtownrv.com/product/new-2026-prime-time-rv-lacrosse-3411rk-3603802-29","225185":"https://www.funtownrv.com/product/new-2026-prime-time-rv-lacrosse-3510db-3600870-29","225481":"https://www.funtownrv.com/product/new-2026-gulf-stream-rv-yellowstone-classic-199rk-3580964-29","225573":"https://www.funtownrv.com/product/new-2026-gulf-stream-rv-yellowstone-classic-257rb-3602517-29","214428A":"https://www.funtownrv.com/product/used-2025-gulf-stream-rv-enlighten-17bh-3566240-29","223346A":"https://www.funtownrv.com/product/used-2024-keystone-rv-springdale-classic-mini-1800bh-3555041-29","212638A":"https://www.funtownrv.com/product/used-2025-keystone-rv-springdale-classic-mini-1800bh-3184391-29","214031A":"https://www.funtownrv.com/product/used-2024-prime-time-rv-avenger-26bk-3251310-29","E10225A":"https://www.funtownrv.com/product/used-2023-forest-river-rv-cherokee-wolf-pup-16cw-3116523-29","E10163A":"https://www.funtownrv.com/product/used-2024-forest-river-rv-salem-fsx-162view-3267719-29","210351A":"https://www.funtownrv.com/product/used-2021-jayco-34rsbs-3377772-29","217810A":"https://www.funtownrv.com/product/used-2021-venture-rv-sporttrek-281vbh-3396655-29","214406A":"https://www.funtownrv.com/product/used-2022-winnebago-micro-minnie-2108tb-3444932-29","214176C":"https://www.funtownrv.com/product/used-2024-forest-river-rv-cherokee-alpha-wolf-23lde-l-3578667-29","218894A":"https://www.funtownrv.com/product/used-2025-forest-river-rv-wildwood-273qbxl-3417533-29","213747A":"https://www.funtownrv.com/product/used-2025-grand-design-imagine-xls-23lde-3457248-29","214502A":"https://www.funtownrv.com/product/used-2022-jayco-white-hawk-29bh-3400776-29","213110A":"https://www.funtownrv.com/product/used-2024-forest-river-rv-wildwood-27rkx-3351525-29","204493A":"https://www.funtownrv.com/product/used-2023-keystone-rv-outback-ultra-lite-291ubh-3171890-29","213044A":"https://www.funtownrv.com/product/used-2024-crossroads-rv-sunset-trail-ss256rk-3116505-29","214215B":"https://www.funtownrv.com/product/used-2023-forest-river-rv-puma-31fkrk-3377773-29","217007A":"https://www.funtownrv.com/product/used-2024-palomino-puma-29bhsq-3253105-29","214228A":"https://www.funtownrv.com/product/used-2025-grand-design-reflection-310mkts-3347843-29","208348A":"https://www.funtownrv.com/product/used-2024-forest-river-rv-wildwood-grand-lodge-44view-2806413-3","210931A":"https://www.funtownrv.com/product/used-2024-dutchmen-rv-astoria-260rk-3212869-5","218983A":"https://www.funtownrv.com/product/used-2019-keystone-rv-montana-3855br-3564135-5","212906B":"https://www.funtownrv.com/product/used-2023-crossroads-rv-cameo-3891mk-3154799-5","203644A":"https://www.funtownrv.com/product/used-2023-forest-river-rv-cardinal-luxury-380rlx-2906595-5","207407A":"https://www.funtownrv.com/product/used-2021-forest-river-rv-xlr-boost-27qbx-3171157-28","209785A":"https://www.funtownrv.com/product/used-2020-forest-river-rv-flagstaff-se-t21tbhwse-3171895-7"};
-
-// ─── LAYOUT DETECTION ─────────────────────────────────────────────────────────
-function getLayout(brandModel) {
-  const m = brandModel.toUpperCase();
-  // Check model suffix patterns
-  if (/\b\d*FL\b/.test(m) || /FRONT.?LIV/i.test(m))         return 'Front Living';
-  if (/\b\d*RL[BST]?\b/.test(m) || /REAR.?LIV/i.test(m))    return 'Rear Living';
-  if (/\b\d*(RK|RKFB|RKS|RKT)\b/.test(m))                    return 'Rear Kitchen';
-  if (/\b\d*(FK[DK]?|FKW)\b/.test(m))                        return 'Front Kitchen';
-  if (/\b\d*(MK|MKT|MKS)\b/.test(m))                         return 'Mid Kitchen';
-  if (/\b\d*(QUAD)\b/.test(m) || /4.?BEDROOM/i.test(m))      return 'Quad/4-Bedroom';
-  if (/\b\d*(TB|TBH|3BH)\b/.test(m))                         return 'Triple Bunk';
-  if (/\b\d*(DBH|DB[SL]?|DBLE)\b/.test(m))                   return 'Double Bunk';
-  if (/\b\d*(BH[SLF]?|BHS|BHK|BHSL|BHKSE)\b/.test(m))       return 'Bunkhouse';
-  if (/\b\d*BH\b/.test(m))                                    return 'Bunkhouse';
-  if (/\b\d*(DRL|DLR)\b/.test(m))                             return 'Double Rear Living';
-  if (/\b\d*(MBS|MDS|MB)\b/.test(m))                         return 'Master Suite';
-  if (/\b\d*(CK|QBC)\b/.test(m))                              return 'Corner Kitchen';
-  if (/\b\d*(RBS|RBD)\b/.test(m))                             return 'Rear Bath Suite';
-  if (/\b\d*(VFD|VIEW|VIEWX)\b/.test(m))                      return 'View/Panoramic';
-  if (/\b\d*FAM\b/.test(m))                                   return 'Family Suite';
-  if (/\b\d*SB\b/.test(m))                                    return 'Side Bath';
-  if (/\b\d*(ZEN|ICE)\b/.test(m))                             return 'Open Concept';
-  return '';
-}
-
-const BATHS = {209141:1,209559:1,210131:1,210185:1,210189:1,210647:1,210818:1,210979:1,
-211137:1.5,211450:1,212106:1,212176:1,212661:1.5,213204:1.5,213253:1,213507:1,213635:1,
-214091:1,214268:1,214780:1,214868:2,214972:1,215050:1,215463:1.5,215532:1,215586:1,
-215657:1,215693:1,215719:1,215803:1,215813:1,215838:1,216104:1,216185:1,216211:1.5,
-216229:1,216303:1,216327:1,216373:2,216396:1,216398:1,216622:1,216744:1,217094:1,
-217109:1,217143:2,217239:1,217272:1,217334:1,217484:1,217547:1,217568:1,217596:1,
-217602:1,218147:1,218179:2,218241:1,218265:1,218269:1,218272:1,218274:1,218278:1,
-218280:1,218285:1,218365:2,218494:1,218509:1.5,218548:2,218578:1,218716:1.5,218726:2,
-218766:1.5,218772:1,218859:1,219012:1,219027:1,219122:1.5,219126:1,219131:1.5,219201:1,
-219397:1,219615:1,219673:1,219711:1.5,219742:1,219755:1,219773:1,219777:1,219811:1,
-219818:1,219922:1,220063:1,220082:1,220103:2,220112:1,220122:1,220130:1,220134:2,
-220139:1,220143:1,220148:1,220151:1,220155:1,220164:1,220170:1,220179:1,220188:1,
-220207:1,220228:1,220246:1,220265:1,220283:1,220303:1,220315:1,220321:1,220325:1,
-220330:1,220333:1,220338:1,220364:1,220366:1,220376:1,220504:1,220531:1,220542:1,
-220556:1,220584:1,220614:1,220623:1,220633:1,220641:1,220764:1,220807:1,220818:1,
-220876:1,220891:1,220905:1,221049:1,221157:1,221180:1,221187:1,221194:1,221203:1,
-221211:1,221213:1,221248:1,221251:1.5,221257:1,221345:1,221573:1,221591:1,221621:1,
-221649:1,221706:1,221738:1,221830:1,221849:1,221949:1,222052:1,222127:1,222132:1,
-222153:1,222398:1,222471:1,222504:1,222776:1,222903:1,223091:1,223311:1,223365:1,
-223527:1.5,223658:1,223710:1,223750:1,223887:1,223928:1,223936:1,224042:1,224060:1,
-224075:1,224081:1,224122:1,224232:1,224265:1,224538:1,224547:1,224766:1,224814:1,
-225107:1,225182:1,225185:1.5,225481:1,225573:1,"210351A":1,"214406A":1,"217810A":1,
-"214176C":1,"218894A":1,"214502A":1,"213747A":1,"213044A":1,"210931A":1,"208348A":1,
-"214215B":1,"212638A":1,"E10163A":1,"217007A":1,"E10225A":1,"203644A":1,"218983A":1,
-"212906B":1,"213110A":1,"207407A":1,"204493A":1,"214428A":1,"223346A":1,"214228A":1,
-"209785A":1};
-let FTRV_DATA = {};
-let INVENTORY = [];
-
-const inventoryReady = (async () => {
-  const r = await fetch('https://arklatexrv.com/inventory.json', { cache: 'no-cache' });
-  if (!r.ok) throw new Error('inventory HTTP ' + r.status);
-  const data = await r.json();
-  const units = data.units || data;
-  for (const u of units) {
-    u.stock = u.stock || u.stock_number;
-    u.priceNum = u.priceNum ?? u.sale_price;
-    u.price = u.price || (typeof u.sale_price === 'number' ? '$' + u.sale_price.toLocaleString() : 'Call');
-    u.len = u.len ?? u.length_ft;
-    u.length_ft = u.length_ft ?? u.len;
-    u.wt = u.wt ?? u.dry_weight_lbs;
-    u.dry_weight_lb = u.dry_weight_lb ?? u.dry_weight_lbs ?? u.wt;
-    u.slp = u.slp ?? u.sleeps;
-    u.sleeps = u.sleeps ?? u.slp;
-    u.sl = u.sl ?? u.slides;
-    u.slides = u.slides ?? u.sl;
-    u.bths = u.bths ?? u.bath_count;
-    u.detailUrl = u.detailUrl || u.source_url;
-    u.photoUrl = u.photoUrl || u.photo_url;
-    u.floorplanUrl = u.floorplanUrl || u.floorplan_url;
-    u.brandModel = u.brandModel || [u.manufacturer, u.brand, u.model, u.floorplan].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
-    u.desc = u.desc || u.description_text || '';
-    u.fresh_gal = u.fresh_gal ?? u.fresh_water_gal;
-    u.grey_gal = u.grey_gal ?? u.grey_water_gal;
-    u.black_gal = u.black_gal ?? u.black_water_gal;
-    // New spec-table aliases (upstream uses long names; applyFilterSpec uses short)
-    u.garage_ft = u.garage_ft ?? u.garage_size_ft;
-    u.amp = u.amp ?? u.electrical_amp;
-    u.gvwr = u.gvwr ?? u.gvwr_lb;
-    u.hitch_wt = u.hitch_wt ?? u.hitch_weight_lb;
-    u.cargo = u.cargo ?? u.cargo_capacity_lb;
-    u.furnace = u.furnace ?? u.furnace_btu;
-    u.bunks = u.bunks ?? u.bunks_count;
-    u.burners = u.burners ?? u.cooktop_burners;
-    u.awnings = u.awnings ?? u.awning_count;
-    u.axles = u.axles ?? u.axle_count;
-    u.lp_tanks = u.lp_tanks ?? u.lp_tank_count;
-    u.lp_lbs = u.lp_lbs ?? u.lp_tank_lbs;
-    u.fuel_gal = u.fuel_gal ?? u.fuel_capacity_gal;
-    u.baths = u.baths != null ? u.baths : (u.bths != null ? u.bths : 1);
-    u.layout = u.layout || '';
-    FTRV_DATA[u.stock] = u;
-  }
-  INVENTORY = Object.values(FTRV_DATA);
-  const badge = document.getElementById('unitBadge');
-  if (badge) badge.textContent = INVENTORY.length + ' units';
-  const totalCount = document.getElementById('totalCount');
-  if (totalCount) totalCount.textContent = INVENTORY.length;
-  return INVENTORY;
-})();
-
-inventoryReady.catch(e => {
-  console.error('Inventory load failed:', e);
-  const badge = document.getElementById('unitBadge');
-  if (badge) badge.textContent = 'load error';
-  const grid = document.getElementById('grid');
-  if (grid) grid.innerHTML = '<div class="empty"><h2>Couldn\'t load inventory from arklatexrv.com</h2><div>' + (e.message || e) + '</div></div>';
-});
+// URL_MAP, layout detection, BATHS, inventory loader, /api/chat caller → ftrv_shared.js
 
 
 // INVENTORY is built inside loadInventory() after the fetch resolves.
@@ -662,114 +548,7 @@ inventoryReady.catch(e => {
 
 // API key is stored server-side in server.py — not needed here (proxy handles auth)
 
-// ─── SYSTEM PROMPT (v8 translator pattern) ─────────────────────────────────────
-// AI returns JSON filter spec; JS executes deterministically over FTRV_DATA.
-const SYSTEM_TEMPLATE = "You are the FTRV Lot Assistant query translator for Fun Town RV Texarkana.\n\nYour ONLY job: convert customer queries into a JSON filter spec that JavaScript will execute deterministically over the 220-unit inventory. You do NOT see individual units. You do NOT count. You do NOT list stocks. You translate intent into structured filter parameters.\n\nOUTPUT FORMAT \u2014 respond with EXACTLY this JSON shape and nothing else (no markdown fences, no surrounding text):\n{\n  \"narrative\": \"<1-2 sentence sales-friendly response in your voice>\",\n  \"filter\": { ... filter spec, see below ... },\n  \"sortBy\": \"priceNum\"|\"wt\"|\"len\"|\"year\"|\"sl\"|\"gvwr\"|\"garage_ft\"|null,\n  \"sortDir\": \"asc\"|\"desc\",\n  \"limit\": <integer or null \u2014 for 'smallest 5w' use 1; 'top 3 X' use 3; otherwise null>\n}\n\nFILTER SPEC SCHEMA (omit any field you don't need):\n- features: [\"Bunkhouse\",\"King Bed\",...]   ALL of these must be in the unit's feat[]. Closed list of 31 (see below).\n- hitch: \"bumper\"|\"5w\"\n- type: \"Travel Trailer\"|\"Fifth Wheel\"|\"Toy Hauler\"|\"Destination Trailer\"\n- condition: \"New\"|\"Pre-Owned\"\n- Boolean must-haves (set to true to require): dishwasher, central_vacuum, off_grid_solar, solar_pkg, third_ac, wd_installed, wd_prep_only, convection, convection_oven, on_demand_water, loft, murphy_bed, bunkroom, bunk_private_door, kit_island, kit_pantry, pullout_pantry, kit_residential_fridge, outdoor_kitchen, outdoor_tv, ceiling_fan, theater_seat, theater_inst, hideabed, walkin_shower, walkin_closet, desk, l_shaped_sofa, u_shaped_dinette, jackknife_sofa, power_awning, auto_level, happi_jac, disc_brakes, electric_tilt_bed\n- kit_loc, bed_loc, bath_loc: \"front\"|\"rear\"|\"mid\"\n- minPrice, maxPrice (priceNum, $)\n- minWt, maxWt (dry weight, lbs)\n- minLen, maxLen (feet)\n- minSlp (sleeps)\n- slidesEq (exact slide count) | minSlides | maxSlides\n- minBdrms (2 means must be true 2-bedroom; bdrms===2 strictly)\n- minBths (1, 1.5, or 2)\n- minBunks (bunk count)\n- minFridgeCuft (cu ft)\n- minGarage (toy hauler garage feet)\n- elecAmp (30 or 50)\n- minFreshWater, minGreyWater, minBlackWater (gallons)\n- minHitchWt, maxHitchWt (lbs — pin/hitch weight at the hitch ball)\n- minGvwr, maxGvwr (lbs)\n- minCargo (cargo capacity lbs)\n- minLpLbs (LP tank capacity lbs), minLpTanks (count)\n- minFuelGal (toy hauler fuel gallons)\n- minFurnaceBtu, minBurners (cooktop burner count), minAxles, minAwnings\n- stockEq: \"215463\"  (exact stock match)\n- modelContains: \"Brinkley Model G\"  (substring match on brandModel, case-insensitive)\n\nHITCH MAPPING:\n- \"bumper pull\"/\"TT\"/\"travel trailer\"/\"pull behind\" \u2192 hitch:\"bumper\" (also includes Destination Trailers, which are bumper-hitch)\n- \"5th wheel\"/\"fifth wheel\"/\"gooseneck\" \u2192 hitch:\"5w\"\n\nINSTALLED vs AVAILABLE (critical distinctions):\n- \"W/D installed\"/\"real washer dryer\" \u2192 wd_installed:true (NOT W&D Prep, NOT wd_prep_only)\n- \"W/D prep\"/\"plumbing for W/D\"/\"prepped for washer\" \u2192 wd_prep_only:true OR features:[\"Washer & Dryer Prep\"]\n- \"3rd A/C\"/\"three A/Cs\" \u2192 third_ac:true (NOT feature \"Dual or Triple AC\", which just means wired-for)\n- \"off-grid solar\" \u2192 off_grid_solar:true\n- \"solar package\"/\"solar panels installed\" \u2192 solar_pkg:true\n- \"theater seating\"/\"theater seats\" \u2192 theater_seat:true (vision-derived, more accurate than theater_inst)\n- \"walk-in shower\" \u2192 walkin_shower:true (separate stall, NOT tub/shower combo)\n- \"residential fridge\"/\"big fridge\" \u2192 kit_residential_fridge:true\n- \"pantry\" \u2192 kit_pantry:true; \"pullout pantry\" \u2192 pullout_pantry:true\n- \"tankless\"/\"on-demand water\" \u2192 on_demand_water:true\n\nTOW VEHICLE WEIGHT HINTS (when customer mentions a vehicle, set maxWt for dry weight AND maxHitchWt for fifth-wheel pin weight):\n- \"F-150\"/\"Ram 1500\"/\"Silverado 1500\"/\"half-ton\"/\"1500\" \u2192 maxWt around 7500-8500 (leaves headroom under rated cap)\n- \"F-250\"/\"Ram 2500\"/\"Silverado 2500\"/\"3/4 ton\"/\"2500\" \u2192 maxWt around 12000\n- \"F-350\"/\"Ram 3500\"/\"Silverado 3500\"/\"1 ton\"/\"dually\" \u2192 maxWt around 18000\n- SUV/midsize without specifics \u2192 maxWt 5000\n- If unsure, leave maxWt unset (don't gate the customer artificially)\n\nCONDITION VOCABULARY:\n- \"used\"/\"pre-owned\"/\"second-hand\"/\"trade-in\" \u2192 condition:\"Pre-Owned\"\n- \"new\"/\"never used\"/\"current year\" \u2192 condition:\"New\"\n\nCLOSED FEATURE LIST (use exact strings ONLY in features array):\nFront Living, Rear Living Area, Front Kitchen, Rear Kitchen, Front Bedroom, Rear Bedroom, Front Bath, Rear Bath, Bunkhouse, Bunk Over Cab, Two Entry/Exit Doors, Rear Twin, V-Nose, Rear Entertainment, Outdoor Kitchen, U Shaped Dinette, Kitchen Island, Bath and a Half, Front Entertainment, Loft, Two Full Baths, Walk-Thru Bath, Murphy Bed, Wheelchair Accessible, Couples Coach - No Bunks, King Bed, Two Bedrooms, Dual or Triple AC, Texas Chill Package, Washer & Dryer Prep\n\nEXAMPLES:\nQ: \"5w under 12k dry\"\nA: {\"narrative\":\"Fifth wheels under 12,000 lbs dry weight, sorted lightest first.\",\"filter\":{\"hitch\":\"5w\",\"maxWt\":12000},\"sortBy\":\"wt\",\"sortDir\":\"asc\"}\n\nQ: \"biggest GVWR on the lot\"\nA: {\"narrative\":\"The biggest unit by GVWR.\",\"filter\":{},\"sortBy\":\"gvwr\",\"sortDir\":\"desc\",\"limit\":1}\n\nQ: \"cheapest bunkhouse\"\nA: {\"narrative\":\"Cheapest bunkhouse on the lot.\",\"filter\":{\"features\":[\"Bunkhouse\"]},\"sortBy\":\"priceNum\",\"sortDir\":\"asc\",\"limit\":1}\n\nQ: \"couples coach with king bed and outdoor kitchen under $80k\"\nA: {\"narrative\":\"Couples coach (no bunks) with king bed and outdoor kitchen under $80,000.\",\"filter\":{\"features\":[\"Couples Coach - No Bunks\",\"King Bed\",\"Outdoor Kitchen\"],\"maxPrice\":80000}}\n\nQ: \"stock 215463\"\nA: {\"narrative\":\"Here is stock #215463.\",\"filter\":{\"stockEq\":\"215463\"}}\n\nQ: \"show me the Brinkley Model G 4100\"\nA: {\"narrative\":\"The Brinkley Model G 4100.\",\"filter\":{\"modelContains\":\"Brinkley Model G 4100\"}}\n\nQ: \"toy hauler with at least 14 ft garage and 50 amp service\"\nA: {\"narrative\":\"Toy haulers with 14+ ft garage and 50-amp service.\",\"filter\":{\"type\":\"Toy Hauler\",\"minGarage\":14,\"elecAmp\":50}}\n\nQ: \"bumper pull under 7500 lbs sleeping 6\"\nA: {\"narrative\":\"Bumper-pull units under 7,500 lbs dry that sleep 6+.\",\"filter\":{\"hitch\":\"bumper\",\"maxWt\":7500,\"minSlp\":6}}\n\nQ: \"purple unicorn rv\"\nA: {\"narrative\":\"That's not a model we carry. We have 220 RVs across 4 body types.\",\"filter\":{},\"noMatch\":true}\n\nQ: \"do you sell hot dogs\"\nA: {\"narrative\":\"We're an RV dealer \u2014 no hot dogs! Want me to find an RV instead?\",\"filter\":{},\"noMatch\":true}\n\nQ: \"front bedroom rear bath theater seat under 100k\"\nA: {\"narrative\":\"Front bedroom + rear bath with theater seating, under $100,000.\",\"filter\":{\"features\":[\"Front Bedroom\",\"Rear Bath\"],\"theater_seat\":true,\"maxPrice\":100000}}\n\nQ: \"bunkhouse with walk-in shower and pantry\"\nA: {\"narrative\":\"Bunkhouses with a walk-in shower and pantry.\",\"filter\":{\"features\":[\"Bunkhouse\"],\"walkin_shower\":true,\"kit_pantry\":true}}\n\nQ: \"5w with washer/dryer just prepped not installed\"\nA: {\"narrative\":\"Fifth wheels with W/D plumbing prep (not actual W/D installed).\",\"filter\":{\"hitch\":\"5w\",\"wd_prep_only\":true}}\n\nRULES:\n- For absurd/impossible queries (purple unicorn, hot dogs, RV that flies), include \"noMatch\":true in the response. Empty filter {} alone returns ALL 220 units — use noMatch:true to return zero.\n- RESPOND WITH JSON ONLY \u2014 no prose, no markdown.\n- NEVER include unit-specific stock numbers in the narrative \u2014 JS will compute the actual list.\n- The narrative is short (1-2 sentences), describes the search, never claims a count.\n- For ambiguous queries, pick the most common interpretation.\n- If a query is impossible (purple unicorn, hot dogs), return empty filter and acknowledge politely in narrative.\n";
-
-// Boolean filter fields used by applyFilterSpec
-const BOOL_FILTER_FIELDS = ['dishwasher','central_vacuum','off_grid_solar','third_ac','wd_installed','convection','loft','murphy_bed','kit_island','outdoor_kitchen','auto_level','solar_pkg','happi_jac','disc_brakes','theater_inst','walkin_shower','bunkroom','hideabed','on_demand_water','convection_oven','kit_pantry','kit_residential_fridge','power_awning','outdoor_tv','ceiling_fan','pullout_pantry','wd_prep_only','walkin_closet','theater_seat','desk','bunk_private_door','l_shaped_sofa','u_shaped_dinette','jackknife_sofa'];
-
-function applyFilterSpec(spec, startList) {
-  spec = spec || {};
-  let list = startList ? startList.slice() : INVENTORY.slice();
-
-  // Feature-list aliases — match if FT taxonomy feature is in u.features OR the
-  // equivalent vision/loc field matches. Lets AI use either query path.
-  const FEATURE_ALIAS = {
-    "Bunkhouse":         u => u.bunkroom === true,
-    "Loft":              u => u.loft === true,
-    "Murphy Bed":        u => u.murphy_bed === true,
-    "Kitchen Island":    u => u.kit_island === true,
-    "Outdoor Kitchen":   u => u.outdoor_kitchen === true,
-    "U Shaped Dinette":  u => u.u_shaped_dinette === true,
-    "Front Bedroom":     u => u.bed_loc === "front",
-    "Rear Bedroom":      u => u.bed_loc === "rear",
-    "Front Kitchen":     u => u.kit_loc === "front",
-    "Rear Kitchen":      u => u.kit_loc === "rear",
-    "Front Bath":        u => u.bath_loc === "front",
-    "Rear Bath":         u => u.bath_loc === "rear"
-  };
-  function hasFeature(u, f) {
-    if ((u.features || []).includes(f)) return true;
-    const aliasFn = FEATURE_ALIAS[f];
-    return aliasFn ? aliasFn(u) : false;
-  }
-  if (spec.features && spec.features.length) {
-    list = list.filter(u => spec.features.every(f => hasFeature(u, f)));
-  }
-  if (spec.hitch) list = list.filter(u => u.hitch === spec.hitch);
-  if (spec.type) {
-    const PARENT_TYPES = ["Toy Hauler", "Motor Home"];
-    if (PARENT_TYPES.includes(spec.type)) {
-      list = list.filter(u => (u.type || "").startsWith(spec.type));
-    } else {
-      list = list.filter(u => u.type === spec.type);
-    }
-  }
-  if (spec.condition) list = list.filter(u => u.condition === spec.condition);
-
-  // Defensive alias: AI may say recliners:true; upstream killed that field — map to theater_seat
-  if (spec.recliners === true) list = list.filter(u => u.theater_seat === true);
-  for (const f of BOOL_FILTER_FIELDS) {
-    if (spec[f] === true) list = list.filter(u => u[f] === true);
-  }
-
-  if (spec.kit_loc)  list = list.filter(u => u.kit_loc === spec.kit_loc);
-  if (spec.bed_loc)  list = list.filter(u => u.bed_loc === spec.bed_loc);
-  if (spec.bath_loc) list = list.filter(u => u.bath_loc === spec.bath_loc);
-
-  if (spec.minPrice != null) list = list.filter(u => (u.priceNum || 0) >= spec.minPrice);
-  if (spec.maxPrice != null) list = list.filter(u => (u.priceNum || 0) > 0 && u.priceNum <= spec.maxPrice);
-  if (spec.minWt != null) list = list.filter(u => (u.wt || 0) >= spec.minWt);
-  if (spec.maxWt != null) list = list.filter(u => (u.wt || 0) > 0 && u.wt <= spec.maxWt);
-  if (spec.minLen != null) list = list.filter(u => (u.len || 0) >= spec.minLen);
-  if (spec.maxLen != null) list = list.filter(u => (u.len || 0) > 0 && u.len <= spec.maxLen);
-  if (spec.minSlp != null) list = list.filter(u => (u.slp || 0) >= spec.minSlp);
-  if (spec.slidesEq != null) list = list.filter(u => u.sl === spec.slidesEq);
-  if (spec.minSlides != null) list = list.filter(u => (u.sl || 0) >= spec.minSlides);
-  if (spec.maxSlides != null) list = list.filter(u => (u.sl || 0) <= spec.maxSlides);
-  if (spec.minBdrms != null) list = list.filter(u => (u.bdrms || 1) >= spec.minBdrms);
-  if (spec.minBths != null) list = list.filter(u => (u.bths || 1) >= spec.minBths);
-  if (spec.minBunks != null) list = list.filter(u => (u.bunks || 0) >= spec.minBunks);
-  if (spec.minFridgeCuft != null) list = list.filter(u => (u.fridge_cuft || 0) >= spec.minFridgeCuft);
-  if (spec.minGarage != null) list = list.filter(u => (u.garage_ft || 0) >= spec.minGarage);
-  if (spec.elecAmp != null) list = list.filter(u => u.amp === spec.elecAmp);
-
-  if (spec.stockEq) list = list.filter(u => u.stock === spec.stockEq);
-  if (spec.modelContains) {
-    const needle = String(spec.modelContains).toLowerCase();
-    list = list.filter(u => (u.brandModel || '').toLowerCase().includes(needle));
-  }
-  // Tank capacities
-  if (spec.minFreshWater != null) list = list.filter(u => (u.fresh_gal || 0) >= spec.minFreshWater);
-  if (spec.minGreyWater != null) list = list.filter(u => (u.grey_gal || 0) >= spec.minGreyWater);
-  if (spec.minBlackWater != null) list = list.filter(u => (u.black_gal || 0) >= spec.minBlackWater);
-  // Hitch / GVWR / Cargo
-  if (spec.minHitchWt != null) list = list.filter(u => (u.hitch_wt || 0) >= spec.minHitchWt);
-  if (spec.maxHitchWt != null) list = list.filter(u => (u.hitch_wt || 0) > 0 && u.hitch_wt <= spec.maxHitchWt);
-  if (spec.minGvwr != null) list = list.filter(u => (u.gvwr || 0) >= spec.minGvwr);
-  if (spec.maxGvwr != null) list = list.filter(u => (u.gvwr || 0) > 0 && u.gvwr <= spec.maxGvwr);
-  if (spec.minCargo != null) list = list.filter(u => (u.cargo || 0) >= spec.minCargo);
-  // LP / Fuel / Furnace / Burners
-  if (spec.minLpLbs != null) list = list.filter(u => (u.lp_lbs || 0) >= spec.minLpLbs);
-  if (spec.minLpTanks != null) list = list.filter(u => (u.lp_tanks || 0) >= spec.minLpTanks);
-  if (spec.minFuelGal != null) list = list.filter(u => (u.fuel_gal || 0) >= spec.minFuelGal);
-  if (spec.minFurnaceBtu != null) list = list.filter(u => (u.furnace || 0) >= spec.minFurnaceBtu);
-  if (spec.minBurners != null) list = list.filter(u => (u.burners || 0) >= spec.minBurners);
-  if (spec.minAxles != null) list = list.filter(u => (u.axles || 0) >= spec.minAxles);
-  if (spec.minAwnings != null) list = list.filter(u => (u.awnings || 0) >= spec.minAwnings);
-  return list;
-}
-
-function applySort(list, sortBy, sortDir) {
-  if (!sortBy) return list;
-  const dir = sortDir === 'desc' ? -1 : 1;
-  return list.slice().sort((a, b) => {
-    const aV = (a[sortBy] != null) ? a[sortBy] : (dir > 0 ? Infinity : -Infinity);
-    const bV = (b[sortBy] != null) ? b[sortBy] : (dir > 0 ? Infinity : -Infinity);
-    return (aV - bV) * dir;
-  });
-}
+// SYSTEM_TEMPLATE, BOOL_FILTER_FIELDS, applyFilterSpec, applySort → ftrv_shared.js
 
 // ─── CHAT STATE ───────────────────────────────────────────────────────────────
 let conversation = [];
@@ -961,7 +740,6 @@ async function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
 
-  // Wait for inventory fetch on first call
   try { await inventoryReady; } catch(e) { addMessage('ai', 'Inventory not loaded: ' + (e.message || e)); return; }
 
   input.value = '';
@@ -972,53 +750,40 @@ async function sendMsg() {
   conversation.push({ role: 'user', content: text });
   showTyping();
 
+  let narrative = '', stocks = [], matchList = [];
+  let parseFailed = false;
+  let assistantReply = '';
+
   try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1000,
-        system: SYSTEM,
-        messages: conversation.slice(-10)
-      })
-    });
+    // callChat lives in ftrv_shared.js — handles API shape, prompt caching, JSON extraction.
+    const result = await callChat(conversation.slice(-10));
+    narrative = result.narrative;
+    const filterSpec = result.spec;
+    const sortBy = result.sortBy;
+    const sortDir = result.sortDir;
+    const limit = result.limit;
+    let list = result.noMatch ? [] : applyFilterSpec(filterSpec, INVENTORY);
+    if (sortBy) list = applySort(list, sortBy, sortDir);
+    if (limit) list = list.slice(0, limit);
+    matchList = list;
+    stocks = list.slice(0, 8).map(u => u.stock);
+    // For conversation history, store the original spec as JSON so context flows
+    assistantReply = JSON.stringify({narrative, filter: filterSpec, sortBy, sortDir, limit, noMatch: result.noMatch});
+  } catch (err) {
+    parseFailed = true;
+    narrative = "I had trouble parsing that. Try rephrasing — or use plain terms (e.g. 'fifth wheel under 60k with a king bed').";
+  }
 
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || '';
-
-    // v8: parse JSON filter spec, execute deterministically
-    const cleaned = reply.replace(/^\s*```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
-    let parsed = null;
-    try { parsed = JSON.parse(cleaned); }
-    catch(e) {
-      const mm = cleaned.match(/\{[\s\S]*\}/);
-      if (mm) { try { parsed = JSON.parse(mm[0]); } catch(_){} }
-    }
-
-    let narrative, stocks = [], matchList = [];
-    if (!parsed) {
-      narrative = "I had trouble parsing that. Try rephrasing — or use plain terms (e.g. 'fifth wheel under 60k with a king bed').";
-    } else {
-      narrative = parsed.narrative || '';
-      const filterSpec = parsed.filter || {};
-      const sortBy = parsed.sortBy || null;
-      const sortDir = parsed.sortDir || 'asc';
-      const limit = parsed.limit || null;
-      let list = parsed.noMatch === true ? [] : applyFilterSpec(filterSpec, INVENTORY);
-      if (sortBy) list = applySort(list, sortBy, sortDir);
-      if (limit) list = list.slice(0, limit);
-      matchList = list;
-      stocks = list.slice(0, 8).map(u => u.stock);
-    }
+  try {
+    if (!parseFailed) { /* placeholder so the structure parallels original */ }
 
     // LAYER 3: if we have matches, do a second small Haiku call grounded in descriptions
-    if (matchList.length > 0) {
+    if (!parseFailed && matchList.length > 0) {
       try {
         const top = matchList.slice(0, 3);
         const descCtx = top.map(u => '#' + u.stock + ' ' + (u.brandModel||'') + ': ' + (u.desc || '(no description)')).join('\n\n');
         const enrichSys = "You are the FTRV Lot Assistant for Fun Town RV Texarkana. The salesperson asked the question below. JS already filtered to the matching units. Below are brochure-style descriptions of the top matches.\n\nWrite a short response (1-2 sentences, max 60 words) that:\n- Sounds natural and helpful, like a knowledgeable lot staffer\n- Optionally quotes ONE short evocative phrase from a description (in quotes) when it lands well\n- Does NOT list stock numbers — the UI will show cards below your text\n- Does NOT count the matches — just speak about what's available\n- If multiple units match, briefly hint at the variety (different price points / floorplans / brands)\n\nMATCHED UNIT DESCRIPTIONS:\n" + descCtx + "\n\nOutput just your 1-2 sentence response, nothing else.";
-        const r2 = await fetch('/api/chat', {
+        const r2 = await fetch(CHAT_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1040,11 +805,11 @@ async function sendMsg() {
 
     removeTyping();
     addMessage('ai', narrative, stocks);
-    conversation.push({ role: 'assistant', content: reply });
+    if (assistantReply) conversation.push({ role: 'assistant', content: assistantReply });
 
   } catch (err) {
     removeTyping();
-    addMessage('ai', '⚠️ Connection error: ' + err.message + '. Check your network and try again.');
+    addMessage('ai', '⚠️ Connection error: ' + (err.message || err) + '. Check your network and try again.');
   }
 
   btn.disabled = false;
@@ -1070,7 +835,12 @@ input.addEventListener('input', () => {
 });
 
 // ─── WELCOME ──────────────────────────────────────────────────────────────────
-addMessage('ai', `👋 Hey! I've got **${INVENTORY.length} units** loaded from the Texarkana lot right now.\n\nTell me what your customer is looking for — budget, family size, type of RV, features — and I'll pull the best matches. You can also ask about a specific stock number.`);
+// Wait for inventoryReady so the count is real, not 0 (C2 fix)
+inventoryReady.then(() => {
+  addMessage('ai', `👋 Hey! I've got **${INVENTORY.length} units** loaded from the Texarkana lot right now.\n\nTell me what your customer is looking for — budget, family size, type of RV, features — and I'll pull the best matches. You can also ask about a specific stock number.`);
+}).catch(() => {
+  addMessage('ai', `👋 Hey! Inventory is still loading — give me a moment, then ask away.`);
+});
 </script>
 </body>
 </html>

@@ -459,6 +459,7 @@ header {
 <div id="aiReply" class="ai-reply" style="display:none"></div>
   <div id="grid"></div>
 
+<script src="ftrv_shared.js"></script>
 <script>
 // ─── INVENTORY (mirrored exactly from ftrv_ai_assistant.html) ────────────────
 const RAW = [
@@ -685,95 +686,7 @@ const RAW = [
 
 const URL_MAP = {"E10163A":"https://www.funtownrv.com/product/-3267719-29","E10225A":"https://www.funtownrv.com/product/-3116523-29","203644A":"https://www.funtownrv.com/product/-2735274-5","204493A":"https://www.funtownrv.com/product/-3171890-29","207407A":"https://www.funtownrv.com/product/-3171157-28","208348A":"https://www.funtownrv.com/product/-2806413-3","209141":"https://www.funtownrv.com/product/-2746105-29","209559":"https://www.funtownrv.com/product/-2873772-29","209785A":"https://www.funtownrv.com/product/-3171895-7","210131":"https://www.funtownrv.com/product/-3091276-5","210185":"https://www.funtownrv.com/product/-2767553-29","210189":"https://www.funtownrv.com/product/-2772087-29","210351A":"https://www.funtownrv.com/product/-3377772-29","210647":"https://www.funtownrv.com/product/-2889419-28","210818":"https://www.funtownrv.com/product/-2766623-5","210979":"https://www.funtownrv.com/product/-2857112-3","211450":"https://www.funtownrv.com/product/-2922522-5","212106":"https://www.funtownrv.com/product/-2849439-26","212176":"https://www.funtownrv.com/product/-2812990-3","212638A":"https://www.funtownrv.com/product/-3184391-29","212661":"https://www.funtownrv.com/product/-2916347-3","212906B":"https://www.funtownrv.com/product/-3154799-5","213044A":"https://www.funtownrv.com/product/-3116505-29","213204":"https://www.funtownrv.com/product/-2963301-5","213253":"https://www.funtownrv.com/product/-2865518-29","213507":"https://www.funtownrv.com/product/-2981675-29","213635":"https://www.funtownrv.com/product/-3110328-5","213747A":"https://www.funtownrv.com/product/-3457248-29","214064A":"https://www.funtownrv.com/product/-3572027-5","214091":"https://www.funtownrv.com/product/-2963308-29","214176C":"https://www.funtownrv.com/product/-3578667-29","214215B":"https://www.funtownrv.com/product/-3377773-29","214228A":"https://www.funtownrv.com/product/-3347843-29","214268":"https://www.funtownrv.com/product/-2904447-29","214406A":"https://www.funtownrv.com/product/-3444932-29","214428A":"https://www.funtownrv.com/product/-3566240-29","214502A":"https://www.funtownrv.com/product/-3377774-29","214780":"https://www.funtownrv.com/product/-3091281-3","214868":"https://www.funtownrv.com/product/-3018784-26","214972":"https://www.funtownrv.com/product/-2929039-29","215050":"https://www.funtownrv.com/product/-2931748-5","215463":"https://www.funtownrv.com/product/-3091279-26","215532":"https://www.funtownrv.com/product/-3006131-29","215586":"https://www.funtownrv.com/product/-3091283-29","215657":"https://www.funtownrv.com/product/-3039773-29","215693":"https://www.funtownrv.com/product/-3226726-29","215719":"https://www.funtownrv.com/product/-3137874-3","215803":"https://www.funtownrv.com/product/-2981682-29","215813":"https://www.funtownrv.com/product/-3152726-5","215838":"https://www.funtownrv.com/product/-3116509-5","216104":"https://www.funtownrv.com/product/-3102175-5","216185":"https://www.funtownrv.com/product/-3149920-29","216211":"https://www.funtownrv.com/product/-3088761-28","216229":"https://www.funtownrv.com/product/-3088770-29","216303":"https://www.funtownrv.com/product/-3163344-29","216313":"https://www.funtownrv.com/product/-3112700-29","216327":"https://www.funtownrv.com/product/-3171905-29","216373":"https://www.funtownrv.com/product/-3129437-5","216396":"https://www.funtownrv.com/product/-3263917-29","216398":"https://www.funtownrv.com/product/-3102170-29","216622":"https://www.funtownrv.com/product/-3161003-5","216744":"https://www.funtownrv.com/product/-3101634-29","217007A":"https://www.funtownrv.com/product/-3253105-29","217094":"https://www.funtownrv.com/product/-3149929-5","217109":"https://www.funtownrv.com/product/-3163353-5","217143":"https://www.funtownrv.com/product/-3134000-26","217239":"https://www.funtownrv.com/product/-3287123-5","217272":"https://www.funtownrv.com/product/-3152731-5","217334":"https://www.funtownrv.com/product/-3149215-5","217484":"https://www.funtownrv.com/product/-3228160-29","217547":"https://www.funtownrv.com/product/-3228828-29","217568":"https://www.funtownrv.com/product/-3282436-29","217596":"https://www.funtownrv.com/product/-3156923-5","217602":"https://www.funtownrv.com/product/-3284945-29","217810A":"https://www.funtownrv.com/product/-3396655-29","218147":"https://www.funtownrv.com/product/-3232082-29","218179":"https://www.funtownrv.com/product/-3309773-5","218241":"https://www.funtownrv.com/product/-3280277-29","218265":"https://www.funtownrv.com/product/-3239168-29","218269":"https://www.funtownrv.com/product/-3241198-29","218272":"https://www.funtownrv.com/product/-3239169-29","218274":"https://www.funtownrv.com/product/-3239170-29","218278":"https://www.funtownrv.com/product/-3201306-29","218280":"https://www.funtownrv.com/product/-3201307-29","218285":"https://www.funtownrv.com/product/-3280947-29","218365":"https://www.funtownrv.com/product/-3359520-5","218494":"https://www.funtownrv.com/product/-3243009-5","218548":"https://www.funtownrv.com/product/-3362584-5","218578":"https://www.funtownrv.com/product/-3392268-5","218716":"https://www.funtownrv.com/product/-3267399-5","218726":"https://www.funtownrv.com/product/-3274028-5","218766":"https://www.funtownrv.com/product/-3375681-5","218772":"https://www.funtownrv.com/product/-3400788-5","218859":"https://www.funtownrv.com/product/-3351527-29","218983A":"https://www.funtownrv.com/product/-3564135-5","219012":"https://www.funtownrv.com/product/-3292317-29","219027":"https://www.funtownrv.com/product/-3396659-5","219122":"https://www.funtownrv.com/product/-3290937-26","219131":"https://www.funtownrv.com/product/-3290641-26","219201":"https://www.funtownrv.com/product/-3270794-5","219397":"https://www.funtownrv.com/product/-3309788-5","219615":"https://www.funtownrv.com/product/-3351519-5","219673":"https://www.funtownrv.com/product/-3468096-29","219711":"https://www.funtownrv.com/product/-3497186-3","219742":"https://www.funtownrv.com/product/-3446507-29","219755":"https://www.funtownrv.com/product/-3482812-29","219773":"https://www.funtownrv.com/product/-3485748-29","219777":"https://www.funtownrv.com/product/-3482813-29","219811":"https://www.funtownrv.com/product/-3446510-29","219818":"https://www.funtownrv.com/product/-3457256-29","219922":"https://www.funtownrv.com/product/-3423592-29","220063":"https://www.funtownrv.com/product/-3321288-29","220082":"https://www.funtownrv.com/product/-3508035-5","220103":"https://www.funtownrv.com/product/-3478480-5","220112":"https://www.funtownrv.com/product/-3311942-5","220122":"https://www.funtownrv.com/product/-3311945-5","220130":"https://www.funtownrv.com/product/-3396661-5","220134":"https://www.funtownrv.com/product/-3347882-5","220139":"https://www.funtownrv.com/product/-3321291-29","220143":"https://www.funtownrv.com/product/-3314281-5","220148":"https://www.funtownrv.com/product/-3314284-29","220151":"https://www.funtownrv.com/product/-3399363-26","220155":"https://www.funtownrv.com/product/-3311951-28","220164":"https://www.funtownrv.com/product/-3347883-29","220170":"https://www.funtownrv.com/product/-3405001-16","220179":"https://www.funtownrv.com/product/-3457258-5","220188":"https://www.funtownrv.com/product/-3457259-5","220207":"https://www.funtownrv.com/product/-3482814-29","220228":"https://www.funtownrv.com/product/-3482815-5","220246":"https://www.funtownrv.com/product/-3414126-5","220265":"https://www.funtownrv.com/product/-3410895-5","220283":"https://www.funtownrv.com/product/-3405003-5","220303":"https://www.funtownrv.com/product/-3408704-5","220315":"https://www.funtownrv.com/product/-3321294-5","220321":"https://www.funtownrv.com/product/-3388889-5","220325":"https://www.funtownrv.com/product/-3405004-5","220330":"https://www.funtownrv.com/product/-3406043-5","220333":"https://www.funtownrv.com/product/-3414588-5","220338":"https://www.funtownrv.com/product/-3367114-5","220364":"https://www.funtownrv.com/product/-3409698-5","220366":"https://www.funtownrv.com/product/-3406044-5","220376":"https://www.funtownrv.com/product/-3395094-29","220504":"https://www.funtownrv.com/product/-3414127-26","220531":"https://www.funtownrv.com/product/-3440636-29","220542":"https://www.funtownrv.com/product/-3481106-5","220556":"https://www.funtownrv.com/product/-3532760-29","220584":"https://www.funtownrv.com/product/-3505471-5","220614":"https://www.funtownrv.com/product/-3386586-29","220623":"https://www.funtownrv.com/product/-3457261-29","220633":"https://www.funtownrv.com/product/-3478262-29","220641":"https://www.funtownrv.com/product/-3478491-29","220764":"https://www.funtownrv.com/product/-3444638-5","220807":"https://www.funtownrv.com/product/-3452112-29","220818":"https://www.funtownrv.com/product/-3457265-5","220876":"https://www.funtownrv.com/product/-3468102-29","220891":"https://www.funtownrv.com/product/-3457266-5","220905":"https://www.funtownrv.com/product/-3452114-29","221049":"https://www.funtownrv.com/product/-3381728-29","221157":"https://www.funtownrv.com/product/-3420240-5","221180":"https://www.funtownrv.com/product/-3396909-29","221187":"https://www.funtownrv.com/product/-3392273-29","221194":"https://www.funtownrv.com/product/-3399367-29","221203":"https://www.funtownrv.com/product/-3468104-29","221211":"https://www.funtownrv.com/product/-3396911-29","221213":"https://www.funtownrv.com/product/-3396912-29","221248":"https://www.funtownrv.com/product/-3495703-29","221251":"https://www.funtownrv.com/product/-3495457-29","221257":"https://www.funtownrv.com/product/-3420241-26","221345":"https://www.funtownrv.com/product/-3511806-29","221573":"https://www.funtownrv.com/product/-3448656-29","221591":"https://www.funtownrv.com/product/-3485766-29","221621":"https://www.funtownrv.com/product/-3492548-29","221649":"https://www.funtownrv.com/product/-3487697-29","221706":"https://www.funtownrv.com/product/-3493438-5","221738":"https://www.funtownrv.com/product/-3478485-5","221830":"https://www.funtownrv.com/product/-3487700-29","221849":"https://www.funtownrv.com/product/-3440651-5","221949":"https://www.funtownrv.com/product/-3479891-3","222052":"https://www.funtownrv.com/product/-3550110-29","222127":"https://www.funtownrv.com/product/-3490399-29","222132":"https://www.funtownrv.com/product/-3422508-29","222153":"https://www.funtownrv.com/product/-3490400-29","222398":"https://www.funtownrv.com/product/-3516613-5","222415":"https://www.funtownrv.com/product/-3595560-5","222471":"https://www.funtownrv.com/product/-3523646-5","222504":"https://www.funtownrv.com/product/-3544493-29","222776":"https://www.funtownrv.com/product/-3567835-3","222903":"https://www.funtownrv.com/product/-3514644-26","223091":"https://www.funtownrv.com/product/-3510303-29","223311":"https://www.funtownrv.com/product/-3493682-29","223346A":"https://www.funtownrv.com/product/-3555041-29","223365":"https://www.funtownrv.com/product/-3495466-29","223527":"https://www.funtownrv.com/product/-3560639-29","223658":"https://www.funtownrv.com/product/-3571056-29","223710":"https://www.funtownrv.com/product/-3581100-29","223750":"https://www.funtownrv.com/product/-3581101-29","223887":"https://www.funtownrv.com/product/-3519159-29","223928":"https://www.funtownrv.com/product/-3600863-29","223936":"https://www.funtownrv.com/product/-3591666-29","224042":"https://www.funtownrv.com/product/-3549462-5","224060":"https://www.funtownrv.com/product/-3535480-28","224075":"https://www.funtownrv.com/product/-3532389-5","224081":"https://www.funtownrv.com/product/-3532400-29","224122":"https://www.funtownrv.com/product/-3591669-29","224232":"https://www.funtownrv.com/product/-3536266-29","224265":"https://www.funtownrv.com/product/-3589254-5","224292":"https://www.funtownrv.com/product/-3612185-5","224413":"https://www.funtownrv.com/product/-3609191-5","224538":"https://www.funtownrv.com/product/-3523988-29","224547":"https://www.funtownrv.com/product/-3517372-29","224575":"https://www.funtownrv.com/product/-3607421-5","224766":"https://www.funtownrv.com/product/-3598993-5","224814":"https://www.funtownrv.com/product/-3571057-29","225107":"https://www.funtownrv.com/product/-3575763-5","225182":"https://www.funtownrv.com/product/-3589287-29","225185":"https://www.funtownrv.com/product/-3595370-29","225481":"https://www.funtownrv.com/product/-3576617-29","225573":"https://www.funtownrv.com/product/-3595375-29","225624":"https://www.funtownrv.com/product/-3607422-5",};
 
-// ─── LAYOUT DETECTION ─────────────────────────────────────────────────────────
-function getLayout(brandModel) {
-  const m = brandModel.toUpperCase();
-  // Check model suffix patterns
-  if (/\b\d*FL\b/.test(m) || /FRONT.?LIV/i.test(m))         return 'Front Living';
-  if (/\b\d*RL[BST]?\b/.test(m) || /REAR.?LIV/i.test(m))    return 'Rear Living';
-  if (/\b\d*(RK|RKFB|RKS|RKT)\b/.test(m))                    return 'Rear Kitchen';
-  if (/\b\d*(FK[DK]?|FKW)\b/.test(m))                        return 'Front Kitchen';
-  if (/\b\d*(MK|MKT|MKS)\b/.test(m))                         return 'Mid Kitchen';
-  if (/\b\d*(QUAD)\b/.test(m) || /4.?BEDROOM/i.test(m))      return 'Quad/4-Bedroom';
-  if (/\b\d*(TB|TBH|3BH)\b/.test(m))                         return 'Triple Bunk';
-  if (/\b\d*(DBH|DB[SL]?|DBLE)\b/.test(m))                   return 'Double Bunk';
-  if (/\b\d*(BH[SLF]?|BHS|BHK|BHSL|BHKSE)\b/.test(m))       return 'Bunkhouse';
-  if (/\b\d*BH\b/.test(m))                                    return 'Bunkhouse';
-  if (/\b\d*(DRL|DLR)\b/.test(m))                             return 'Double Rear Living';
-  if (/\b\d*(MBS|MDS|MB)\b/.test(m))                         return 'Master Suite';
-  if (/\b\d*(CK|QBC)\b/.test(m))                              return 'Corner Kitchen';
-  if (/\b\d*(RBS|RBD)\b/.test(m))                             return 'Rear Bath Suite';
-  if (/\b\d*(VFD|VIEW|VIEWX)\b/.test(m))                      return 'View/Panoramic';
-  if (/\b\d*FAM\b/.test(m))                                   return 'Family Suite';
-  if (/\b\d*SB\b/.test(m))                                    return 'Side Bath';
-  if (/\b\d*(ZEN|ICE)\b/.test(m))                             return 'Open Concept';
-  return '';
-}
-
-const BATHS = {"E10163A":1,"E10225A":1,"203644A":1,"204493A":1,"207407A":1,"208348A":1,209141:1,209559:1,"209785A":1,210131:1,210185:1,210189:1,"210351A":1,210647:1,210818:1,210979:1,211450:1,212106:1,212176:1,"212638A":1,212661:1.5,"212906B":1,"213044A":1,213204:1.5,213253:1,213507:1,213635:1,"213747A":1,"214064A":1,214091:1,"214176C":1,"214215B":1,"214228A":1,214268:1,"214406A":1,"214428A":1,"214502A":1,214780:1,214868:2,214972:1,215050:1,215463:1.5,215532:1,215586:1,215657:1,215693:1,215719:1,215803:1,215813:1,215838:1,216104:1,216185:1,216211:1.5,216229:1,216303:1,216313:1,216327:1,216373:2,216396:1,216398:1,216622:1,216744:1,"217007A":1,217094:1,217109:1,217143:2,217239:1,217272:1,217334:1,217484:1,217547:1,217568:1,217596:1,217602:1,"217810A":1,218147:1,218179:1,218241:1,218265:1,218269:1,218272:1,218274:1,218278:1,218280:1,218285:1,218365:2,218494:1,218548:2,218578:1,218716:1.5,218726:2,218766:1.5,218772:1,218859:1,"218983A":1,219012:1,219027:1,219122:1.5,219131:1.5,219201:1,219397:1,219615:1,219673:1,219711:1.5,219742:1,219755:1,219773:1,219777:1,219811:1,219818:1,219922:1,220063:1,220082:1,220103:1,220112:1,220122:1,220130:1,220134:2,220139:1,220143:1,220148:1,220151:1.5,220155:1,220164:1,220170:1,220179:1,220188:1,220207:1,220228:2,220246:2,220265:2,220283:1.5,220303:1.5,220315:1.5,220321:1,220325:1,220330:1,220333:1,220338:1,220364:1,220366:1,220376:1,220504:1.5,220531:1,220542:1.5,220556:1,220584:1,220614:1,220623:1,220633:1,220641:1,220764:1,220807:1,220818:1,220876:1,220891:1,220905:1,221049:1,221157:1,221180:1,221187:1,221194:1,221203:1,221211:1,221213:1,221248:1,221251:1.5,221257:1.5,221345:1,221573:1,221591:1,221621:1,221649:1,221706:1,221738:1.5,221830:1,221849:1,221949:1,222052:1,222127:1,222132:1,222153:1,222398:1.5,222415:2,222471:1,222504:1,222776:2,222903:1,223091:1,223311:1,"223346A":1,223365:1,223527:1.5,223658:1,223710:1,223750:1,223887:1,223928:1,223936:1,224042:1.5,224060:1,224075:2,224081:1,224122:1,224232:1,224265:1,224292:1,224413:1.5,224538:1,224547:1,224575:1,224766:2,224814:1,225107:1,225182:1,225185:1.5,225481:1,225573:1,225624:1,};
-
-let FTRV_DATA = {};
-let INVENTORY = [];
-
-const inventoryReady = (async () => {
-  const r = await fetch('https://arklatexrv.com/inventory.json', { cache: 'no-cache' });
-  if (!r.ok) throw new Error('inventory HTTP ' + r.status);
-  const data = await r.json();
-  const units = data.units || data;
-  for (const u of units) {
-    u.stock = u.stock || u.stock_number;
-    u.priceNum = u.priceNum ?? u.sale_price;
-    u.price = u.price || (typeof u.sale_price === 'number' ? '$' + u.sale_price.toLocaleString() : 'Call');
-    u.len = u.len ?? u.length_ft;
-    u.length_ft = u.length_ft ?? u.len;
-    u.wt = u.wt ?? u.dry_weight_lbs;
-    u.dry_weight_lb = u.dry_weight_lb ?? u.dry_weight_lbs ?? u.wt;
-    u.slp = u.slp ?? u.sleeps;
-    u.sleeps = u.sleeps ?? u.slp;
-    u.sl = u.sl ?? u.slides;
-    u.slides = u.slides ?? u.sl;
-    u.bths = u.bths ?? u.bath_count;
-    u.detailUrl = u.detailUrl || u.source_url;
-    u.photoUrl = u.photoUrl || u.photo_url;
-    u.floorplanUrl = u.floorplanUrl || u.floorplan_url;
-    u.brandModel = u.brandModel || [u.manufacturer, u.brand, u.model, u.floorplan].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
-    u.desc = u.desc || u.description_text || '';
-    u.fresh_gal = u.fresh_gal ?? u.fresh_water_gal;
-    u.grey_gal = u.grey_gal ?? u.grey_water_gal;
-    u.black_gal = u.black_gal ?? u.black_water_gal;
-    // New spec-table aliases (upstream uses long names; applyFilterSpec uses short)
-    u.garage_ft = u.garage_ft ?? u.garage_size_ft;
-    u.amp = u.amp ?? u.electrical_amp;
-    u.gvwr = u.gvwr ?? u.gvwr_lb;
-    u.hitch_wt = u.hitch_wt ?? u.hitch_weight_lb;
-    u.cargo = u.cargo ?? u.cargo_capacity_lb;
-    u.furnace = u.furnace ?? u.furnace_btu;
-    u.bunks = u.bunks ?? u.bunks_count;
-    u.burners = u.burners ?? u.cooktop_burners;
-    u.awnings = u.awnings ?? u.awning_count;
-    u.axles = u.axles ?? u.axle_count;
-    u.lp_tanks = u.lp_tanks ?? u.lp_tank_count;
-    u.lp_lbs = u.lp_lbs ?? u.lp_tank_lbs;
-    u.fuel_gal = u.fuel_gal ?? u.fuel_capacity_gal;
-    u.baths = u.baths != null ? u.baths : (u.bths != null ? u.bths : 1);
-    u.layout = u.layout || '';
-    FTRV_DATA[u.stock] = u;
-  }
-  INVENTORY = Object.values(FTRV_DATA);
-  const badge = document.getElementById('unitBadge');
-  if (badge) badge.textContent = INVENTORY.length + ' units';
-  const totalCount = document.getElementById('totalCount');
-  if (totalCount) totalCount.textContent = INVENTORY.length;
-  return INVENTORY;
-})();
-
-inventoryReady.catch(e => {
-  console.error('Inventory load failed:', e);
-  const badge = document.getElementById('unitBadge');
-  if (badge) badge.textContent = 'load error';
-  const grid = document.getElementById('grid');
-  if (grid) grid.innerHTML = '<div class="empty"><h2>Couldn\'t load inventory from arklatexrv.com</h2><div>' + (e.message || e) + '</div></div>';
-});
+// Layout detection, BATHS, inventory loader, /api/chat caller → ftrv_shared.js
 
 // Grid View: paint cards once inventory is loaded
 inventoryReady.then(() => { try { if (typeof render === 'function') render(); } catch(e) { console.error(e); } });
@@ -922,8 +835,7 @@ document.getElementById('search').addEventListener('input', e => {
   }, 800);
 });
 
-// ─── Claude API integration via Render's /api/chat ────────────────────────────
-const CLAUDE_ENDPOINT = 'https://ftrv-lot-assistant.onrender.com/api/chat';
+// /api/chat caller → ftrv_shared.js (CHAT_ENDPOINT, callChat)
 
 function buildFactsHeader() {
   const filtered = getFilteredInventory();
@@ -1055,152 +967,7 @@ function buildInvText() {
   })).join('\n');
 }
 
-const SYSTEM_TEMPLATE = "You are the FTRV Lot Assistant query translator for Fun Town RV Texarkana.\n\nYour ONLY job: convert customer queries into a JSON filter spec that JavaScript will execute deterministically over the 220-unit inventory. You do NOT see individual units. You do NOT count. You do NOT list stocks. You translate intent into structured filter parameters.\n\nOUTPUT FORMAT \u2014 respond with EXACTLY this JSON shape and nothing else (no markdown fences, no surrounding text):\n{\n  \"narrative\": \"<1-2 sentence sales-friendly response in your voice>\",\n  \"filter\": { ... filter spec, see below ... },\n  \"sortBy\": \"priceNum\"|\"wt\"|\"len\"|\"year\"|\"sl\"|\"gvwr\"|\"garage_ft\"|null,\n  \"sortDir\": \"asc\"|\"desc\",\n  \"limit\": <integer or null \u2014 for 'smallest 5w' use 1; 'top 3 X' use 3; otherwise null>\n}\n\nFILTER SPEC SCHEMA (omit any field you don't need):\n- features: [\"Bunkhouse\",\"King Bed\",...]   ALL of these must be in the unit's feat[]. Closed list of 31 (see below).\n- hitch: \"bumper\"|\"5w\"\n- type: \"Travel Trailer\"|\"Fifth Wheel\"|\"Toy Hauler\"|\"Destination Trailer\"\n- condition: \"New\"|\"Pre-Owned\"\n- Boolean must-haves (set to true to require): dishwasher, central_vacuum, off_grid_solar, solar_pkg, third_ac, wd_installed, wd_prep_only, convection, convection_oven, on_demand_water, loft, murphy_bed, bunkroom, bunk_private_door, kit_island, kit_pantry, pullout_pantry, kit_residential_fridge, outdoor_kitchen, outdoor_tv, ceiling_fan, theater_seat, theater_inst, hideabed, walkin_shower, walkin_closet, desk, l_shaped_sofa, u_shaped_dinette, jackknife_sofa, power_awning, auto_level, happi_jac, disc_brakes, electric_tilt_bed\n- kit_loc, bed_loc, bath_loc: \"front\"|\"rear\"|\"mid\"\n- minPrice, maxPrice (priceNum, $)\n- minWt, maxWt (dry weight, lbs)\n- minLen, maxLen (feet)\n- minSlp (sleeps)\n- slidesEq (exact slide count) | minSlides | maxSlides\n- minBdrms (2 means must be true 2-bedroom; bdrms===2 strictly)\n- minBths (1, 1.5, or 2)\n- minBunks (bunk count)\n- minFridgeCuft (cu ft)\n- minGarage (toy hauler garage feet)\n- elecAmp (30 or 50)\n- minFreshWater, minGreyWater, minBlackWater (gallons)\n- minHitchWt, maxHitchWt (lbs — pin/hitch weight at the hitch ball)\n- minGvwr, maxGvwr (lbs)\n- minCargo (cargo capacity lbs)\n- minLpLbs (LP tank capacity lbs), minLpTanks (count)\n- minFuelGal (toy hauler fuel gallons)\n- minFurnaceBtu, minBurners (cooktop burner count), minAxles, minAwnings\n- stockEq: \"215463\"  (exact stock match)\n- modelContains: \"Brinkley Model G\"  (substring match on brandModel, case-insensitive)\n\nHITCH MAPPING:\n- \"bumper pull\"/\"TT\"/\"travel trailer\"/\"pull behind\" \u2192 hitch:\"bumper\" (also includes Destination Trailers, which are bumper-hitch)\n- \"5th wheel\"/\"fifth wheel\"/\"gooseneck\" \u2192 hitch:\"5w\"\n\nINSTALLED vs AVAILABLE (critical distinctions):\n- \"W/D installed\"/\"real washer dryer\" \u2192 wd_installed:true (NOT W&D Prep, NOT wd_prep_only)\n- \"W/D prep\"/\"plumbing for W/D\"/\"prepped for washer\" \u2192 wd_prep_only:true OR features:[\"Washer & Dryer Prep\"]\n- \"3rd A/C\"/\"three A/Cs\" \u2192 third_ac:true (NOT feature \"Dual or Triple AC\", which just means wired-for)\n- \"off-grid solar\" \u2192 off_grid_solar:true\n- \"solar package\"/\"solar panels installed\" \u2192 solar_pkg:true\n- \"theater seating\"/\"theater seats\" \u2192 theater_seat:true (vision-derived, more accurate than theater_inst)\n- \"walk-in shower\" \u2192 walkin_shower:true (separate stall, NOT tub/shower combo)\n- \"residential fridge\"/\"big fridge\" \u2192 kit_residential_fridge:true\n- \"pantry\" \u2192 kit_pantry:true; \"pullout pantry\" \u2192 pullout_pantry:true\n- \"tankless\"/\"on-demand water\" \u2192 on_demand_water:true\n\nTOW VEHICLE WEIGHT HINTS (when customer mentions a vehicle, set maxWt for dry weight AND maxHitchWt for fifth-wheel pin weight):\n- \"F-150\"/\"Ram 1500\"/\"Silverado 1500\"/\"half-ton\"/\"1500\" \u2192 maxWt around 7500-8500 (leaves headroom under rated cap)\n- \"F-250\"/\"Ram 2500\"/\"Silverado 2500\"/\"3/4 ton\"/\"2500\" \u2192 maxWt around 12000\n- \"F-350\"/\"Ram 3500\"/\"Silverado 3500\"/\"1 ton\"/\"dually\" \u2192 maxWt around 18000\n- SUV/midsize without specifics \u2192 maxWt 5000\n- If unsure, leave maxWt unset (don't gate the customer artificially)\n\nCONDITION VOCABULARY:\n- \"used\"/\"pre-owned\"/\"second-hand\"/\"trade-in\" \u2192 condition:\"Pre-Owned\"\n- \"new\"/\"never used\"/\"current year\" \u2192 condition:\"New\"\n\nCLOSED FEATURE LIST (use exact strings ONLY in features array):\nFront Living, Rear Living Area, Front Kitchen, Rear Kitchen, Front Bedroom, Rear Bedroom, Front Bath, Rear Bath, Bunkhouse, Bunk Over Cab, Two Entry/Exit Doors, Rear Twin, V-Nose, Rear Entertainment, Outdoor Kitchen, U Shaped Dinette, Kitchen Island, Bath and a Half, Front Entertainment, Loft, Two Full Baths, Walk-Thru Bath, Murphy Bed, Wheelchair Accessible, Couples Coach - No Bunks, King Bed, Two Bedrooms, Dual or Triple AC, Texas Chill Package, Washer & Dryer Prep\n\nEXAMPLES:\nQ: \"5w under 12k dry\"\nA: {\"narrative\":\"Fifth wheels under 12,000 lbs dry weight, sorted lightest first.\",\"filter\":{\"hitch\":\"5w\",\"maxWt\":12000},\"sortBy\":\"wt\",\"sortDir\":\"asc\"}\n\nQ: \"biggest GVWR on the lot\"\nA: {\"narrative\":\"The biggest unit by GVWR.\",\"filter\":{},\"sortBy\":\"gvwr\",\"sortDir\":\"desc\",\"limit\":1}\n\nQ: \"cheapest bunkhouse\"\nA: {\"narrative\":\"Cheapest bunkhouse on the lot.\",\"filter\":{\"features\":[\"Bunkhouse\"]},\"sortBy\":\"priceNum\",\"sortDir\":\"asc\",\"limit\":1}\n\nQ: \"couples coach with king bed and outdoor kitchen under $80k\"\nA: {\"narrative\":\"Couples coach (no bunks) with king bed and outdoor kitchen under $80,000.\",\"filter\":{\"features\":[\"Couples Coach - No Bunks\",\"King Bed\",\"Outdoor Kitchen\"],\"maxPrice\":80000}}\n\nQ: \"stock 215463\"\nA: {\"narrative\":\"Here is stock #215463.\",\"filter\":{\"stockEq\":\"215463\"}}\n\nQ: \"show me the Brinkley Model G 4100\"\nA: {\"narrative\":\"The Brinkley Model G 4100.\",\"filter\":{\"modelContains\":\"Brinkley Model G 4100\"}}\n\nQ: \"toy hauler with at least 14 ft garage and 50 amp service\"\nA: {\"narrative\":\"Toy haulers with 14+ ft garage and 50-amp service.\",\"filter\":{\"type\":\"Toy Hauler\",\"minGarage\":14,\"elecAmp\":50}}\n\nQ: \"bumper pull under 7500 lbs sleeping 6\"\nA: {\"narrative\":\"Bumper-pull units under 7,500 lbs dry that sleep 6+.\",\"filter\":{\"hitch\":\"bumper\",\"maxWt\":7500,\"minSlp\":6}}\n\nQ: \"purple unicorn rv\"\nA: {\"narrative\":\"That's not a model we carry. We have 220 RVs across 4 body types.\",\"filter\":{},\"noMatch\":true}\n\nQ: \"do you sell hot dogs\"\nA: {\"narrative\":\"We're an RV dealer \u2014 no hot dogs! Want me to find an RV instead?\",\"filter\":{},\"noMatch\":true}\n\nQ: \"front bedroom rear bath theater seat under 100k\"\nA: {\"narrative\":\"Front bedroom + rear bath with theater seating, under $100,000.\",\"filter\":{\"features\":[\"Front Bedroom\",\"Rear Bath\"],\"theater_seat\":true,\"maxPrice\":100000}}\n\nQ: \"bunkhouse with walk-in shower and pantry\"\nA: {\"narrative\":\"Bunkhouses with a walk-in shower and pantry.\",\"filter\":{\"features\":[\"Bunkhouse\"],\"walkin_shower\":true,\"kit_pantry\":true}}\n\nQ: \"5w with washer/dryer just prepped not installed\"\nA: {\"narrative\":\"Fifth wheels with W/D plumbing prep (not actual W/D installed).\",\"filter\":{\"hitch\":\"5w\",\"wd_prep_only\":true}}\n\nRULES:\n- For absurd/impossible queries (purple unicorn, hot dogs, RV that flies), include \"noMatch\":true in the response. Empty filter {} alone returns ALL 220 units — use noMatch:true to return zero.\n- RESPOND WITH JSON ONLY \u2014 no prose, no markdown.\n- NEVER include unit-specific stock numbers in the narrative \u2014 JS will compute the actual list.\n- The narrative is short (1-2 sentences), describes the search, never claims a count.\n- For ambiguous queries, pick the most common interpretation.\n- If a query is impossible (purple unicorn, hot dogs), return empty filter and acknowledge politely in narrative.\n";
-
-let chatInflight = false;
-
-
-// === v8: deterministic filter execution. Claude returns a spec; JS executes it. ===
-const BOOL_FILTER_FIELDS = ['dishwasher','central_vacuum','off_grid_solar','third_ac','wd_installed','convection','loft','murphy_bed','kit_island','outdoor_kitchen','auto_level','solar_pkg','happi_jac','disc_brakes','theater_inst','walkin_shower','bunkroom','hideabed','on_demand_water','convection_oven','kit_pantry','kit_residential_fridge','power_awning','outdoor_tv','ceiling_fan','pullout_pantry','wd_prep_only','walkin_closet','theater_seat','desk','bunk_private_door','l_shaped_sofa','u_shaped_dinette','jackknife_sofa'];
-
-function applyFilterSpec(spec, startList) {
-  spec = spec || {};
-  let list = startList ? startList.slice() : INVENTORY.slice();
-
-  // Feature-list aliases — match if FT taxonomy feature is in u.features OR the
-  // equivalent vision/loc field matches. Lets AI use either query path.
-  const FEATURE_ALIAS = {
-    "Bunkhouse":         u => u.bunkroom === true,
-    "Loft":              u => u.loft === true,
-    "Murphy Bed":        u => u.murphy_bed === true,
-    "Kitchen Island":    u => u.kit_island === true,
-    "Outdoor Kitchen":   u => u.outdoor_kitchen === true,
-    "U Shaped Dinette":  u => u.u_shaped_dinette === true,
-    "Front Bedroom":     u => u.bed_loc === "front",
-    "Rear Bedroom":      u => u.bed_loc === "rear",
-    "Front Kitchen":     u => u.kit_loc === "front",
-    "Rear Kitchen":      u => u.kit_loc === "rear",
-    "Front Bath":        u => u.bath_loc === "front",
-    "Rear Bath":         u => u.bath_loc === "rear"
-  };
-  function hasFeature(u, f) {
-    if ((u.features || []).includes(f)) return true;
-    const aliasFn = FEATURE_ALIAS[f];
-    return aliasFn ? aliasFn(u) : false;
-  }
-  if (spec.features && spec.features.length) {
-    list = list.filter(u => spec.features.every(f => hasFeature(u, f)));
-  }
-  if (spec.hitch) list = list.filter(u => u.hitch === spec.hitch);
-  if (spec.type) {
-    const PARENT_TYPES = ["Toy Hauler", "Motor Home"];
-    if (PARENT_TYPES.includes(spec.type)) {
-      list = list.filter(u => (u.type || "").startsWith(spec.type));
-    } else {
-      list = list.filter(u => u.type === spec.type);
-    }
-  }
-  if (spec.condition) list = list.filter(u => u.condition === spec.condition);
-
-  // Defensive alias: AI may say recliners:true; upstream killed that field — map to theater_seat
-  if (spec.recliners === true) list = list.filter(u => u.theater_seat === true);
-  for (const f of BOOL_FILTER_FIELDS) {
-    if (spec[f] === true) list = list.filter(u => u[f] === true);
-  }
-
-  if (spec.kit_loc)  list = list.filter(u => u.kit_loc === spec.kit_loc);
-  if (spec.bed_loc)  list = list.filter(u => u.bed_loc === spec.bed_loc);
-  if (spec.bath_loc) list = list.filter(u => u.bath_loc === spec.bath_loc);
-
-  if (spec.minPrice != null) list = list.filter(u => (u.priceNum || 0) >= spec.minPrice);
-  if (spec.maxPrice != null) list = list.filter(u => (u.priceNum || 0) > 0 && u.priceNum <= spec.maxPrice);
-  if (spec.minWt != null) list = list.filter(u => (u.wt || 0) >= spec.minWt);
-  if (spec.maxWt != null) list = list.filter(u => (u.wt || 0) > 0 && u.wt <= spec.maxWt);
-  if (spec.minLen != null) list = list.filter(u => (u.len || 0) >= spec.minLen);
-  if (spec.maxLen != null) list = list.filter(u => (u.len || 0) > 0 && u.len <= spec.maxLen);
-  if (spec.minSlp != null) list = list.filter(u => (u.slp || 0) >= spec.minSlp);
-  if (spec.slidesEq != null) list = list.filter(u => u.sl === spec.slidesEq);
-  if (spec.minSlides != null) list = list.filter(u => (u.sl || 0) >= spec.minSlides);
-  if (spec.maxSlides != null) list = list.filter(u => (u.sl || 0) <= spec.maxSlides);
-  if (spec.minBdrms != null) list = list.filter(u => (u.bdrms || 1) >= spec.minBdrms);
-  if (spec.minBths != null) list = list.filter(u => (u.bths || 1) >= spec.minBths);
-  if (spec.minBunks != null) list = list.filter(u => (u.bunks || 0) >= spec.minBunks);
-  if (spec.minFridgeCuft != null) list = list.filter(u => (u.fridge_cuft || 0) >= spec.minFridgeCuft);
-  if (spec.minGarage != null) list = list.filter(u => (u.garage_ft || 0) >= spec.minGarage);
-  if (spec.elecAmp != null) list = list.filter(u => u.amp === spec.elecAmp);
-
-  if (spec.stockEq) list = list.filter(u => u.stock === spec.stockEq);
-  if (spec.modelContains) {
-    const needle = String(spec.modelContains).toLowerCase();
-    list = list.filter(u => (u.brandModel || '').toLowerCase().includes(needle));
-  }
-  // Tank capacities
-  if (spec.minFreshWater != null) list = list.filter(u => (u.fresh_gal || 0) >= spec.minFreshWater);
-  if (spec.minGreyWater != null) list = list.filter(u => (u.grey_gal || 0) >= spec.minGreyWater);
-  if (spec.minBlackWater != null) list = list.filter(u => (u.black_gal || 0) >= spec.minBlackWater);
-  // Hitch / GVWR / Cargo
-  if (spec.minHitchWt != null) list = list.filter(u => (u.hitch_wt || 0) >= spec.minHitchWt);
-  if (spec.maxHitchWt != null) list = list.filter(u => (u.hitch_wt || 0) > 0 && u.hitch_wt <= spec.maxHitchWt);
-  if (spec.minGvwr != null) list = list.filter(u => (u.gvwr || 0) >= spec.minGvwr);
-  if (spec.maxGvwr != null) list = list.filter(u => (u.gvwr || 0) > 0 && u.gvwr <= spec.maxGvwr);
-  if (spec.minCargo != null) list = list.filter(u => (u.cargo || 0) >= spec.minCargo);
-  // LP / Fuel / Furnace / Burners
-  if (spec.minLpLbs != null) list = list.filter(u => (u.lp_lbs || 0) >= spec.minLpLbs);
-  if (spec.minLpTanks != null) list = list.filter(u => (u.lp_tanks || 0) >= spec.minLpTanks);
-  if (spec.minFuelGal != null) list = list.filter(u => (u.fuel_gal || 0) >= spec.minFuelGal);
-  if (spec.minFurnaceBtu != null) list = list.filter(u => (u.furnace || 0) >= spec.minFurnaceBtu);
-  if (spec.minBurners != null) list = list.filter(u => (u.burners || 0) >= spec.minBurners);
-  if (spec.minAxles != null) list = list.filter(u => (u.axles || 0) >= spec.minAxles);
-  if (spec.minAwnings != null) list = list.filter(u => (u.awnings || 0) >= spec.minAwnings);
-  return list;
-}
-
-function applySort(list, sortBy, sortDir) {
-  if (!sortBy) return list;
-  const dir = sortDir === 'desc' ? -1 : 1;
-  return list.slice().sort((a, b) => {
-    const aV = (a[sortBy] != null) ? a[sortBy] : (dir > 0 ? Infinity : -Infinity);
-    const bV = (b[sortBy] != null) ? b[sortBy] : (dir > 0 ? Infinity : -Infinity);
-    return (aV - bV) * dir;
-  });
-}
-
-function describeFilterSpec(spec, sortBy, sortDir, limit) {
-  if (!spec) return '';
-  const parts = [];
-  if (spec.features && spec.features.length) parts.push(spec.features.join(' + '));
-  if (spec.hitch) parts.push(spec.hitch === '5w' ? '5th wheel' : 'bumper pull');
-  if (spec.type) parts.push(spec.type);
-  if (spec.condition) parts.push(spec.condition);
-  for (const f of BOOL_FILTER_FIELDS) if (spec[f] === true) parts.push(f.replace(/_/g,' '));
-  if (spec.kit_loc) parts.push(spec.kit_loc + ' kitchen');
-  if (spec.bed_loc) parts.push(spec.bed_loc + ' bedroom');
-  if (spec.bath_loc) parts.push(spec.bath_loc + ' bath');
-  if (spec.minPrice != null) parts.push('≥$' + spec.minPrice.toLocaleString());
-  if (spec.maxPrice != null) parts.push('≤$' + spec.maxPrice.toLocaleString());
-  if (spec.minWt != null) parts.push('≥' + spec.minWt.toLocaleString() + ' lbs');
-  if (spec.maxWt != null) parts.push('≤' + spec.maxWt.toLocaleString() + ' lbs dry');
-  if (spec.minLen != null) parts.push('≥' + spec.minLen + ' ft');
-  if (spec.maxLen != null) parts.push('≤' + spec.maxLen + ' ft');
-  if (spec.minSlp != null) parts.push('sleeps ≥' + spec.minSlp);
-  if (spec.slidesEq != null) parts.push(spec.slidesEq + ' slides');
-  if (spec.minSlides != null) parts.push('≥' + spec.minSlides + ' slides');
-  if (spec.maxSlides != null) parts.push('≤' + spec.maxSlides + ' slides');
-  if (spec.minBdrms != null) parts.push('≥' + spec.minBdrms + ' bedrooms');
-  if (spec.minBths != null) parts.push('≥' + spec.minBths + ' baths');
-  if (spec.minBunks != null) parts.push('≥' + spec.minBunks + ' bunks');
-  if (spec.minFridgeCuft != null) parts.push('fridge ≥' + spec.minFridgeCuft + ' cu ft');
-  if (spec.minGarage != null) parts.push('garage ≥' + spec.minGarage + ' ft');
-  if (spec.elecAmp != null) parts.push(spec.elecAmp + ' amp');
-  if (spec.stockEq) parts.push('stock ' + spec.stockEq);
-  if (spec.modelContains) parts.push('"' + spec.modelContains + '"');
-  if (sortBy) {
-    const labels = {priceNum:'price', wt:'weight', len:'length', year:'year', sl:'slides', gvwr:'GVWR', garage_ft:'garage'};
-    parts.push('sorted by ' + (labels[sortBy] || sortBy) + ' ' + (sortDir === 'desc' ? '↓' : '↑'));
-  }
-  if (limit) parts.push('top ' + limit);
-  return parts.join(' · ');
-}
+// SYSTEM_TEMPLATE, BOOL_FILTER_FIELDS, applyFilterSpec, applySort, describeFilterSpec → ftrv_shared.js
 
 function renderDeterministic(narrative, spec, sortBy, sortDir, limit, list) {
   const replyEl = document.getElementById('aiReply');
@@ -1253,49 +1020,19 @@ async function askClaude(userQuery) {
   replyEl.innerHTML = '<div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span> <span id="thinkLabel">Thinking...</span></div>';
   setTimeout(() => { const lbl = document.getElementById('thinkLabel'); if (lbl) lbl.textContent = 'Waking up the server (free tier sleeps after 15 min idle)...'; }, 8000);
   grid.innerHTML = '';
-  // v8: schema-only prompt — no inventory text. Claude returns a filter spec.
   try {
-    const res = await fetch(CLAUDE_ENDPOINT, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
-        system: [{type: 'text', text: SYSTEM_TEMPLATE, cache_control: {type: 'ephemeral'}}],
-        messages: [{role: 'user', content: userQuery}]
-      })
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error('API ' + res.status + ': ' + errText.slice(0, 200));
-    }
-    const data = await res.json();
-    const reply = (data.content && data.content[0] && data.content[0].text) || '';
-    // Strip markdown fences if Claude wrapped
-    const cleaned = reply.replace(/^\s*```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
-    let parsed;
-    try { parsed = JSON.parse(cleaned); }
-    catch (e) {
-      // Try to find first balanced JSON object
-      const m = cleaned.match(/\{[\s\S]*\}/);
-      if (m) { try { parsed = JSON.parse(m[0]); } catch(_) {} }
-    }
-    if (!parsed) {
-      replyEl.innerHTML = '<div class="ai-error">Couldn\'t parse the AI response. Try rephrasing.</div>';
-      grid.innerHTML = '';
-      return;
-    }
-    const narrative = parsed.narrative || '';
-    const filterSpec = parsed.filter || {};
-    const sortBy = parsed.sortBy || null;
-    const sortDir = parsed.sortDir || 'asc';
-    const limit = parsed.limit || null;
-    // Apply manual filter (Type/Condition/Features pills) FIRST, then AI filter
+    // callChat lives in ftrv_shared.js — single source of truth for API shape, prompt caching, and JSON parsing.
+    const { narrative, spec, sortBy, sortDir, limit, noMatch } =
+      await callChat([{ role: 'user', content: userQuery }]);
+    // Apply manual filter pills FIRST (Type/Condition/Features), then AI filter spec
     const baseList = getFilteredInventory();
-    let list = parsed.noMatch === true ? [] : applyFilterSpec(filterSpec, baseList);
+    let list = noMatch ? [] : applyFilterSpec(spec, baseList);
     if (sortBy) list = applySort(list, sortBy, sortDir);
     if (limit) list = list.slice(0, limit);
-    renderDeterministic(narrative, filterSpec, sortBy, sortDir, limit, list);
+    renderDeterministic(narrative, spec, sortBy, sortDir, limit, list);
+    // H4 fix: keep the header counter in sync with the AI-driven result set
+    const rc = document.getElementById('resultCount');
+    if (rc) rc.textContent = list.length;
   } catch (e) {
     replyEl.innerHTML = '<div class="ai-error"><strong>Couldn\'t reach Claude.</strong> ' + (e.message || e) + '<br><span style="opacity:.6;font-size:.75rem">Render free tier sleeps after idle \u2014 first request takes 50s+.</span></div>';
     grid.innerHTML = '';
