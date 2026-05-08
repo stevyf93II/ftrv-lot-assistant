@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FTRV Lot Tool</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%90%3C/text%3E%3C/svg%3E">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #173f2c 0%, #1f5f3f 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo { font-size: 64px; margin-bottom: 12px; }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .sub {
+      color: rgba(255,255,255,0.7);
+      font-size: 15px;
+      margin-bottom: 36px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 22px 24px;
+      background: rgba(255,255,255,0.95);
+      color: #173f2c;
+      text-decoration: none;
+      border-radius: 16px;
+      margin-bottom: 14px;
+      transition: transform 0.15s, background 0.15s;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      text-align: left;
+    }
+    .btn:active { transform: scale(0.98); background: #fff; }
+    .btn-emoji { font-size: 28px; margin-right: 12px; vertical-align: middle; }
+    .btn-title { font-size: 18px; font-weight: 700; vertical-align: middle; }
+    .btn-desc { color: rgba(23,63,44,0.7); font-size: 13px; margin-top: 4px; padding-left: 40px; }
+    .footer {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      margin-top: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">🚐</div>
+    <h1>FTRV Lot Tool</h1>
+    <p class="sub">Pick a view to start.</p>
+
+    <a class="btn" href="ftrv_ai_assistant.html">
+      <span class="btn-emoji">💬</span>
+      <span class="btn-title">AI Chat</span>
+      <div class="btn-desc">Ask in natural language. Best for walking the lot with a customer.</div>
+    </a>
+
+    <a class="btn" href="ftrv_lot_assistant.html">
+      <span class="btn-emoji">📋</span>
+      <span class="btn-title">Grid View</span>
+      <div class="btn-desc">Filter and browse all units in a card grid.</div>
+    </a>
+
+    <div class="footer">Texarkana inventory · Powered by arklatexrv.com</div>
+  </div>
+</body>
+</html>
