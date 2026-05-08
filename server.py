@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """FTRV Lot Assistant – local proxy server.
 Serves the HTML app AND forwards:
-  /api/chat     → Anthropic API
-  /api/floorplan?url=... → fetches funtownrv.com product page, extracts floor plan image
-  /api/health   → tiny ping endpoint used to wake Render free-tier cold-start
+  /api/chat        → Anthropic API
+  /api/floorplan   → fetches funtownrv.com product page, extracts floor plan image
+  /api/cross-store → live cross-FTRV-store inventory fan-out for the Lot Tool's
+                     sales-pro cross-store toggle (Cleburne, Waco, Dallas, etc.)
+                     NEVER persisted; data stays in this Render service only.
+  /api/health      → tiny ping endpoint used to wake Render free-tier cold-start
 
-CORS is enabled on /api/chat, /api/floorplan, and /api/health so the local
-Grid View HTML (loaded as file:// from disk on Steve's computer) can call
-these endpoints.
+CORS is enabled so file:// HTML pages can call these endpoints.
 """
 import json, os, re, ssl, time, urllib.request, urllib.parse, socket
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 PORT = int(os.environ.get('PORT', 8765))
@@ -23,6 +25,78 @@ CORS_HEADERS = {
     'Access-Control-Max-Age': '86400',
 }
 
+# ─── CROSS-STORE configuration ────────────────────────────────────────────
+# All 9 non-Texarkana FTRV stores. Texarkana is excluded since it's already
+# the canonical source served by arklatexrv.com/inventory.json. The URL
+# pattern is funtownrv.com/locations/<slug>/<condition>-rv-sales-<slug>.
+STORES = [
+    'cleburne', 'waco', 'dallas', 'houston', 'weatherford',
+    'hempstead', 'alvarado', 'winstar', 'katy',
+]
+CROSS_STORE_CACHE = {}     # key: (store, condition) → (timestamp, units list)
+CROSS_STORE_TTL = 30 * 60  # 30 minutes
+
+LISTING_CARD_RE = re.compile(
+    r'<li[^>]*?data-unitid="(\d+)"[^>]*?data-productid="(\d+)"[^>]*?>(.*?)</li>',
+    re.DOTALL,
+)
+HREF_PRODUCT_RE = re.compile(r'href="(/product/[^"]*?-(\d+)-(\d+))"')
+TITLE_RE = re.compile(r'<h\d[^>]*>(.*?)</h\d>', re.DOTALL)
+PRICE_RE = re.compile(r'\$\s?([\d,]+)')
+
+
+def _parse_listing_units(html):
+    """Extract unit cards from a FTRV listing page. Returns list of dicts."""
+    seen = {}
+    for m in LISTING_CARD_RE.finditer(html):
+        uid, pid, body = m.group(1), m.group(2), m.group(3)
+        title_m = TITLE_RE.search(body)
+        price_m = PRICE_RE.search(body)
+        title = re.sub(r'<[^>]+>', '', title_m.group(1)).strip() if title_m else None
+        price = int(price_m.group(1).replace(',', '')) if price_m else None
+        seen[(uid, pid)] = {
+            'unit_id': uid,
+            'product_id': pid,
+            'title': title,
+            'sale_price': price,
+            'url': f'https://www.funtownrv.com/product/rv-{uid}-{pid}',
+        }
+    # Fallback for cards that don't have data-unitid attrs
+    for m in HREF_PRODUCT_RE.finditer(html):
+        uid, pid = m.group(2), m.group(3)
+        if (uid, pid) not in seen:
+            seen[(uid, pid)] = {
+                'unit_id': uid,
+                'product_id': pid,
+                'title': None,
+                'sale_price': None,
+                'url': 'https://www.funtownrv.com' + m.group(1),
+            }
+    return list(seen.values())
+
+
+def _fetch_listing(store, condition, pagesize=250, ttl=CROSS_STORE_TTL):
+    """Fetch + parse one store's listing page for one condition. Cached."""
+    cache_key = (store, condition)
+    now = time.time()
+    cached = CROSS_STORE_CACHE.get(cache_key)
+    if cached and (now - cached[0]) < ttl:
+        return cached[1]
+
+    url = f'https://www.funtownrv.com/locations/{store}/{condition}-rv-sales-{store}?pagesize={pagesize}'
+    ctx = ssl.create_default_context()
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    with urllib.request.urlopen(req, context=ctx, timeout=15) as resp:
+        html = resp.read().decode('utf-8', errors='ignore')
+
+    units = _parse_listing_units(html)
+    for u in units:
+        u['condition'] = condition
+        u['store'] = store
+    CROSS_STORE_CACHE[cache_key] = (now, units)
+    return units
+
+
 class Handler(SimpleHTTPRequestHandler):
 
     def _send_cors(self):
@@ -30,7 +104,6 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header(k, v)
 
     def do_OPTIONS(self):
-        # Preflight for cross-origin POSTs to /api/chat from file:// pages
         self.send_response(204)
         self._send_cors()
         self.end_headers()
@@ -40,13 +113,12 @@ class Handler(SimpleHTTPRequestHandler):
             self._handle_health()
         elif self.path.startswith('/api/floorplan'):
             self._handle_floorplan()
+        elif self.path.startswith('/api/cross-store'):
+            self._handle_cross_store()
         else:
             super().do_GET()
 
     def _handle_health(self):
-        # Tiny endpoint used by the Grid View on page load (and by external
-        # uptime monitors) to wake Render's free-tier worker before the
-        # customer types anything. Keep response small and uncached.
         self._json(200, {
             'ok': True,
             'uptime_s': round(time.time() - BOOT_TIME, 1),
@@ -66,13 +138,71 @@ class Handler(SimpleHTTPRequestHandler):
             with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
                 html = resp.read().decode('utf-8', errors='ignore')
 
-            # Extract floor plan image URL (unit_tech_drawing, not /small/ variant)
             m = re.search(r'unit_tech_drawing/(?!small/)unit_tech_drawing_[^"\'?\s]+', html)
             if m:
                 fp_url = 'https://assets-cdn.interactcp.com/interactrv/' + m.group(0)
                 self._json(200, {'floorplanUrl': fp_url})
             else:
                 self._json(200, {'floorplanUrl': None})
+        except Exception as e:
+            self._json(500, {'error': str(e)})
+
+    def _handle_cross_store(self):
+        """Fan out to FTRV listing pages for the requested stores. Returns
+        aggregated units. Cached per (store, condition) for 30 minutes."""
+        try:
+            qs = urllib.parse.urlparse(self.path).query
+            params = urllib.parse.parse_qs(qs)
+            condition = params.get('condition', ['both'])[0].lower()
+            if condition not in ('new', 'used', 'both'):
+                condition = 'both'
+            stores_param = params.get('stores', [None])[0]
+            if stores_param:
+                stores = [s.strip() for s in stores_param.split(',') if s.strip() in STORES]
+                if not stores:
+                    stores = list(STORES)
+            else:
+                stores = list(STORES)
+            pagesize = int(params.get('pagesize', ['250'])[0])
+            conditions = ['new', 'used'] if condition == 'both' else [condition]
+
+            # Fan out: one task per (store, condition). Up to 18 tasks, run with
+            # modest concurrency so we don't hammer funtownrv.com.
+            results = {s: {'count': 0, 'units': [], 'errors': []} for s in stores}
+            tasks = [(s, c) for s in stores for c in conditions]
+
+            with ThreadPoolExecutor(max_workers=6) as ex:
+                future_to_task = {
+                    ex.submit(_fetch_listing, s, c, pagesize): (s, c)
+                    for (s, c) in tasks
+                }
+                for fut in as_completed(future_to_task):
+                    s, c = future_to_task[fut]
+                    try:
+                        units = fut.result()
+                        # Dedup units across new+used (rare but possible)
+                        existing = {(u['unit_id'], u['product_id']) for u in results[s]['units']}
+                        for u in units:
+                            if (u['unit_id'], u['product_id']) not in existing:
+                                results[s]['units'].append(u)
+                                existing.add((u['unit_id'], u['product_id']))
+                    except Exception as e:
+                        results[s]['errors'].append({
+                            'condition': c,
+                            'error': str(e)[:200],
+                        })
+
+            for s in results:
+                results[s]['count'] = len(results[s]['units'])
+
+            total = sum(r['count'] for r in results.values())
+            self._json(200, {
+                'condition': condition,
+                'stores_queried': stores,
+                'total_units': total,
+                'cache_age_sec': None,  # mixed across stores; per-store recency in results
+                'results': results,
+            })
         except Exception as e:
             self._json(500, {'error': str(e)})
 
@@ -125,11 +255,10 @@ class Handler(SimpleHTTPRequestHandler):
             super().do_POST()
 
     def log_message(self, fmt, *args):
-        pass  # keep the console window quiet
+        pass
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# Find local IP so phones on the same WiFi can connect
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('8.8.8.8', 80))
