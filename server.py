@@ -10,6 +10,7 @@ Serves the HTML app AND forwards:
 
 CORS is enabled so file:// HTML pages can call these endpoints.
 """
+# build-retrigger: 2026-05-08 (commit 8607810 failed with "Exited with status 1" on an HTML-only change; this comment forces a fresh build).
 import json, os, re, ssl, time, urllib.request, urllib.parse, socket
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from concurrent.futures import ThreadPoolExecutor, as_completed
