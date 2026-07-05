@@ -321,7 +321,7 @@ header {
   <button id="sendBtn" onclick="sendMsg()">→</button>
 </div>
 
-<script src="ftrv_shared.js?v=20260705c"></script>
+<script src="ftrv_shared.js?v=20260705d"></script>
 <script>
 // ─── INVENTORY ───────────────────────────────────────────────────────────────
 // Inventory comes from arklatexrv.com/inventory.json via inventoryReady in ftrv_shared.js
@@ -552,14 +552,33 @@ async function sendMsg() {
     if (sortBy) list = applySort(list, sortBy, sortDir);
     if (limit) list = list.slice(0, limit);
     matchCount = list.length;
-    stocks = list.map(u => u.stock);  // no cap — Steve 2026-07-05: show ALL matches
+    // Real matches: show ALL (Steve 2026-07-05). Fallback near-misses: cap at 8
+    // — they didn't meet the ask; a wall of 95 cards is noise, not results.
+    stocks = (fb ? list.slice(0, 8) : list).map(u => u.stock);
 
     const desc = describeFilterSpec(filterSpec, sortBy, sortDir, limit);
     if (result.noMatch) {
       factsLine = '**0 units**';
     } else if (fb) {
-      const droppedLabel = String(fb.dropped).replace(/^feature /, '').replace(/^flag /, '').replace(/_/g, ' ');
-      factsLine = '0 exact — **' + matchCount + '** without ' + droppedLabel + (desc ? ' · ' + desc : '');
+      // Plain-English near-miss line (Steve 2026-07-05: no code words like maxPrice)
+      const d = String(fb.dropped);
+      const v = fb.dropped_value;
+      let reason;
+      if (d === 'maxPrice')       reason = 'over the ' + (v ? '$' + v.toLocaleString() : 'price') + ' cap';
+      else if (d === 'maxWt')     reason = 'over the ' + (v ? v.toLocaleString() + ' lb' : 'weight') + ' cap';
+      else if (d === 'maxLen')    reason = 'over the ' + (v ? v + ' ft' : 'length') + ' cap';
+      else if (d === 'minSlp')    reason = 'sleeping fewer than ' + (v || 'asked');
+      else if (d === 'minBths')   reason = 'with fewer baths';
+      else if (d === 'minGarage') reason = 'with a shorter garage';
+      else if (d === 'elecAmp')   reason = 'ignoring the amp requirement';
+      else if (d === 'hitch')     reason = 'ignoring hitch type';
+      else if (d === 'type')      reason = 'ignoring RV type';
+      else if (d === 'condition') reason = 'ignoring new/used';
+      else if (d.indexOf('feature ') === 0) reason = 'without ' + d.slice(8);
+      else if (d.indexOf('flag ') === 0)    reason = 'without ' + d.slice(5).replace(/_/g, ' ');
+      else reason = 'ignoring ' + d.replace(/_/g, ' ');
+      const shown = Math.min(matchCount, 8);
+      factsLine = '**0** exact — closest ' + shown + ' of **' + matchCount + '** (' + reason + ')' + (desc ? ' · ' + desc : '');
     } else {
       factsLine = '**' + matchCount + '** unit' + (matchCount === 1 ? '' : 's') + (desc ? ' · ' + desc : '');
     }
