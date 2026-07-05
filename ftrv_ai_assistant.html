@@ -313,7 +313,7 @@ header {
   <button id="sendBtn" onclick="sendMsg()">➤</button>
 </div>
 
-<script src="ftrv_shared.js?v=20260508a"></script>
+<script src="ftrv_shared.js?v=20260705a"></script>
 <script>
 // ─── INVENTORY ───────────────────────────────────────────────────────────────
 // (Legacy RAW array kept for fallback only — actual inventory comes from arklatexrv.com/inventory.json via inventoryReady in ftrv_shared.js)
@@ -513,6 +513,11 @@ function removeTyping() {
 }
 
 // ─── SEND ─────────────────────────────────────────────────────────────────────
+// Facts-only output (Steve, 2026-07-05: "no explaining no words just facts and
+// results"). The AI is ONLY a query translator; the bubble text is built
+// deterministically from the executed filter — count + describeFilterSpec.
+// The old Layer-3 "narrative enrichment" second AI call is gone: it produced
+// multi-sentence salesy briefings that named units and buried the results.
 async function sendMsg() {
   const input = document.getElementById('userInput');
   const btn = document.getElementById('sendBtn');
@@ -529,70 +534,53 @@ async function sendMsg() {
   conversation.push({ role: 'user', content: text });
   showTyping();
 
-  let narrative = '', stocks = [], matchList = [];
-  let parseFailed = false;
+  let factsLine = '', stocks = [], matchCount = 0;
   let assistantReply = '';
 
   try {
     // callChat lives in ftrv_shared.js — handles API shape, prompt caching, JSON extraction.
     const result = await callChat(conversation.slice(-10));
-    narrative = result.narrative;
     const filterSpec = result.spec;
     const sortBy = result.sortBy;
     const sortDir = result.sortDir;
     const limit = result.limit;
-    let list = result.noMatch ? [] : applyFilterSpec(filterSpec, INVENTORY);
+
+    let list = [];
+    let fb = null;
+    if (!result.noMatch) {
+      const res = applyFilterSpecWithFallback(filterSpec, INVENTORY);
+      list = res.units;
+      fb = res.fallback;
+    }
     if (sortBy) list = applySort(list, sortBy, sortDir);
     if (limit) list = list.slice(0, limit);
-    matchList = list;
+    matchCount = list.length;
     stocks = list.slice(0, 8).map(u => u.stock);
-    // For conversation history, store the original spec as JSON so context flows
-    assistantReply = JSON.stringify({narrative, filter: filterSpec, sortBy, sortDir, limit, noMatch: result.noMatch});
-  } catch (err) {
-    parseFailed = true;
-    narrative = "I had trouble parsing that. Try rephrasing — or use plain terms (e.g. 'fifth wheel under 60k with a king bed').";
-  }
 
-  try {
-    if (!parseFailed) { /* placeholder so the structure parallels original */ }
-
-    // LAYER 3: if we have matches, do a second small Haiku call grounded in descriptions.
-    // Sales-pro voice (2026-05-08): rewrote enrichSys to match SYSTEM_TEMPLATE's
-    // colleague-briefing tone. Previous prompt produced "Great news!" buyer-pitch
-    // narrative that overrode the first-call narrative.
-    if (!parseFailed && matchList.length > 0) {
-      try {
-        const top = matchList.slice(0, 3);
-        const descCtx = top.map(u => '#' + u.stock + ' ' + (u.brandModel||'') + ': ' + (u.desc || '(no description)')).join('\n\n');
-        const enrichSys = "You are the FTRV Lot Tool's narrative layer. PRIMARY USER: an experienced FTRV sales professional standing on the lot with a customer — NOT a buyer. JS already filtered to the matching units below.\n\nWrite a CONCISE colleague-briefing (1-2 short sentences, max 50 words) for the sales pro. Tone: factual, knowledgeable, no pitch.\n\nRULES:\n- NEVER use buyer-pitch phrases: \"great news\", \"some solid options\", \"perfect for you\", \"happy to help\", \"awesome\", \"You'll find\", \"family-friendly\", emoji.\n- Surface differentiators when 2-3 units differ on a meaningful axis (length, weight, brand, layout, slide count).\n- If all units share a key trait (\"All bumper-pull, sub-30ft\"), say that.\n- Optionally quote ONE short factual phrase from a description (in quotes) IF it surfaces a concrete detail the pro can repeat to a customer. Avoid evocative/marketing prose.\n- Never count matches (JS shows the count).\n- Never list stock numbers (UI shows cards below).\n\nMATCHED UNIT DESCRIPTIONS (top 3):\n" + descCtx + "\n\nOutput just the 1-2 sentence briefing. JSON not required.";
-        const r2 = await fetch(CHAT_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-haiku-4-5-20251001',
-            max_tokens: 200,
-            system: enrichSys,
-            messages: [{ role: 'user', content: text }]
-          })
-        });
-        if (r2.ok) {
-          const d2 = await r2.json();
-          const enriched = (d2.content?.[0]?.text || '').trim();
-          if (enriched && enriched.length > 10 && enriched.length < 500) {
-            narrative = enriched;
-          }
-        }
-      } catch(e) { /* silent fallback to original narrative */ }
+    const desc = describeFilterSpec(filterSpec, sortBy, sortDir, limit);
+    if (result.noMatch) {
+      factsLine = '**0 units**';
+    } else if (fb) {
+      const droppedLabel = String(fb.dropped).replace(/^feature /, '').replace(/^flag /, '').replace(/_/g, ' ');
+      factsLine = '0 exact — **' + matchCount + '** without ' + droppedLabel + (desc ? ' · ' + desc : '');
+    } else {
+      factsLine = '**' + matchCount + '** unit' + (matchCount === 1 ? '' : 's') + (desc ? ' · ' + desc : '');
     }
+    if (matchCount > 8) factsLine += ' · showing first 8';
 
-    removeTyping();
-    addMessage('ai', narrative, stocks);
-    if (assistantReply) conversation.push({ role: 'assistant', content: assistantReply });
-
+    // For conversation history, store the original spec as JSON so context flows
+    assistantReply = JSON.stringify({filter: filterSpec, sortBy, sortDir, limit, noMatch: result.noMatch, count: matchCount});
   } catch (err) {
     removeTyping();
-    addMessage('ai', '⚠️ Connection error: ' + (err.message || err) + '. Check your network and try again.');
+    addMessage('ai', "Couldn't parse that — try plain terms (e.g. 'fifth wheel under 60k with a king bed').");
+    btn.disabled = false;
+    input.focus();
+    return;
   }
+
+  removeTyping();
+  addMessage('ai', factsLine, stocks);
+  if (assistantReply) conversation.push({ role: 'assistant', content: assistantReply });
 
   btn.disabled = false;
   input.focus();
@@ -619,9 +607,9 @@ input.addEventListener('input', () => {
 // ─── WELCOME ──────────────────────────────────────────────────────────────────
 // Wait for inventoryReady so the count is real, not 0 (C2 fix)
 inventoryReady.then(() => {
-  addMessage('ai', `👋 Hey! I've got **${INVENTORY.length} units** loaded from the Texarkana lot right now.\n\nTell me what your customer is looking for — budget, family size, type of RV, features — and I'll pull the best matches. You can also ask about a specific stock number.`);
+  addMessage('ai', `**${INVENTORY.length} units** loaded. Type what the customer needs — budget, size, features, or a stock #.`);
 }).catch(() => {
-  addMessage('ai', `👋 Hey! Inventory is still loading — give me a moment, then ask away.`);
+  addMessage('ai', `Inventory still loading — give it a moment, then ask.`);
 });
 </script>
 </body>
