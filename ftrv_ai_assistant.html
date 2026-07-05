@@ -3,56 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>FTRV AI Chat — Texarkana (v9)</title>
+<title>FTRV Lot Assistant — Texarkana</title>
 <style>
 :root {
   --red: #c0392b;
-  --red2: #8b0000;
-  --dark: #0d1117;
-  --mid: #161b22;
-  --card: #1c2333;
-  --border: #30363d;
-  --text: #e6edf3;
-  --muted: #8b949e;
-  --green: #3fb950;
-  --gold: #f0b429;
-  --blue: #58a6ff;
-  --purple: #bc8cff;
-  --orange: #ffa657;
-  --teal: #39d3c3;
+  --red-soft: #e05548;
+  --bg: #0a0a0b;
+  --surface: #121214;
+  --card: #151517;
+  --border: #232327;
+  --border-hover: #3a3a40;
+  --text: #f2f2f3;
+  --muted: #8a8a93;
+  --faint: #55555e;
+  --green: #4cc38a;
+  --amber: #d4a72c;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; overflow: hidden; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: var(--dark);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  background: var(--bg);
   color: var(--text);
   display: flex;
   flex-direction: column;
   height: 100dvh;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* HEADER */
 header {
-  background: linear-gradient(135deg, var(--red), var(--red2));
-  padding: 12px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 18px;
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
-  box-shadow: 0 2px 12px rgba(0,0,0,.5);
 }
-.hicon { font-size: 1.5rem; }
+.hicon {
+  width: 4px;
+  height: 26px;
+  background: var(--red);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
 .htitle { flex: 1; }
-.htitle h1 { font-size: 1rem; font-weight: 700; letter-spacing: .3px; }
-.htitle .sub { font-size: .7rem; opacity: .75; letter-spacing: .5px; }
+.htitle h1 { font-size: .95rem; font-weight: 600; letter-spacing: .4px; }
+.htitle .sub { font-size: .62rem; color: var(--muted); letter-spacing: 2.2px; text-transform: uppercase; margin-top: 2px; }
 .hbadge {
-  background: rgba(255,255,255,.2);
-  border: 1px solid rgba(255,255,255,.3);
-  border-radius: 20px;
-  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 12px;
   font-size: .72rem;
-  font-weight: 700;
+  font-weight: 500;
+  color: var(--muted);
   white-space: nowrap;
 }
 
@@ -60,9 +65,9 @@ header {
 .chips {
   display: flex;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 12px 18px;
   overflow-x: auto;
-  background: var(--mid);
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   scrollbar-width: none;
@@ -71,27 +76,30 @@ header {
 .chip {
   flex-shrink: 0;
   padding: 6px 14px;
-  border-radius: 16px;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  background: var(--dark);
+  background: transparent;
   color: var(--muted);
-  font-size: .75rem;
+  font-size: .74rem;
   cursor: pointer;
   white-space: nowrap;
-  transition: all .15s;
+  transition: border-color .15s, color .15s;
 }
-.chip:hover, .chip:active { border-color: var(--red); color: var(--text); background: rgba(192,57,43,.15); }
+.chip:hover, .chip:active { border-color: var(--red-soft); color: var(--text); }
 
 /* CHAT */
 #chat {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   scroll-behavior: smooth;
 }
+#chat::-webkit-scrollbar { width: 8px; }
+#chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+#chat::-webkit-scrollbar-track { background: transparent; }
 
 .msg { max-width: 88%; }
 .msg.ai { align-self: flex-start; }
@@ -99,35 +107,35 @@ header {
 
 .bubble {
   padding: 10px 14px;
-  border-radius: 4px 14px 14px 14px;
-  font-size: .875rem;
+  font-size: .86rem;
   line-height: 1.55;
+  border-radius: 10px;
 }
 .msg.ai .bubble {
-  background: var(--mid);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px 14px 14px 14px;
+  color: var(--text);
 }
 .msg.user .bubble {
   background: var(--red);
-  border-radius: 14px 4px 14px 14px;
+  color: #fff;
   font-weight: 500;
 }
 .bubble strong { font-weight: 700; }
 
 /* TYPING */
-.typing { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
-.dot { width: 7px; height: 7px; background: var(--muted); border-radius: 50%; animation: bounce 1.2s infinite; }
+.typing { display: flex; gap: 4px; align-items: center; padding: 10px 12px; }
+.dot { width: 6px; height: 6px; background: var(--faint); border-radius: 50%; animation: bounce 1.2s infinite; }
 .dot:nth-child(2) { animation-delay: .2s; }
 .dot:nth-child(3) { animation-delay: .4s; }
-@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
 
 /* UNIT CARDS */
 .cards-row {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 10px;
 }
 
 .unit-card {
@@ -137,14 +145,14 @@ header {
   overflow: hidden;
   transition: border-color .15s;
 }
-.unit-card:hover { border-color: var(--red); }
+.unit-card:hover { border-color: var(--border-hover); }
 
 /* PHOTO AREA */
 .card-photo {
-  height: 160px;
+  height: 150px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #1c2333, #0d1117);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,10 +170,9 @@ header {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  opacity: .4;
 }
-.photo-placeholder .icon { font-size: 2.5rem; }
-.photo-placeholder .lbl { font-size: .7rem; color: var(--muted); }
+.photo-placeholder .icon { display: none; }
+.photo-placeholder .lbl { font-size: .68rem; color: var(--faint); letter-spacing: 1px; text-transform: uppercase; }
 .photo-overlay {
   position: absolute;
   top: 8px; left: 8px;
@@ -173,43 +180,43 @@ header {
 }
 
 /* CARD BODY */
-.card-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 9px; }
 
 .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.card-stock { font-size: 1.05rem; font-weight: 800; color: #fff; }
-.card-year { font-size: .8rem; color: var(--gold); font-weight: 600; }
+.card-stock { font-size: 1rem; font-weight: 700; color: var(--text); letter-spacing: .3px; }
+.card-year { font-size: .74rem; color: var(--muted); font-weight: 500; margin-top: 1px; }
 
-.card-model { font-size: .88rem; color: var(--text); line-height: 1.35; font-weight: 500; }
+.card-model { font-size: .87rem; color: var(--text); line-height: 1.4; font-weight: 500; }
 
 .card-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .badge {
   padding: 2px 9px;
-  border-radius: 10px;
-  font-size: .68rem;
-  font-weight: 700;
+  border-radius: 4px;
+  font-size: .62rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .4px;
+  letter-spacing: .8px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: transparent;
 }
-.b-new   { background: rgba(63,185,80,.15); color: #3fb950; border: 1px solid rgba(63,185,80,.4); }
-.b-used  { background: rgba(240,180,41,.15); color: #f0b429; border: 1px solid rgba(240,180,41,.4); }
-.b-tt    { background: rgba(88,166,255,.12); color: #58a6ff; border: 1px solid rgba(88,166,255,.3); }
-.b-fw    { background: rgba(188,140,255,.12); color: #bc8cff; border: 1px solid rgba(188,140,255,.3); }
-.b-th    { background: rgba(255,166,87,.12);  color: #ffa657; border: 1px solid rgba(255,166,87,.3); }
-.b-dt    { background: rgba(57,211,195,.12);  color: #39d3c3; border: 1px solid rgba(57,211,195,.3); }
+.b-new   { border-color: rgba(76,195,138,.4); color: var(--green); }
+.b-used  { border-color: rgba(212,167,44,.4); color: var(--amber); }
+.b-tt, .b-fw, .b-th, .b-dt { border-color: var(--border); color: var(--muted); }
 
-.card-price { font-size: 1.15rem; font-weight: 800; color: var(--green); }
-.card-price.call { color: var(--muted); font-size: .9rem; font-weight: 500; font-style: italic; }
+.card-price { font-size: 1.2rem; font-weight: 700; color: var(--green); letter-spacing: .2px; }
+.card-price.call { color: var(--muted); font-size: .85rem; font-weight: 500; }
 
 .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn-action {
   flex: 1;
-  padding: 8px 12px;
+  padding: 9px 12px;
   border-radius: 8px;
-  font-size: .78rem;
+  font-size: .76rem;
   font-weight: 600;
+  letter-spacing: .3px;
   cursor: pointer;
   text-align: center;
-  border: none;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -217,52 +224,53 @@ header {
   gap: 5px;
   transition: all .15s;
   min-width: 100px;
+  background: transparent;
 }
 .btn-view {
-  background: var(--red);
-  color: #fff;
+  border: 1px solid var(--red);
+  color: var(--red-soft);
 }
-.btn-view:hover { background: #a93226; }
+.btn-view:hover { background: var(--red); color: #fff; }
 .btn-copy {
-  background: var(--mid);
-  color: var(--text);
   border: 1px solid var(--border);
+  color: var(--muted);
 }
-.btn-copy:hover { border-color: var(--red); }
-.btn-copy.copied { background: rgba(63,185,80,.2); border-color: var(--green); color: var(--green); }
+.btn-copy:hover { border-color: var(--border-hover); color: var(--text); }
+.btn-copy.copied { border-color: rgba(76,195,138,.5); color: var(--green); }
 
 /* INPUT */
 .input-row {
   display: flex;
-  gap: 8px;
-  padding: 10px 12px;
-  background: var(--mid);
+  gap: 10px;
+  padding: 12px 18px 14px;
+  background: var(--bg);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
 #userInput {
   flex: 1;
-  background: var(--dark);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 10px;
+  padding: 11px 14px;
   color: var(--text);
   font-size: .9rem;
   outline: none;
   resize: none;
   max-height: 100px;
   font-family: inherit;
+  transition: border-color .15s;
 }
 #userInput:focus { border-color: var(--red); }
-#userInput::placeholder { color: var(--muted); }
+#userInput::placeholder { color: var(--faint); }
 #sendBtn {
   background: var(--red);
   border: none;
   color: #fff;
-  border-radius: 12px;
+  border-radius: 10px;
   width: 44px;
   height: 44px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   cursor: pointer;
   flex-shrink: 0;
   align-self: flex-end;
@@ -272,7 +280,7 @@ header {
   transition: background .15s;
 }
 #sendBtn:hover { background: #a93226; }
-#sendBtn:disabled { opacity: .4; cursor: default; }
+#sendBtn:disabled { opacity: .35; cursor: default; }
 
 @media (max-width: 480px) {
   .msg { max-width: 95%; }
@@ -283,49 +291,40 @@ header {
 <body>
 
 <header>
-  <div class="hicon">🚐</div>
+  <div class="hicon"></div>
   <div class="htitle">
     <h1>FTRV Lot Assistant</h1>
-    <div class="sub">FUN TOWN RV · TEXARKANA</div>
+    <div class="sub">Fun Town RV · Texarkana</div>
   </div>
   <div class="hbadge" id="unitBadge">— units</div>
 </header>
 
 <div class="chips" id="chips">
-  <div class="chip" onclick="ask('Family of 6 with a budget around $30k')">👨‍👩‍👧‍👦 Family $30k</div>
-  <div class="chip" onclick="ask('Couples coach, compact, under 25ft')">💑 Couples</div>
-  <div class="chip" onclick="ask('Used units under $25k')">💰 Used &lt; $25k</div>
-  <div class="chip" onclick="ask('Bunkhouse that sleeps 8 or more')">🛏 Bunks 8+</div>
+  <div class="chip" onclick="ask('Family of 6 with a budget around $30k')">Family $30k</div>
+  <div class="chip" onclick="ask('Couples coach, compact, under 25ft')">Couples</div>
+  <div class="chip" onclick="ask('Used units under $25k')">Used &lt; $25k</div>
+  <div class="chip" onclick="ask('Bunkhouse that sleeps 8 or more')">Bunks 8+</div>
   <div class="chip" onclick="ask('Fifth wheels with multiple slides')">5th w/ slides</div>
-  <div class="chip" onclick="ask('Toy haulers in stock')">🏍 Toy Haulers</div>
-  <div class="chip" onclick="ask('Lightweight travel trailers under 5000 lbs')">⚖️ Lightweight</div>
-  <div class="chip" onclick="ask('What fifth wheels are over $100k?')">💎 Premium 5th</div>
-  <div class="chip" onclick="ask('Destination trailers')">🏕 Destination</div>
-  <div class="chip" onclick="ask('What new units came in this week?')">🆕 New arrivals</div>
-  <div class="chip" onclick="ask('Show me all units with 1.5 bathrooms')">&#x1F6C1; 1.5 Bath</div>
-  <div class="chip" onclick="ask('Show me all units with 2 full bathrooms')">&#x1F6C1; 2 Bath</div>
+  <div class="chip" onclick="ask('Toy haulers in stock')">Toy Haulers</div>
+  <div class="chip" onclick="ask('Lightweight travel trailers under 5000 lbs')">Lightweight</div>
+  <div class="chip" onclick="ask('What fifth wheels are over $100k?')">Premium 5th</div>
+  <div class="chip" onclick="ask('Destination trailers')">Destination</div>
+  <div class="chip" onclick="ask('What new units came in this week?')">New arrivals</div>
+  <div class="chip" onclick="ask('Show me all units with 1.5 bathrooms')">1.5 Bath</div>
+  <div class="chip" onclick="ask('Show me all units with 2 full bathrooms')">2 Bath</div>
 </div>
 
 <div id="chat"></div>
 
 <div class="input-row">
-  <textarea id="userInput" placeholder="Ask about a customer's needs, stock number, budget..." rows="1"></textarea>
-  <button id="sendBtn" onclick="sendMsg()">➤</button>
+  <textarea id="userInput" placeholder="What does the customer need — budget, size, features, stock #" rows="1"></textarea>
+  <button id="sendBtn" onclick="sendMsg()">→</button>
 </div>
 
 <script src="ftrv_shared.js?v=20260705b"></script>
 <script>
 // ─── INVENTORY ───────────────────────────────────────────────────────────────
-// (Legacy RAW array kept for fallback only — actual inventory comes from arklatexrv.com/inventory.json via inventoryReady in ftrv_shared.js)
-
-// URL_MAP, layout detection, BATHS, inventory loader, /api/chat caller → ftrv_shared.js
-
-
-// INVENTORY is built inside loadInventory() after the fetch resolves.
-// Both INVENTORY and FTRV_DATA are populated by inventoryReady; await it before any query.
-
-
-// API key is stored server-side in server.py — not needed here (proxy handles auth)
+// Inventory comes from arklatexrv.com/inventory.json via inventoryReady in ftrv_shared.js
 
 // SYSTEM_TEMPLATE, BOOL_FILTER_FIELDS, applyFilterSpec, applySort → ftrv_shared.js
 
@@ -358,8 +357,8 @@ function renderCards(stocks) {
       ? `<div class="card-price call">Call for Price</div>`
       : `<div class="card-price">${u.price}</div>`;
     const photoHTML = u.photoUrl
-      ? '<img src="' + u.photoUrl + '" alt="' + u.brandModel.replace(/"/g,'&quot;') + '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=&quot;photo-placeholder&quot;><div class=&quot;icon&quot;>\u{1F690}</div></div>\'">'
-      : '<div class="photo-placeholder"><div class="icon">🚐</div><div class="lbl">No photo available</div></div>';
+      ? '<img src="' + u.photoUrl + '" alt="' + u.brandModel.replace(/"/g,'&quot;') + '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=&quot;photo-placeholder&quot;><div class=&quot;lbl&quot;>No photo</div></div>\'">'
+      : '<div class="photo-placeholder"><div class="lbl">No photo</div></div>';
 
     return `<div class="unit-card">
       <div class="card-photo">
@@ -378,12 +377,12 @@ function renderCards(stocks) {
         <div class="card-model">${u.brandModel}</div>
         <div class="card-badges">
           <span class="badge ${typeBadgeClass(u.type)}">${typeShort(u.type)}</span>
-          ${u.layout ? `<span class="badge" style="background:rgba(255,166,87,.1);color:#ffa657;border:1px solid rgba(255,166,87,.3)">${u.layout}</span>` : ''}
+          ${u.layout ? `<span class="badge">${u.layout}</span>` : ''}
         </div>
         ${priceHTML}
         <div class="card-actions">
-          ${u.detailUrl ? `<button class="btn-action btn-view" onclick="showFloorplan('${u.stock}','${u.detailUrl}')">🗺️ Floor Plan</button>` : `<a class="btn-action btn-view" href="https://www.funtownrv.com/rv-search?s=true&lots=1695&q=${encodeURIComponent(u.stock)}" target="_blank">🔍 Search Unit</a>`}
-          <button class="btn-action btn-copy" onclick="copyStock(this, '${u.stock}')">📋 Copy #${u.stock}</button>
+          ${u.detailUrl ? `<button class="btn-action btn-view" onclick="showFloorplan('${u.stock}','${u.detailUrl}')">Floor Plan</button>` : `<a class="btn-action btn-view" href="https://www.funtownrv.com/rv-search?s=true&lots=1695&q=${encodeURIComponent(u.stock)}" target="_blank">Search Unit</a>`}
+          <button class="btn-action btn-copy" onclick="copyStock(this, '${u.stock}')">Copy #${u.stock}</button>
         </div>
       </div>
     </div>`;
@@ -394,10 +393,10 @@ function renderCards(stocks) {
 
 function copyStock(btn, stock) {
   navigator.clipboard.writeText(stock).catch(() => {});
-  btn.textContent = '✅ Copied!';
+  btn.textContent = 'Copied';
   btn.classList.add('copied');
   setTimeout(() => {
-    btn.textContent = '📋 Copy #' + stock;
+    btn.textContent = 'Copy #' + stock;
     btn.classList.remove('copied');
   }, 1800);
 }
@@ -418,23 +417,23 @@ function showFloorplan(stock, productUrl) {
         <div id="fp-header">
           <span id="fp-title"></span>
           <div style="display:flex;gap:8px;align-items:center">
-            <a id="fp-link" href="#" target="_blank" style="font-size:.75rem;color:#58a6ff;text-decoration:none">Open on funtownrv.com ↗</a>
-            <button onclick="closeFpModal()" style="background:none;border:none;color:#8b949e;font-size:1.4rem;cursor:pointer;line-height:1">×</button>
+            <a id="fp-link" href="#" target="_blank" style="font-size:.75rem;color:#8a8a93;text-decoration:none">Open on funtownrv.com ↗</a>
+            <button onclick="closeFpModal()" style="background:none;border:none;color:#8a8a93;font-size:1.4rem;cursor:pointer;line-height:1">×</button>
           </div>
         </div>
         <div id="fp-body">
           <div id="fp-spinner">Loading floor plan…</div>
           <img id="fp-img" style="display:none;max-width:100%;max-height:70vh;border-radius:6px" />
-          <div id="fp-err" style="display:none;color:#8b949e;text-align:center;padding:24px">Floor plan image not available for this unit.<br><br><a href="#" id="fp-fallback" target="_blank" style="color:#58a6ff">View full listing ↗</a></div>
+          <div id="fp-err" style="display:none;color:#8a8a93;text-align:center;padding:24px">Floor plan image not available for this unit.<br><br><a href="#" id="fp-fallback" target="_blank" style="color:#e05548">View full listing ↗</a></div>
         </div>
       </div>`;
     modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center';
     document.body.appendChild(modal);
-    document.getElementById('fp-backdrop').style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.75)';
-    document.getElementById('fp-box').style.cssText = 'position:relative;background:#1c2333;border:1px solid #30363d;border-radius:12px;width:min(600px,95vw);max-height:90vh;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px';
+    document.getElementById('fp-backdrop').style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.8)';
+    document.getElementById('fp-box').style.cssText = 'position:relative;background:#151517;border:1px solid #232327;border-radius:12px;width:min(600px,95vw);max-height:90vh;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px';
     document.getElementById('fp-header').style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px';
-    document.getElementById('fp-title').style.cssText = 'font-weight:700;font-size:.95rem;color:#e6edf3';
-    document.getElementById('fp-spinner').style.cssText = 'text-align:center;padding:32px;color:#8b949e';
+    document.getElementById('fp-title').style.cssText = 'font-weight:600;font-size:.95rem;color:#f2f2f3';
+    document.getElementById('fp-spinner').style.cssText = 'text-align:center;padding:32px;color:#8a8a93';
   }
 
   // Set title/link
@@ -516,8 +515,6 @@ function removeTyping() {
 // Facts-only output (Steve, 2026-07-05: "no explaining no words just facts and
 // results"). The AI is ONLY a query translator; the bubble text is built
 // deterministically from the executed filter — count + describeFilterSpec.
-// The old Layer-3 "narrative enrichment" second AI call is gone: it produced
-// multi-sentence salesy briefings that named units and buried the results.
 async function sendMsg() {
   const input = document.getElementById('userInput');
   const btn = document.getElementById('sendBtn');
