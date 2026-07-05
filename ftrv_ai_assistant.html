@@ -552,7 +552,7 @@ async function sendMsg() {
     if (sortBy) list = applySort(list, sortBy, sortDir);
     if (limit) list = list.slice(0, limit);
     matchCount = list.length;
-    stocks = list.slice(0, 8).map(u => u.stock);
+    stocks = list.map(u => u.stock);  // no cap — Steve 2026-07-05: show ALL matches
 
     const desc = describeFilterSpec(filterSpec, sortBy, sortDir, limit);
     if (result.noMatch) {
@@ -563,7 +563,6 @@ async function sendMsg() {
     } else {
       factsLine = '**' + matchCount + '** unit' + (matchCount === 1 ? '' : 's') + (desc ? ' · ' + desc : '');
     }
-    if (matchCount > 8) factsLine += ' · showing first 8';
 
     // For conversation history, store the original spec as JSON so context flows
     assistantReply = JSON.stringify({filter: filterSpec, sortBy, sortDir, limit, noMatch: result.noMatch, count: matchCount});
