@@ -372,6 +372,16 @@ function describeFilterSpec(spec, sortBy, sortDir, limit) {
   if (spec.maxPrice != null) parts.push('≤$' + spec.maxPrice.toLocaleString());
   if (spec.minPrice != null) parts.push('≥$' + spec.minPrice.toLocaleString());
   if (spec.maxWt != null) parts.push('≤' + spec.maxWt.toLocaleString() + ' lb dry');
+  if (spec.minWt != null) parts.push('≥' + spec.minWt.toLocaleString() + ' lb dry');
+  if (spec.maxLen != null) parts.push('≤' + spec.maxLen + ' ft');
+  if (spec.minLen != null) parts.push('≥' + spec.minLen + ' ft');
+  if (spec.slidesEq != null) parts.push(spec.slidesEq + ' slides');
+  if (spec.minSlides != null) parts.push(spec.minSlides + '+ slides');
+  if (spec.maxSlides != null) parts.push('≤' + spec.maxSlides + ' slides');
+  if (spec.minBunks != null) parts.push(spec.minBunks + '+ bunks');
+  if (spec.maxGvwr != null) parts.push('≤' + spec.maxGvwr.toLocaleString() + ' GVWR');
+  if (spec.minGvwr != null) parts.push('≥' + spec.minGvwr.toLocaleString() + ' GVWR');
+  if (spec.maxHitchWt != null) parts.push('≤' + spec.maxHitchWt.toLocaleString() + ' lb hitch');
   if (spec.minSlp != null) parts.push('sleeps ' + spec.minSlp + '+');
   if (spec.minBths != null) parts.push(spec.minBths + '+ baths');
   if (spec.minGarage != null) parts.push(spec.minGarage + 'ft+ garage');
