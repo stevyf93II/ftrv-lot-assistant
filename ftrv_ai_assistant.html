@@ -321,7 +321,7 @@ header {
   <button id="sendBtn" onclick="sendMsg()">→</button>
 </div>
 
-<script src="ftrv_shared.js?v=20260705f"></script>
+<script src="ftrv_shared.js?v=20260705g"></script>
 <script>
 // ─── INVENTORY ───────────────────────────────────────────────────────────────
 // Inventory comes from arklatexrv.com/inventory.json via inventoryReady in ftrv_shared.js
@@ -565,6 +565,7 @@ async function sendMsg() {
       const v = fb.dropped_value;
       let reason;
       if (d === 'maxPrice')       reason = 'over the ' + (v ? '$' + v.toLocaleString() : 'price') + ' cap';
+      else if (d === 'maxMonthly') reason = 'over the ' + (v ? '$' + v.toLocaleString() + '/mo' : 'monthly payment') + ' cap';
       else if (d === 'maxWt')     reason = 'over the ' + (v ? v.toLocaleString() + ' lb' : 'weight') + ' cap';
       else if (d === 'maxLen')    reason = 'over the ' + (v ? v + ' ft' : 'length') + ' cap';
       else if (d === 'minSlp')    reason = 'sleeping fewer than ' + (v || 'asked');
