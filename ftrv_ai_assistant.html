@@ -123,6 +123,15 @@ header {
 }
 .bubble strong { font-weight: 700; }
 
+/* NEAR-MISS DIVIDER */
+.nearmiss-label {
+  font-size: .72rem;
+  color: var(--muted);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin: 10px 0 -4px;
+}
+
 /* TYPING */
 .typing { display: flex; gap: 4px; align-items: center; padding: 10px 12px; }
 .dot { width: 6px; height: 6px; background: var(--faint); border-radius: 50%; animation: bounce 1.2s infinite; }
@@ -321,7 +330,7 @@ header {
   <button id="sendBtn" onclick="sendMsg()">→</button>
 </div>
 
-<script src="ftrv_shared.js?v=20260706a"></script>
+<script src="ftrv_shared.js?v=20260711a"></script>
 <script>
 // ─── INVENTORY ───────────────────────────────────────────────────────────────
 // Inventory comes from arklatexrv.com/inventory.json via inventoryReady in ftrv_shared.js
@@ -478,7 +487,7 @@ function closeFpModal() {
   if (m) m.style.display = 'none';
 }
 
-function addMessage(role, text, stocks = []) {
+function addMessage(role, text, stocks = [], extraStocks = [], extraLabel = '') {
   const chat = document.getElementById('chat');
   const div = document.createElement('div');
   div.className = `msg ${role}`;
@@ -489,6 +498,10 @@ function addMessage(role, text, stocks = []) {
 
   let inner = `<div class="bubble">${formatted}</div>`;
   if (stocks.length) inner += renderCards(stocks);
+  if (extraStocks.length) {
+    if (extraLabel) inner += `<div class="nearmiss-label">${extraLabel}</div>`;
+    inner += renderCards(extraStocks);
+  }
 
   div.innerHTML = inner;
   chat.appendChild(div);
@@ -511,10 +524,34 @@ function removeTyping() {
   if (t) t.remove();
 }
 
+// ─── PLAIN-ENGLISH DROP REASON ────────────────────────────────────────────────
+// (Steve 2026-07-05: no code words like maxPrice in the facts line)
+function dropReason(fb) {
+  const d = String(fb.dropped);
+  const v = fb.dropped_value;
+  if (d === 'maxPrice')       return 'over the ' + (v ? '$' + v.toLocaleString() : 'price') + ' cap';
+  if (d === 'maxMonthly')     return 'over the ' + (v ? '$' + v.toLocaleString() + '/mo' : 'monthly payment') + ' cap';
+  if (d === 'maxWt')          return 'over the ' + (v ? v.toLocaleString() + ' lb' : 'weight') + ' cap';
+  if (d === 'maxLen')         return 'over the ' + (v ? v + ' ft' : 'length') + ' cap';
+  if (d === 'minSlp')         return 'sleeping fewer than ' + (v || 'asked');
+  if (d === 'minBths')        return 'with fewer baths';
+  if (d === 'minGarage')      return 'with a shorter garage';
+  if (d === 'elecAmp')        return 'ignoring the amp requirement';
+  if (d === 'hitch')          return 'ignoring hitch type';
+  if (d === 'type')           return 'ignoring RV type';
+  if (d === 'condition')      return 'ignoring new/used';
+  if (d.indexOf('feature ') === 0) return 'without ' + d.slice(8);
+  if (d.indexOf('flag ') === 0)    return 'without ' + d.slice(5).replace(/_/g, ' ');
+  return 'ignoring ' + d.replace(/_/g, ' ');
+}
+
 // ─── SEND ─────────────────────────────────────────────────────────────────────
 // Facts-only output (Steve, 2026-07-05: "no explaining no words just facts and
-// results"). The AI is ONLY a query translator; the bubble text is built
-// deterministically from the executed filter — count + describeFilterSpec.
+// results"; 2026-07-11: AI narrative removed entirely — spec-only translator).
+// The bubble text is built deterministically from the executed filter —
+// count + describeFilterSpec. Near-miss tier (2026-07-11): whenever strict
+// matches come back under 4, show them PLUS the best single-drop expansion,
+// labeled with the plain-English reason.
 async function sendMsg() {
   const input = document.getElementById('userInput');
   const btn = document.getElementById('sendBtn');
@@ -531,7 +568,7 @@ async function sendMsg() {
   conversation.push({ role: 'user', content: text });
   showTyping();
 
-  let factsLine = '', stocks = [], matchCount = 0;
+  let factsLine = '', stocks = [], extraStocks = [], extraLabel = '', matchCount = 0;
   let assistantReply = '';
 
   try {
@@ -548,41 +585,40 @@ async function sendMsg() {
       const res = applyFilterSpecWithFallback(filterSpec, INVENTORY);
       list = res.units;
       fb = res.fallback;
+      // Limit queries ("cheapest bunkhouse", "top 3") asked for exactly N —
+      // a near-miss expansion is noise there. Keep it only for the zero case.
+      if (fb && fb.strict_count > 0 && limit) fb = null;
     }
     if (sortBy) list = applySort(list, sortBy, sortDir);
     if (limit) list = list.slice(0, limit);
     matchCount = list.length;
-    // Real matches: show ALL (Steve 2026-07-05). Fallback near-misses: cap at 8
-    // — they didn't meet the ask; a wall of 95 cards is noise, not results.
-    stocks = (fb ? list.slice(0, 8) : list).map(u => u.stock);
 
     const desc = describeFilterSpec(filterSpec, sortBy, sortDir, limit);
     if (result.noMatch) {
       factsLine = '**0 units**';
-    } else if (fb) {
-      // Plain-English near-miss line (Steve 2026-07-05: no code words like maxPrice)
-      const d = String(fb.dropped);
-      const v = fb.dropped_value;
-      let reason;
-      if (d === 'maxPrice')       reason = 'over the ' + (v ? '$' + v.toLocaleString() : 'price') + ' cap';
-      else if (d === 'maxMonthly') reason = 'over the ' + (v ? '$' + v.toLocaleString() + '/mo' : 'monthly payment') + ' cap';
-      else if (d === 'maxWt')     reason = 'over the ' + (v ? v.toLocaleString() + ' lb' : 'weight') + ' cap';
-      else if (d === 'maxLen')    reason = 'over the ' + (v ? v + ' ft' : 'length') + ' cap';
-      else if (d === 'minSlp')    reason = 'sleeping fewer than ' + (v || 'asked');
-      else if (d === 'minBths')   reason = 'with fewer baths';
-      else if (d === 'minGarage') reason = 'with a shorter garage';
-      else if (d === 'elecAmp')   reason = 'ignoring the amp requirement';
-      else if (d === 'hitch')     reason = 'ignoring hitch type';
-      else if (d === 'type')      reason = 'ignoring RV type';
-      else if (d === 'condition') reason = 'ignoring new/used';
-      else if (d.indexOf('feature ') === 0) reason = 'without ' + d.slice(8);
-      else if (d.indexOf('flag ') === 0)    reason = 'without ' + d.slice(5).replace(/_/g, ' ');
-      else reason = 'ignoring ' + d.replace(/_/g, ' ');
+      stocks = [];
+    } else if (fb && fb.strict_count === 0) {
+      // 0 exact: units IS the relaxed list (legacy contract). Cap at 8 —
+      // they didn't meet the ask; a wall of 95 cards is noise, not results.
+      stocks = list.slice(0, 8).map(u => u.stock);
       const shown = Math.min(matchCount, 8);
-      factsLine = '**0** exact — closest ' + shown + ' of **' + matchCount + '** (' + reason + ')' + (desc ? ' · ' + desc : '');
+      factsLine = '**0** exact — closest ' + shown + ' of **' + matchCount + '** (' + dropReason(fb) + ')' + (desc ? ' · ' + desc : '');
+    } else if (fb) {
+      // 1-3 exact: show ALL strict matches, then the near-miss tier (cap 8).
+      stocks = list.map(u => u.stock);
+      let extras = fb.extra_units || [];
+      if (sortBy) extras = applySort(extras, sortBy, sortDir);
+      const extraTotal = extras.length;
+      extras = extras.slice(0, 8);
+      extraStocks = extras.map(u => u.stock);
+      extraLabel = extraTotal + ' more ' + dropReason(fb) + (extraTotal > 8 ? ' — first 8' : '');
+      factsLine = '**' + matchCount + '** exact · **' + extraTotal + '** more (' + dropReason(fb) + ')' + (desc ? ' · ' + desc : '');
     } else {
+      // 4+ matches (or no useful relaxation): show ALL (Steve 2026-07-05).
+      stocks = list.map(u => u.stock);
       factsLine = '**' + matchCount + '** unit' + (matchCount === 1 ? '' : 's') + (desc ? ' · ' + desc : '');
     }
+    if (result.note) factsLine += (factsLine ? ' · ' : '') + result.note;
 
     // For conversation history, store the original spec as JSON so context flows
     assistantReply = JSON.stringify({filter: filterSpec, sortBy, sortDir, limit, noMatch: result.noMatch, count: matchCount});
@@ -595,7 +631,7 @@ async function sendMsg() {
   }
 
   removeTyping();
-  addMessage('ai', factsLine, stocks);
+  addMessage('ai', factsLine, stocks, extraStocks, extraLabel);
   if (assistantReply) conversation.push({ role: 'assistant', content: assistantReply });
 
   btn.disabled = false;
